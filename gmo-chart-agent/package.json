@@ -1,0 +1,19 @@
+{
+  "name": "gmo-chart-agent",
+  "version": "1.0.0",
+  "description": "AI-powered chart recommendation tool for GMO reports with file upload capability",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": ["chart", "ai", "claude", "highcharts", "excel", "csv"],
+  "author": "Pattrn Studios",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "multer": "^1.4.5-lts.1",
+    "xlsx": "^0.18.5"
+  }
+}

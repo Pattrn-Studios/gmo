@@ -1,0 +1,12 @@
+{
+  "name": "gmo-builder",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node build-slide.mjs",
+    "dev": "node build-slide.mjs && open output/index.html"
+  },
+  "dependencies": {
+    "@sanity/client": "^6.0.0"
+  }
+}
