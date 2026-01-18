@@ -3,8 +3,19 @@ const express = require('express');
 const multer = require('multer');
 const xlsx = require('xlsx');
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
+
+// Configure CORS to allow Sanity Studio access
+app.use(cors({
+  origin: [
+    'http://localhost:3333', // Sanity Studio dev
+    'https://gmo-prototype.sanity.studio', // Sanity Studio production
+    /\.sanity\.studio$/ // Allow all Sanity Studio domains
+  ],
+  credentials: true
+}));
 
 // GMO Brand Colors (from design tokens)
 const GMO_COLORS = {
@@ -137,7 +148,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 // Initial analysis endpoint
 app.post('/api/analyse', async (req, res) => {
   const { csvData } = req.body;
-  
+
   if (!csvData) {
     return res.status(400).json({ error: 'No data provided' });
   }
@@ -145,7 +156,7 @@ app.post('/api/analyse', async (req, res) => {
   try {
     const prompt = `You are a chart recommendation assistant for AXA Investment Managers' Global Market Outlook reports using Highcharts.
 
-Analyse this CSV data and recommend the best chart configuration.
+Analyse this CSV data and recommend the BEST chart configuration, plus 2-3 viable alternative chart types.
 
 DATA:
 ${csvData}
@@ -160,21 +171,39 @@ CRITICAL: Respond with ONLY valid JSON in this exact format, no other text, no m
   "xAxisLabel": "Label for X axis",
   "yAxisLabel": "Label for Y axis",
   "yAxisFormat": "number",
-  "reasoning": "Brief explanation of why this chart type"
+  "reasoning": "Brief explanation of why this chart type",
+  "alternatives": [
+    {
+      "chartType": "column",
+      "series": [{"label": "Display Name", "dataColumn": "csv_column_name", "colour": "#hexcode"}],
+      "xAxisLabel": "Label for X axis",
+      "yAxisLabel": "Label for Y axis",
+      "yAxisFormat": "number",
+      "reasoning": "Why this alternative works"
+    }
+  ]
 }
 
-RULES:
+RULES FOR MAIN RECOMMENDATION:
 - Time series with 1-3 numeric columns → "line"
 - Time series with 4+ columns → "line" (highlight key series)
 - Categories under 7 items → "column" (vertical bar)
 - Categories 7+ items → "bar" (horizontal)
 - Part of whole data → stacked column or area
-- chartType must be one of: "line", "column", "bar", "area"
+- chartType must be one of: "line", "column", "bar", "area", "stackedColumn", "stackedArea"
 - yAxisFormat must be one of: "number", "percent", "currency"
 - First column is usually the x-axis (dates or categories)
 
+RULES FOR ALTERNATIVES (provide 2-3 alternatives):
+- Suggest different chart types that could also work with this data
+- For time series: if main is "line", alternatives could be "area", "column"
+- For categories: if main is "column", alternatives could be "bar", "line"
+- For part-to-whole: suggest both stacked and non-stacked versions
+- Each alternative should have the SAME series, xAxisLabel, and yAxisLabel as the main recommendation
+- Only change the chartType and update the reasoning to explain why this alternative could work
+
 BRAND COLOR PALETTE (GMO / AXA IM):
-Use these colors IN ORDER for data series:
+Use these colors IN ORDER for data series (same for main and all alternatives):
 1. #3E7274 (Primary Green - GMO brand color)
 2. #3D748F (Coast Blue)
 3. #AC5359 (Metallic Copper)
@@ -188,6 +217,7 @@ IMPORTANT:
 - Second series gets #3D748F (blue)
 - Third series gets #AC5359 (copper), etc.
 - These are the ONLY approved brand colors
+- Use the SAME colors for each series across main and alternatives
 
 DO NOT include any text before or after the JSON. DO NOT wrap in markdown code blocks.`;
 

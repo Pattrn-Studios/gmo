@@ -49,16 +49,13 @@ export default async function handler(req, res) {
           subtitle,
           content,
           hasChart,
-          chartType,
-          chartData,
-          chartSeries[] {
-            label,
-            dataColumn,
-            colour
-          },
-          xAxisLabel,
-          yAxisLabel,
-          yAxisFormat,
+          // Read from nested chartConfig structure
+          "chartType": chartConfig.chartType,
+          "chartData": chartConfig.chartData,
+          "chartSeries": chartConfig.chartSeries,
+          "xAxisLabel": chartConfig.xAxisLabel,
+          "yAxisLabel": chartConfig.yAxisLabel,
+          "yAxisFormat": chartConfig.yAxisFormat,
           chartSource,
           layout
         }
