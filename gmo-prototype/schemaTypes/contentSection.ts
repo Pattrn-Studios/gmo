@@ -1,6 +1,7 @@
 // schemaTypes/contentSection.ts
 
 import {defineType, defineField, defineArrayMember} from 'sanity'
+import {ChartBuilderInput} from '../components/ChartBuilder/ChartBuilderInput'
 
 export const contentSection = defineType({
   name: 'contentSection',
@@ -15,7 +16,7 @@ export const contentSection = defineType({
       description: 'Main section heading',
       validation: (Rule: any) => Rule.required().max(100),
     }),
-    
+
     defineField({
       name: 'subtitle',
       title: 'Subtitle',
@@ -23,7 +24,7 @@ export const contentSection = defineType({
       description: 'Supporting text under the title',
       validation: (Rule: any) => Rule.max(200),
     }),
-    
+
     defineField({
       name: 'content',
       title: 'Content',
@@ -43,7 +44,7 @@ export const contentSection = defineType({
       ],
       description: 'Main content - use bullet points for key insights',
     }),
-    
+
     // CHART TOGGLE
     defineField({
       name: 'hasChart',
@@ -53,131 +54,38 @@ export const contentSection = defineType({
       initialValue: false,
     }),
 
-    // CHART TYPE
+    // NEW: Chart Builder Component (replaces individual chart fields)
     defineField({
-      name: 'chartType',
-      title: 'Chart Type',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Line Chart', value: 'line'},
-          {title: 'Column Chart (Vertical)', value: 'column'},
-          {title: 'Bar Chart (Horizontal)', value: 'bar'},
-          {title: 'Area Chart', value: 'area'},
-          {title: 'Stacked Column', value: 'stackedColumn'},
-          {title: 'Stacked Area', value: 'stackedArea'},
-        ],
-        layout: 'dropdown',
+      name: 'chartConfig',
+      title: 'Chart Configuration',
+      type: 'object',
+      description: 'Upload an Excel or CSV file to generate a chart with AI-powered recommendations',
+      hidden: ({parent}: any) => !parent?.hasChart,
+      components: {
+        input: ChartBuilderInput
       },
-      initialValue: 'line',
-      hidden: ({parent}: any) => !parent?.hasChart,
-    }),
-    
-    // CHART DATA (CSV)
-    defineField({
-      name: 'chartData',
-      title: 'Chart Data (CSV)',
-      type: 'text',
-      description: 'Paste CSV data. First row = headers, first column = x-axis. From Chart Agent JSON, copy the "chartData" value.',
-      placeholder: `date,series1,series2
-2024-01,100,150
-2024-02,110,160
-2024-03,120,170`,
-      rows: 10,
-      hidden: ({parent}: any) => !parent?.hasChart,
-    }),
-    
-    // CHART SERIES
-    defineField({
-      name: 'chartSeries',
-      title: 'Data Series',
-      type: 'array',
-      description: 'Add one item per data series from Chart Agent JSON. Data Column must exactly match CSV header (case-sensitive).',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'seriesItem',
-          title: 'Series',
-          fields: [
-            defineField({
-              name: 'label',
-              title: 'Label',
-              type: 'string',
-              description: 'Display name in legend',
-              validation: (Rule: any) => Rule.required(),
-            }),
-            defineField({
-              name: 'dataColumn',
-              title: 'Data Column',
-              type: 'string',
-              description: 'Must match a column name from your CSV',
-              validation: (Rule: any) => Rule.required(),
-            }),
-            defineField({
-              name: 'colour',
-              title: 'Color',
-              type: 'string',
-              options: {
-                list: [
-                  {title: 'Primary Green', value: '#3E7274'},
-                  {title: 'Coast Blue', value: '#3D748F'},
-                  {title: 'Metallic Copper', value: '#AC5359'},
-                  {title: 'Orange', value: '#F1875A'},
-                  {title: 'Light Green', value: '#76BCA3'},
-                  {title: 'Dark Blue', value: '#132728'},
-                ],
-                layout: 'dropdown',
-              },
-              initialValue: '#3E7274',
-            }),
-          ],
-          preview: {
-            select: {
-              title: 'label',
-              subtitle: 'dataColumn',
-            },
-          },
+      fields: [
+        defineField({name: 'chartType', type: 'string'}),
+        defineField({name: 'chartData', type: 'text'}),
+        defineField({
+          name: 'chartSeries',
+          type: 'array',
+          of: [{
+            type: 'object',
+            fields: [
+              {name: 'label', type: 'string'},
+              {name: 'dataColumn', type: 'string'},
+              {name: 'colour', type: 'string'}
+            ]
+          }]
         }),
-      ],
-      hidden: ({parent}: any) => !parent?.hasChart,
+        defineField({name: 'xAxisLabel', type: 'string'}),
+        defineField({name: 'yAxisLabel', type: 'string'}),
+        defineField({name: 'yAxisFormat', type: 'string'}),
+      ]
     }),
-    
-    // X-AXIS LABEL
-    defineField({
-      name: 'xAxisLabel',
-      title: 'X-Axis Label',
-      type: 'string',
-      description: 'Label for horizontal axis (leave blank to hide)',
-      hidden: ({parent}: any) => !parent?.hasChart,
-    }),
-    
-    // Y-AXIS LABEL
-    defineField({
-      name: 'yAxisLabel',
-      title: 'Y-Axis Label',
-      type: 'string',
-      description: 'Label for vertical axis (leave blank to hide)',
-      hidden: ({parent}: any) => !parent?.hasChart,
-    }),
-    
-    // Y-AXIS FORMAT
-    defineField({
-      name: 'yAxisFormat',
-      title: 'Y-Axis Format',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Number (1,234)', value: 'number'},
-          {title: 'Percentage (12.5%)', value: 'percent'},
-          {title: 'Currency ($1,234)', value: 'currency'},
-        ],
-        layout: 'dropdown',
-      },
-      initialValue: 'number',
-      hidden: ({parent}: any) => !parent?.hasChart,
-    }),
-    
-    // CHART SOURCE
+
+    // CHART SOURCE (Remains separate - not part of AI analysis)
     defineField({
       name: 'chartSource',
       title: 'Chart Source',
@@ -185,8 +93,8 @@ export const contentSection = defineType({
       description: 'Data source attribution (e.g., "Bloomberg, December 2025")',
       hidden: ({parent}: any) => !parent?.hasChart,
     }),
-    
-    // LAYOUT
+
+    // LAYOUT (Remains separate - user choice after chart creation)
     defineField({
       name: 'layout',
       title: 'Layout',
@@ -199,7 +107,7 @@ export const contentSection = defineType({
         ],
         layout: 'radio',
       },
-      initialValue: 'chartLeft',
+      initialValue: 'chartRight',
       hidden: ({parent}: any) => !parent?.hasChart,
     }),
   ],
