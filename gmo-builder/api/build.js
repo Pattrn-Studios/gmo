@@ -52,7 +52,7 @@ export default async function handler(req, res) {
           // Read from nested chartConfig structure
           "chartType": chartConfig.chartType,
           "chartData": chartConfig.chartData,
-          "chartSeries": chartConfig.chartSeries,
+          "chartSeries": chartConfig.chartSeries[] { label, dataColumn, colour },
           "xAxisLabel": chartConfig.xAxisLabel,
           "yAxisLabel": chartConfig.yAxisLabel,
           "yAxisFormat": chartConfig.yAxisFormat,
