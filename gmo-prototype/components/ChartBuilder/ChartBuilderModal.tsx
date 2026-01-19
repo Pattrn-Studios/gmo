@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { FileUploadArea } from './FileUploadArea';
 import { ChartPreview } from './ChartPreview';
 import { AlternativesThumbnails } from './AlternativesThumbnails';
@@ -76,7 +77,7 @@ export function ChartBuilderModal({ initialValue, onSave, onCancel }: Props) {
     });
   };
 
-  return (
+  return createPortal(
     <ModalOverlay onClick={onCancel}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
@@ -134,6 +135,7 @@ export function ChartBuilderModal({ initialValue, onSave, onCancel }: Props) {
           </Button>
         </ModalFooter>
       </ModalContent>
-    </ModalOverlay>
+    </ModalOverlay>,
+    document.body
   );
 }
