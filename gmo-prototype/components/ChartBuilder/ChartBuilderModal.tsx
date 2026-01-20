@@ -23,10 +23,25 @@ interface Props {
 }
 
 export function ChartBuilderModal({ initialValue, onSave, onCancel }: Props) {
+  // Helper to reconstruct recommendation from saved value
+  const getInitialRecommendation = (): ChartRecommendation | null => {
+    if (initialValue?.chartType && initialValue?.chartSeries?.length) {
+      return {
+        chartType: initialValue.chartType as ChartRecommendation['chartType'],
+        series: initialValue.chartSeries,
+        xAxisLabel: initialValue.xAxisLabel || '',
+        yAxisLabel: initialValue.yAxisLabel || '',
+        yAxisFormat: (initialValue.yAxisFormat as ChartRecommendation['yAxisFormat']) || 'number',
+        reasoning: 'Previously saved configuration',
+      };
+    }
+    return null;
+  };
+
   const [csvData, setCsvData] = useState<string | null>(initialValue?.chartData || null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mainRecommendation, setMainRecommendation] = useState<ChartRecommendation | null>(null);
+  const [mainRecommendation, setMainRecommendation] = useState<ChartRecommendation | null>(getInitialRecommendation());
   const [alternatives, setAlternatives] = useState<ChartRecommendation[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
