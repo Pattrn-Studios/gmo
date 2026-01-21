@@ -1,7 +1,20 @@
 import { createClient } from '@sanity/client';
-import { renderAllCharts } from '../lib/pdf/chart-renderer.js';
-import { generatePDF } from '../lib/pdf/pdf-generator.js';
-import { getLayoutOptimization, getDefaultLayoutHints } from '../lib/pdf/layout-optimizer.js';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
+import PDFDocument from 'pdfkit';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Font paths - relative to API directory
+const FONTS_DIR = path.join(__dirname, '..', 'lib', 'pdf', 'fonts');
+const FONTS = {
+  light: path.join(FONTS_DIR, 'bnpp-sans-light.ttf'),
+  condensedBold: path.join(FONTS_DIR, 'bnpp-sans-cond-bold-v2.ttf'),
+};
 
 const client = createClient({
   projectId: 'mb7v1vpy',
@@ -20,6 +33,12 @@ const GMO_COLORS = {
   textPrimary: '#1A1A1A',
   textSecondary: '#5F5F5F',
 };
+
+// PDF dimensions
+const PAGE_WIDTH = 841.89;
+const PAGE_HEIGHT = 595.28;
+const MARGIN = 50;
+const CONTENT_WIDTH = PAGE_WIDTH - (MARGIN * 2);
 
 /**
  * Fetch a specific report by ID from Sanity
@@ -115,7 +134,6 @@ function buildChartConfig(section) {
 
   const isStacked = section.chartType?.includes('stacked');
 
-  // Y-axis formatter as string for serialization
   let yAxisFormatter;
   if (section.yAxisFormat === 'percent') {
     yAxisFormatter = 'percent';
@@ -165,6 +183,418 @@ function buildChartConfig(section) {
 }
 
 /**
+ * Render a chart to PNG using Puppeteer
+ */
+async function renderChartToPNG(chartConfig, options = {}) {
+  const { width = 700, height = 400 } = options;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <script src="https://code.highcharts.com/highcharts.js"></script>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: white; }
+        #chart { width: ${width}px; height: ${height}px; }
+      </style>
+    </head>
+    <body>
+      <div id="chart"></div>
+      <script>
+        const config = ${JSON.stringify(chartConfig)};
+        if (config.plotOptions) {
+          if (config.plotOptions.series) {
+            config.plotOptions.series.animation = false;
+          }
+        }
+        config.chart = config.chart || {};
+        config.chart.animation = false;
+
+        Highcharts.chart('chart', config);
+        window.chartReady = true;
+      </script>
+    </body>
+    </html>
+  `;
+
+  let browser = null;
+  try {
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: { width: width + 40, height: height + 40 },
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.waitForFunction('window.chartReady === true', { timeout: 10000 });
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const chartElement = await page.$('#chart');
+    const screenshot = await chartElement.screenshot({
+      type: 'png',
+      encoding: 'base64'
+    });
+
+    return screenshot;
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+}
+
+/**
+ * Render all charts from report sections
+ */
+async function renderAllCharts(sections) {
+  const chartImages = new Map();
+
+  const chartsToRender = sections
+    .map((section, index) => ({ section, index }))
+    .filter(({ section }) => section.hasChart && section.chartData);
+
+  if (chartsToRender.length === 0) {
+    return chartImages;
+  }
+
+  for (const { section, index } of chartsToRender) {
+    try {
+      const chartConfig = buildChartConfig(section);
+      if (chartConfig) {
+        console.log(`[PDF Export] Rendering chart for section ${index}...`);
+        const png = await renderChartToPNG(chartConfig);
+        chartImages.set(index, png);
+      }
+    } catch (error) {
+      console.error(`Failed to render chart for section ${index}:`, error);
+    }
+  }
+
+  return chartImages;
+}
+
+/**
+ * Convert portable text to plain text
+ */
+function portableTextToPlain(blocks) {
+  if (!blocks || !Array.isArray(blocks)) return '';
+
+  return blocks
+    .filter(block => block._type === 'block')
+    .map(block => {
+      const text = block.children
+        ?.map(child => child.text || '')
+        .join('') || '';
+      return text;
+    })
+    .join('\n\n');
+}
+
+/**
+ * Get default layout hints
+ */
+function getDefaultLayoutHints(report) {
+  const sections = (report.sections || [])
+    .filter(s => s._type === 'contentSection')
+    .map((section, index) => {
+      const hasChart = Boolean(section.hasChart && section.chartData);
+      const seriesCount = section.chartSeries?.length || 0;
+
+      let chartPosition = section.layout || 'chartRight';
+      let chartSize = 'medium';
+
+      if (hasChart) {
+        if (seriesCount > 3 || section.chartType?.includes('stacked')) {
+          chartSize = 'large';
+        } else if (seriesCount <= 1) {
+          chartSize = 'small';
+        }
+
+        if (chartPosition !== 'chartFull' && index % 2 === 1) {
+          chartPosition = chartPosition === 'chartRight' ? 'chartLeft' : 'chartRight';
+        }
+      }
+
+      return {
+        title: section.title,
+        chartPosition,
+        chartSize,
+        notes: 'Default layout'
+      };
+    });
+
+  return { sections, generalNotes: 'Using default layout rules' };
+}
+
+/**
+ * Generate the cover page
+ */
+function generateCoverPage(doc, report) {
+  doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT)
+    .fill(GMO_COLORS.primaryGreen);
+
+  const titleMaxWidth = CONTENT_WIDTH * 0.6;
+  doc.fillColor('white')
+    .fontSize(42)
+    .font('BNPPSans-CondensedBold')
+    .text(report.title || 'GMO Report', MARGIN, PAGE_HEIGHT / 3, {
+      width: titleMaxWidth,
+      align: 'left'
+    });
+
+  const titleHeight = doc.heightOfString(report.title || 'GMO Report', {
+    width: titleMaxWidth,
+    fontSize: 42
+  });
+  const summaryY = PAGE_HEIGHT / 3 + titleHeight + 30;
+
+  if (report.summary) {
+    doc.fontSize(16)
+      .font('BNPPSans-Light')
+      .text(report.summary, MARGIN, summaryY, {
+        width: titleMaxWidth,
+        align: 'left'
+      });
+  }
+
+  const publicationDate = report.publicationDate
+    ? new Date(report.publicationDate).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      })
+    : '';
+
+  doc.fontSize(12)
+    .font('BNPPSans-Light')
+    .text(`${publicationDate}`, MARGIN, PAGE_HEIGHT - MARGIN - 60);
+
+  if (report.author) {
+    doc.text(report.author, MARGIN, PAGE_HEIGHT - MARGIN - 40);
+  }
+
+  doc.fontSize(10)
+    .fillColor('rgba(255,255,255,0.7)')
+    .text('AXA Investment Managers', MARGIN, PAGE_HEIGHT - MARGIN - 15);
+}
+
+/**
+ * Generate table of contents page
+ */
+function generateTableOfContents(doc, report) {
+  doc.addPage({ size: 'A4', layout: 'landscape', margin: MARGIN });
+
+  doc.fillColor(GMO_COLORS.primaryGreen)
+    .fontSize(28)
+    .font('BNPPSans-CondensedBold')
+    .text('In This Report', MARGIN, MARGIN);
+
+  doc.moveTo(MARGIN, MARGIN + 40)
+    .lineTo(MARGIN + 150, MARGIN + 40)
+    .strokeColor(GMO_COLORS.primaryGreen)
+    .lineWidth(3)
+    .stroke();
+
+  const contentSections = (report.sections || [])
+    .filter(s => s._type === 'contentSection');
+
+  let yPos = MARGIN + 80;
+  const lineHeight = 35;
+
+  contentSections.forEach((section, index) => {
+    if (yPos > PAGE_HEIGHT - MARGIN - 50) return;
+
+    doc.fillColor(GMO_COLORS.primaryGreen)
+      .fontSize(14)
+      .font('BNPPSans-CondensedBold')
+      .text(`${index + 1}.`, MARGIN, yPos, { continued: true, width: 30 });
+
+    doc.fillColor(GMO_COLORS.textPrimary)
+      .font('BNPPSans-CondensedBold')
+      .text(` ${section.title || 'Untitled'}`, { continued: false });
+
+    if (section.subtitle) {
+      doc.fillColor(GMO_COLORS.textSecondary)
+        .fontSize(11)
+        .font('BNPPSans-Light')
+        .text(section.subtitle, MARGIN + 30, yPos + 18, {
+          width: CONTENT_WIDTH - 30
+        });
+      yPos += lineHeight + 15;
+    } else {
+      yPos += lineHeight;
+    }
+  });
+}
+
+/**
+ * Generate a content section page
+ */
+function generateContentSection(doc, section, index, chartImage, layoutHints) {
+  doc.addPage({ size: 'A4', layout: 'landscape', margin: MARGIN });
+
+  const hints = layoutHints?.sections?.[index] || {};
+  const hasChart = section.hasChart && chartImage;
+  const chartPosition = hints.chartPosition || section.layout || 'chartRight';
+
+  doc.fillColor(GMO_COLORS.textPrimary)
+    .fontSize(24)
+    .font('BNPPSans-CondensedBold')
+    .text(section.title || '', MARGIN, MARGIN);
+
+  doc.moveTo(MARGIN, MARGIN + 32)
+    .lineTo(MARGIN + 60, MARGIN + 32)
+    .strokeColor(GMO_COLORS.primaryGreen)
+    .lineWidth(3)
+    .stroke();
+
+  let contentStartY = MARGIN + 50;
+  if (section.subtitle) {
+    doc.fillColor(GMO_COLORS.textSecondary)
+      .fontSize(14)
+      .font('BNPPSans-Light')
+      .text(section.subtitle, MARGIN, contentStartY, { width: CONTENT_WIDTH });
+    contentStartY += 30;
+  }
+
+  const chartWidth = 380;
+  const chartHeight = 280;
+  const textWidth = hasChart ? CONTENT_WIDTH - chartWidth - 40 : CONTENT_WIDTH;
+  const plainContent = portableTextToPlain(section.content);
+
+  if (hasChart) {
+    if (chartPosition === 'chartLeft') {
+      const chartBuffer = Buffer.from(chartImage, 'base64');
+      doc.image(chartBuffer, MARGIN, contentStartY + 20, {
+        width: chartWidth,
+        height: chartHeight,
+        fit: [chartWidth, chartHeight]
+      });
+
+      if (section.chartSource) {
+        doc.fillColor(GMO_COLORS.textSecondary)
+          .fontSize(9)
+          .font('BNPPSans-Light')
+          .text(`Source: ${section.chartSource}`, MARGIN, contentStartY + chartHeight + 30, {
+            width: chartWidth
+          });
+      }
+
+      doc.fillColor(GMO_COLORS.textPrimary)
+        .fontSize(11)
+        .font('BNPPSans-Light')
+        .text(plainContent, MARGIN + chartWidth + 40, contentStartY + 20, {
+          width: textWidth,
+          lineGap: 4
+        });
+    } else if (chartPosition === 'chartFull') {
+      doc.fillColor(GMO_COLORS.textPrimary)
+        .fontSize(11)
+        .font('BNPPSans-Light')
+        .text(plainContent, MARGIN, contentStartY + 20, {
+          width: CONTENT_WIDTH,
+          lineGap: 4
+        });
+
+      const chartBuffer = Buffer.from(chartImage, 'base64');
+      doc.image(chartBuffer, MARGIN + (CONTENT_WIDTH - chartWidth) / 2, contentStartY + 150, {
+        width: chartWidth,
+        height: chartHeight,
+        fit: [chartWidth, chartHeight]
+      });
+    } else {
+      doc.fillColor(GMO_COLORS.textPrimary)
+        .fontSize(11)
+        .font('BNPPSans-Light')
+        .text(plainContent, MARGIN, contentStartY + 20, {
+          width: textWidth,
+          lineGap: 4
+        });
+
+      const chartBuffer = Buffer.from(chartImage, 'base64');
+      doc.image(chartBuffer, MARGIN + textWidth + 40, contentStartY + 20, {
+        width: chartWidth,
+        height: chartHeight,
+        fit: [chartWidth, chartHeight]
+      });
+
+      if (section.chartSource) {
+        doc.fillColor(GMO_COLORS.textSecondary)
+          .fontSize(9)
+          .font('BNPPSans-Light')
+          .text(`Source: ${section.chartSource}`, MARGIN + textWidth + 40, contentStartY + chartHeight + 30, {
+            width: chartWidth
+          });
+      }
+    }
+  } else {
+    doc.fillColor(GMO_COLORS.textPrimary)
+      .fontSize(11)
+      .font('BNPPSans-Light')
+      .text(plainContent, MARGIN, contentStartY + 20, {
+        width: CONTENT_WIDTH,
+        lineGap: 4,
+        columns: 2,
+        columnGap: 40
+      });
+  }
+}
+
+/**
+ * Generate the complete PDF
+ */
+async function generatePDF(report, chartImages, layoutHints = null) {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({
+        size: 'A4',
+        layout: 'landscape',
+        margin: MARGIN,
+        info: {
+          Title: report.title || 'GMO Report',
+          Author: report.author || 'AXA Investment Managers',
+          Creator: 'GMO Report Builder'
+        }
+      });
+
+      // Register custom fonts
+      if (fs.existsSync(FONTS.light) && fs.existsSync(FONTS.condensedBold)) {
+        doc.registerFont('BNPPSans-Light', FONTS.light);
+        doc.registerFont('BNPPSans-CondensedBold', FONTS.condensedBold);
+      } else {
+        // Fallback to Helvetica if fonts not found
+        console.warn('[PDF Export] Custom fonts not found, using Helvetica');
+        doc.registerFont('BNPPSans-Light', 'Helvetica');
+        doc.registerFont('BNPPSans-CondensedBold', 'Helvetica-Bold');
+      }
+
+      const chunks = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+
+      generateCoverPage(doc, report);
+      generateTableOfContents(doc, report);
+
+      const contentSections = (report.sections || [])
+        .map((section, originalIndex) => ({ section, originalIndex }))
+        .filter(({ section }) => section._type === 'contentSection');
+
+      contentSections.forEach(({ section, originalIndex }, displayIndex) => {
+        const chartImage = chartImages.get(originalIndex);
+        generateContentSection(doc, section, displayIndex, chartImage, layoutHints);
+      });
+
+      doc.end();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+/**
  * Sanitize filename for download
  */
 function sanitizeFilename(name) {
@@ -211,23 +641,12 @@ export default async function handler(req, res) {
 
     console.log(`[PDF Export] Fetched report: ${report.title}`);
 
-    // 2. Get layout hints (Claude or default)
-    let layoutHints = null;
-    if (options.optimizeLayout !== false) {
-      try {
-        layoutHints = await getLayoutOptimization(report);
-        console.log('[PDF Export] Got Claude layout hints');
-      } catch (error) {
-        console.warn('[PDF Export] Claude optimization failed, using defaults:', error.message);
-        layoutHints = getDefaultLayoutHints(report);
-      }
-    } else {
-      layoutHints = getDefaultLayoutHints(report);
-    }
+    // 2. Get layout hints (default for now, skip Claude to simplify)
+    const layoutHints = getDefaultLayoutHints(report);
 
     // 3. Render charts to PNG
     console.log('[PDF Export] Rendering charts...');
-    const chartImages = await renderAllCharts(report.sections, buildChartConfig);
+    const chartImages = await renderAllCharts(report.sections);
     console.log(`[PDF Export] Rendered ${chartImages.size} charts`);
 
     // 4. Generate PDF
@@ -249,7 +668,6 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('[PDF Export] Error:', error);
 
-    // Determine appropriate error response
     if (error.message?.includes('timeout')) {
       return res.status(504).json({
         error: 'PDF generation timed out',
