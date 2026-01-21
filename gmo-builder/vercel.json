@@ -1,6 +1,12 @@
 {
-    "version": 2,
-    "rewrites": [
-      { "source": "/", "destination": "/api/build" }
-    ]
+  "version": 2,
+  "rewrites": [
+    { "source": "/", "destination": "/api/build" }
+  ],
+  "functions": {
+    "api/pdf-export.js": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
   }
+}
