@@ -15,6 +15,10 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "/api/build"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/$1",
       "headers": {
@@ -22,10 +26,6 @@
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type"
       }
-    },
-    {
-      "src": "/",
-      "dest": "/api/build"
     }
   ]
 }
