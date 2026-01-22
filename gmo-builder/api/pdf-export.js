@@ -181,6 +181,35 @@ function buildChartConfig(section) {
 }
 
 /**
+ * Downsample data arrays to reduce total data points for QuickChart free tier
+ * QuickChart free tier limit is ~300 points, so we target max 100 labels
+ */
+function downsampleChartData(labels, datasets, maxLabels = 100) {
+  if (labels.length <= maxLabels) {
+    return { labels, datasets };
+  }
+
+  const step = Math.ceil(labels.length / maxLabels);
+  const sampledIndices = [];
+  for (let i = 0; i < labels.length; i += step) {
+    sampledIndices.push(i);
+  }
+  // Always include the last point
+  if (sampledIndices[sampledIndices.length - 1] !== labels.length - 1) {
+    sampledIndices.push(labels.length - 1);
+  }
+
+  const sampledLabels = sampledIndices.map(i => labels[i]);
+  const sampledDatasets = datasets.map(ds => ({
+    ...ds,
+    data: sampledIndices.map(i => ds.data[i]),
+  }));
+
+  console.log(`[PDF Export] Downsampled chart from ${labels.length} to ${sampledLabels.length} points`);
+  return { labels: sampledLabels, datasets: sampledDatasets };
+}
+
+/**
  * Render a chart to PNG using QuickChart.io API
  * Converts Highcharts config to Chart.js format
  */
@@ -201,7 +230,7 @@ async function renderChartToPNG(chartConfig, options = {}) {
                     chartConfig.plotOptions?.area?.stacking === 'normal';
 
   // Convert Highcharts series to Chart.js datasets
-  const datasets = (chartConfig.series || []).map((s, index) => {
+  let datasets = (chartConfig.series || []).map((s, index) => {
     const color = s.color || GMO_COLORS.primaryGreen;
     return {
       label: s.name || `Series ${index + 1}`,
@@ -214,11 +243,18 @@ async function renderChartToPNG(chartConfig, options = {}) {
     };
   });
 
+  let labels = chartConfig.xAxis?.categories || [];
+
+  // Downsample if too many data points (QuickChart free tier limit)
+  const downsampled = downsampleChartData(labels, datasets);
+  labels = downsampled.labels;
+  datasets = downsampled.datasets;
+
   // Build Chart.js configuration
   const quickChartConfig = {
     type: chartType,
     data: {
-      labels: chartConfig.xAxis?.categories || [],
+      labels: labels,
       datasets: datasets,
     },
     options: {
