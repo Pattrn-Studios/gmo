@@ -16,16 +16,29 @@
   "routes": [
     {
       "src": "/",
-      "dest": "/api/build"
+      "dest": "api/build.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1",
+      "src": "/api/pdf-export",
+      "dest": "api/pdf-export.js",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type"
       }
+    },
+    {
+      "src": "/api/pdf-test",
+      "dest": "api/pdf-test.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      }
+    },
+    {
+      "src": "/api/build",
+      "dest": "api/build.js"
     }
   ]
 }
