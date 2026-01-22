@@ -269,7 +269,9 @@ async function renderChartToPNG(chartConfig, options = {}) {
       }),
     });
 
-    if (!response.ok) {
+    // Check Content-Type instead of status code - QuickChart sometimes returns 400 but still includes valid PNG
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('image/png')) {
       const errorText = await response.text();
       throw new Error(`QuickChart API error: ${response.status} - ${errorText}`);
     }
