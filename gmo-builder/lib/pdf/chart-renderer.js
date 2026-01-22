@@ -1,16 +1,6 @@
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
-
-const GMO_COLORS = {
-  primaryGreen: '#3E7274',
-  coastBlue: '#3D748F',
-  copper: '#AC5359',
-  orange: '#F1875A',
-  lightGreen: '#76BCA3',
-  darkBlue: '#132728',
-  textPrimary: '#1A1A1A',
-  textSecondary: '#5F5F5F',
-};
+import { GMO_COLORS } from '../design-tokens/index.js';
 
 /**
  * Renders a Highcharts configuration to a PNG image
@@ -122,4 +112,5 @@ export async function renderAllCharts(sections, buildChartConfig) {
   return chartImages;
 }
 
+// Re-export for consumers that import from this file
 export { GMO_COLORS };

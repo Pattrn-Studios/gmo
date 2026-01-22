@@ -1,4 +1,5 @@
 import { createClient } from '@sanity/client';
+import { GMO_COLORS, generateCSSVariablesString } from '../lib/design-tokens/index.js';
 
 const client = createClient({
   projectId: 'mb7v1vpy',
@@ -6,19 +7,6 @@ const client = createClient({
   useCdn: false,
   apiVersion: '2024-01-01',
 });
-
-const GMO_COLORS = {
-  primaryGreen: '#3E7274',
-  coastBlue: '#3D748F',
-  copper: '#AC5359',
-  orange: '#F1875A',
-  lightGreen: '#76BCA3',
-  darkBlue: '#132728',
-  textPrimary: '#1A1A1A',
-  textSecondary: '#5F5F5F',
-  bgPrimary: '#FFFFFF',
-  bgSecondary: '#F5F5F5',
-};
 
 export default async function handler(req, res) {
   // All functions defined inside handler for proper scope
@@ -298,11 +286,13 @@ export default async function handler(req, res) {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
   <style>
     :root {
-      --gmo-green: ${GMO_COLORS.primaryGreen};
-      --text-primary: ${GMO_COLORS.textPrimary};
-      --text-secondary: ${GMO_COLORS.textSecondary};
-      --bg-primary: ${GMO_COLORS.bgPrimary};
-      --bg-secondary: ${GMO_COLORS.bgSecondary};
+${generateCSSVariablesString('      ')}
+      /* Legacy aliases */
+      --gmo-green: var(--color-surface-secondary);
+      --text-primary: var(--color-text-primary);
+      --text-secondary: var(--color-text-secondary);
+      --bg-primary: var(--color-bg-primary);
+      --bg-secondary: var(--color-bg-secondary);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }

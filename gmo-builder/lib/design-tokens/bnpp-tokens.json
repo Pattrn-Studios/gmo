@@ -1,0 +1,464 @@
+{
+  "colour": {
+    "text": {
+      "editorial": {
+        "investment-insights": {
+          "base": "#59A3A6",
+          "middle": "#2E696B",
+          "shade": "#174446"
+        },
+        "macroeconomics": {
+          "base": "#98BCCD",
+          "middle": "#3D748F",
+          "shade": "#1F3A47"
+        },
+        "sustainability": {
+          "base": "#98CDBA",
+          "middle": "#326754",
+          "shade": "#224438"
+        },
+        "future-trends": {
+          "base": "#C99CB3",
+          "middle": "#A65980",
+          "shade": "#422433"
+        }
+      },
+      "on-light": {
+        "neutral": {
+          "primary": "#1A1A1A",
+          "secondary": "#5F5F5F"
+        },
+        "brand": {
+          "primary": "#008252"
+        },
+        "eyebrow": {
+          "primary": "#1A1A1A",
+          "brand-primary": "#008252",
+          "accent-2": "#3E7274",
+          "accent-9": "#3E7274"
+        },
+        "interaction": {
+          "primary": "#008252",
+          "primary-hover": "#00613D",
+          "neutral": "#FFFFFF",
+          "neutral-hover": "#B2D9CB"
+        },
+        "accent": {
+          "accent-1": "#3A7862",
+          "accent-2": "#3E7274",
+          "accent-4": "#3D748F",
+          "accent-7": "#3A7862"
+        },
+        "functional": {
+          "error": "#C91432"
+        }
+      },
+      "on-dark": {
+        "neutral": {
+          "primary": "#FFFFFF",
+          "secondary": "#F7F5F3",
+          "tertiary": "#EEEEEE",
+          "quaternary": "#CCCCCC"
+        },
+        "brand": {
+          "primary": "#008252"
+        },
+        "eyebrow": {
+          "primary": "#FFFFFF",
+          "accent-8": "#FFFFFF"
+        },
+        "interaction": {
+          "primary": "#008252",
+          "primary-hover": "#B2D9CB",
+          "neutral": "#FFFFFF"
+        }
+      }
+    },
+    "interaction-states": {
+      "active-state": {
+        "on-light": {
+          "primary": "#29A376"
+        },
+        "on-dark": {
+          "primary": "#29A376"
+        }
+      }
+    },
+    "buttons": {
+      "text-only": {
+        "primary": {
+          "default": "#008252",
+          "hover": "#00613D",
+          "focused-pressed": "#B2E6D2",
+          "disabled": "#B1B1B1"
+        },
+        "secondary": {
+          "default": "#008252",
+          "hover": "#00613D",
+          "focused-pressed": "#B2E6D2",
+          "disabled": "#B1B1B1"
+        },
+        "white": {
+          "default": "#FFFFFF",
+          "hover": "#B2D9CB",
+          "focused-pressed": "#FFFFFF",
+          "disabled": "#B1B1B1"
+        }
+      },
+      "bg": {
+        "fill": {
+          "primary": {
+            "default": "#008252",
+            "hover": "#00613D",
+            "focused-pressed": "#B2E6D2",
+            "disabled": "#B1B1B1"
+          },
+          "secondary": {
+            "default": "#008252",
+            "hover": "#00613D",
+            "focused-pressed": "#B2E6D2",
+            "disabled": "#B1B1B1"
+          },
+          "white": {
+            "default": "#FFFFFF",
+            "hover": "#FFFFFF",
+            "focused-pressed": "#FFFFFF",
+            "disabled": "#B1B1B1"
+          }
+        },
+        "outline": {
+          "primary": {
+            "default": "#008252",
+            "hover": "#00613D",
+            "focused-pressed": "#B2E6D2",
+            "disabled": "#B1B1B1"
+          },
+          "white": {
+            "default": "#FFFFFF",
+            "hover": "#FFFFFF",
+            "focused-pressed": "#FFFFFF",
+            "disabled": "#B1B1B1"
+          }
+        }
+      }
+    },
+    "surfaces": {
+      "primary": {
+        "lightest": "#EDF5F2",
+        "base": "#3A7862",
+        "darker": "#326754"
+      },
+      "secondary": {
+        "base": "#3E7274"
+      },
+      "tertiary": {
+        "base": "#F07662"
+      },
+      "neutral": {
+        "white": "#FFFFFF",
+        "lightest": "#F7F5F3",
+        "lighter": "#EEEEEE",
+        "base": "#333333"
+      },
+      "accent-1": {
+        "base": "#3A7862"
+      },
+      "accent-2": {
+        "base": "#3E7274"
+      },
+      "accent-3": {
+        "base": "#AC5359"
+      },
+      "accent-4": {
+        "base": "#3D748F"
+      },
+      "accent-5": {
+        "base": "#132728"
+      },
+      "accent-6": {
+        "base": "#955073"
+      },
+      "specific": {
+        "sustainability": {
+          "base": "#3A7862"
+        }
+      },
+      "navigation": {
+        "light": {
+          "base": "#326754",
+          "darker": "#2A5646"
+        },
+        "dark": {
+          "base": "#174446",
+          "darker": "#172F30",
+          "darkest": "#132728"
+        }
+      }
+    },
+    "lines": {
+      "on-light": {
+        "neutral": {
+          "primary": "#EEEEEE",
+          "secondary": "#CCCCCC",
+          "tertiary": "#B1B1B1"
+        },
+        "accent": {
+          "accent-1": "#3A7862",
+          "accent-2": "#3E7274",
+          "accent-3": "#AC5359",
+          "accent-4": "#3D748F",
+          "accent-5": "#132728",
+          "accent-6": "#955073"
+        },
+        "brand": {
+          "primary": "#008252"
+        },
+        "functional": {
+          "error": "#C91432"
+        }
+      },
+      "on-dark": {
+        "neutral": {
+          "primary": "#1A1A1A",
+          "secondary": "#5F5F5F"
+        }
+      },
+      "opacity": {
+        "white": {
+          "light": "rgba(255, 255, 255, 0.2)",
+          "medium": "rgba(255, 255, 255, 0.3)",
+          "solid": "#FFFFFF"
+        },
+        "dark": {
+          "light": "rgba(51, 51, 51, 0.2)"
+        },
+        "black": {
+          "subtle": "rgba(0, 0, 0, 0.1)",
+          "light": "rgba(0, 0, 0, 0.2)"
+        },
+        "accent-2": {
+          "light": "rgba(62, 114, 116, 0.2)"
+        }
+      }
+    },
+    "backgrounds": {
+      "neutral": {
+        "white": "#FFFFFF",
+        "lightest": "#F7F5F3",
+        "base": "#333333",
+        "darker": "#1A1A1A"
+      },
+      "accent-1": {
+        "lightest": "#EDF5F2",
+        "base": "#3A7862",
+        "darker": "#2A5646",
+        "darkest": "#11221C"
+      },
+      "accent-2": {
+        "lightest": "#EDF7F7",
+        "base": "#3E7274"
+      },
+      "accent-3": {
+        "lightest": "#FBE9EB",
+        "base": "#AC5359"
+      },
+      "accent-4": {
+        "lightest": "#EEF4F7",
+        "base": "#3D748F"
+      },
+      "accent-5": {
+        "lightest": "#EDF7F7",
+        "base": "#132728"
+      },
+      "accent-6": {
+        "lightest": "#F6EEF2",
+        "base": "#955073"
+      },
+      "specific": {
+        "sustainability": {
+          "lightest": "#EDF5F2",
+          "base": "#3A7862"
+        },
+        "fund": {
+          "base": "#132728"
+        }
+      }
+    },
+    "icons": {
+      "on-light": {
+        "neutral": {
+          "primary": "#1A1A1A",
+          "secondary": "#5F5F5F",
+          "tertiary": "#CCCCCC"
+        },
+        "brand": {
+          "primary": "#008252",
+          "secondary": "#008252",
+          "primary-dark": "#003320",
+          "tertiary": "#008252"
+        },
+        "accent": {
+          "accent-2": "#3E7274"
+        },
+        "interaction": {
+          "primary": "#008252",
+          "primary-hover": "#00613D",
+          "neutral": "#FFFFFF",
+          "neutral-hover": "#B2D9CB"
+        }
+      },
+      "on-dark": {
+        "neutral": {
+          "primary": "#FFFFFF"
+        },
+        "brand": {
+          "primary": "#008252"
+        },
+        "accent": {
+          "accent-2": "#417981"
+        }
+      }
+    },
+    "overlay": {
+      "accent-1": {
+        "subtle": "rgba(16, 49, 50, 0.15)",
+        "light": "rgba(16, 49, 50, 0.2)",
+        "medium": "rgba(16, 49, 50, 0.25)",
+        "moderate": "rgba(16, 49, 50, 0.7)",
+        "strong": "rgba(16, 49, 50, 0.8)"
+      },
+      "black": {
+        "subtle": "rgba(0, 0, 0, 0.15)",
+        "light": "rgba(0, 0, 0, 0.2)",
+        "medium": "rgba(0, 0, 0, 0.25)",
+        "moderate": "rgba(0, 0, 0, 0.5)",
+        "strong": "rgba(0, 0, 0, 0.7)"
+      },
+      "white": {
+        "subtle": "rgba(255, 255, 255, 0.15)"
+      }
+    }
+  },
+  "type": {
+    "style": {
+      "primary": "BNPP Sans Condensed",
+      "secondary": "BNPP Sans"
+    },
+    "size": {
+      "desktop": {
+        "display": {
+          "xl": 64,
+          "lg": 56,
+          "md": 40,
+          "sm": 32,
+          "xs": 20,
+          "xxs": 20
+        },
+        "title": {
+          "xl": 32,
+          "lg": 28,
+          "md": 24,
+          "xs": 18
+        },
+        "body": {
+          "lg": 18,
+          "md": 16,
+          "sm": 14,
+          "xs": 13,
+          "xxs": 12
+        }
+      },
+      "mobile": {
+        "display": {
+          "xl": 56,
+          "lg": 48,
+          "md": 40,
+          "sm": 32,
+          "xs": 24
+        },
+        "title": {
+          "xl": 32,
+          "lg": 28,
+          "md": 24,
+          "sm": 22,
+          "xs": 18
+        },
+        "body": {
+          "lg": 18,
+          "md": 15,
+          "sm": 14,
+          "xs": 13,
+          "xxs": 12
+        }
+      }
+    },
+    "lineHeight": {
+      "desktop": {
+        "display": {
+          "xl": 67.2,
+          "lg": 58.8,
+          "md": 44,
+          "sm": 38.4,
+          "xs": 24,
+          "xxs": 25
+        },
+        "title": {
+          "xl": 48,
+          "lg": 40,
+          "md": 36,
+          "xs": 28
+        },
+        "body": {
+          "lg": 27,
+          "md": 24,
+          "sm": 16.8,
+          "xs": 17.55,
+          "xxs": 18,
+          "xxxs": 16
+        },
+        "eyebrow": {
+          "md": 13
+        },
+        "link": {
+          "md": 14
+        }
+      },
+      "mobile": {
+        "display": {
+          "xl": 58.8,
+          "lg": 52.8,
+          "md": 44,
+          "sm": 38.4,
+          "xs": 30
+        },
+        "title": {
+          "xl": 48,
+          "lg": 42,
+          "md": 33,
+          "sm": 24,
+          "xs": 36,
+          "xxs": 27
+        },
+        "body": {
+          "lg": 27,
+          "md": 24,
+          "sm": 22.5,
+          "xs": 17.55,
+          "xxs": 18,
+          "xxxs": 16
+        },
+        "eyebrow": {
+          "md": 13
+        },
+        "link": {
+          "md": 14
+        }
+      }
+    },
+    "weight": {
+      "light": "Light",
+      "lightItalic": "Light Italic",
+      "regular": "Regular"
+    }
+  }
+}

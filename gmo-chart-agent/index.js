@@ -4,6 +4,7 @@ const multer = require('multer');
 const xlsx = require('xlsx');
 const path = require('path');
 const cors = require('cors');
+const { chartColors, getColorPromptInstructions } = require('./lib/design-tokens.cjs');
 
 const app = express();
 
@@ -16,16 +17,6 @@ app.use(cors({
   ],
   credentials: true
 }));
-
-// GMO Brand Colors (from design tokens)
-const GMO_COLORS = {
-  primary: '#3E7274',      // Green
-  accent1: '#3D748F',      // Coast (Blue)
-  accent2: '#AC5359',      // Metallic Copper
-  accent3: '#F1875A',      // Orange
-  accent4: '#76BCA3',      // Light Green
-  accent5: '#132728',      // Dark Blue
-};
 
 // Configure multer for file uploads (store in memory)
 const storage = multer.memoryStorage();
@@ -202,21 +193,7 @@ RULES FOR ALTERNATIVES (provide 2-3 alternatives):
 - Each alternative should have the SAME series, xAxisLabel, and yAxisLabel as the main recommendation
 - Only change the chartType and update the reasoning to explain why this alternative could work
 
-BRAND COLOR PALETTE (GMO / AXA IM):
-Use these colors IN ORDER for data series (same for main and all alternatives):
-1. #3E7274 (Primary Green - GMO brand color)
-2. #3D748F (Coast Blue)
-3. #AC5359 (Metallic Copper)
-4. #F1875A (Orange)
-5. #76BCA3 (Light Green)
-6. #132728 (Dark Blue)
-
-IMPORTANT:
-- Assign colors in the order listed above
-- First series gets #3E7274 (green)
-- Second series gets #3D748F (blue)
-- Third series gets #AC5359 (copper), etc.
-- These are the ONLY approved brand colors
+${getColorPromptInstructions()}
 - Use the SAME colors for each series across main and alternatives
 
 DO NOT include any text before or after the JSON. DO NOT wrap in markdown code blocks.`;
@@ -252,14 +229,7 @@ USER'S REFINEMENT REQUEST:
 
 Please update the chart configuration to apply the user's request while keeping everything else the same.
 
-BRAND COLOR PALETTE (GMO / AXA IM):
-When adjusting colors, only use these approved brand colors:
-1. #3E7274 (Primary Green)
-2. #3D748F (Coast Blue)
-3. #AC5359 (Metallic Copper)
-4. #F1875A (Orange)
-5. #76BCA3 (Light Green)
-6. #132728 (Dark Blue)
+${getColorPromptInstructions()}
 
 Common refinement requests and how to handle them:
 - "Show every year/month/quarter" → Ensure all x-axis categories are included, don't skip any

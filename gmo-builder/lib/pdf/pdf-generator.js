@@ -1,6 +1,7 @@
 import PDFDocument from 'pdfkit';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { GMO_COLORS, textColors, surfaceColors, backgroundColors } from '../design-tokens/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,19 +10,6 @@ const __dirname = path.dirname(__filename);
 const FONTS = {
   light: path.join(__dirname, 'fonts', 'bnpp-sans-light.ttf'),
   condensedBold: path.join(__dirname, 'fonts', 'bnpp-sans-cond-bold-v2.ttf'),
-};
-
-const GMO_COLORS = {
-  primaryGreen: '#3E7274',
-  coastBlue: '#3D748F',
-  copper: '#AC5359',
-  orange: '#F1875A',
-  lightGreen: '#76BCA3',
-  darkBlue: '#132728',
-  textPrimary: '#1A1A1A',
-  textSecondary: '#5F5F5F',
-  bgPrimary: '#FFFFFF',
-  bgSecondary: '#F5F5F5',
 };
 
 // A4 landscape dimensions in points (1 point = 1/72 inch)

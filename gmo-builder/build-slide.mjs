@@ -1,6 +1,7 @@
 // build-slide.mjs
 import { createClient } from '@sanity/client';
 import fs from 'fs';
+import { GMO_COLORS, generateCSSVariablesString } from './lib/design-tokens/index.js';
 
 // Configure Sanity client
 const client = createClient({
@@ -9,21 +10,6 @@ const client = createClient({
   useCdn: false,
   apiVersion: '2024-01-01',
 });
-
-// GMO Brand Colors
-const GMO_COLORS = {
-  primaryGreen: '#3E7274',
-  coastBlue: '#3D748F',
-  copper: '#AC5359',
-  orange: '#F1875A',
-  lightGreen: '#76BCA3',
-  darkBlue: '#132728',
-  textPrimary: '#1A1A1A',
-  textSecondary: '#5F5F5F',
-  textInverse: '#FFFFFF',
-  bgPrimary: '#FFFFFF',
-  bgSecondary: '#F5F5F5',
-};
 
 // Fetch latest report from Sanity
 async function fetchLatestReport() {
@@ -392,13 +378,15 @@ function generateHTML(report) {
   
   <style>
     :root {
-      --gmo-green: ${GMO_COLORS.primaryGreen};
-      --gmo-blue: ${GMO_COLORS.coastBlue};
-      --gmo-copper: ${GMO_COLORS.copper};
-      --text-primary: ${GMO_COLORS.textPrimary};
-      --text-secondary: ${GMO_COLORS.textSecondary};
-      --bg-primary: ${GMO_COLORS.bgPrimary};
-      --bg-secondary: ${GMO_COLORS.bgSecondary};
+${generateCSSVariablesString('      ')}
+      /* Legacy aliases for backward compatibility */
+      --gmo-green: var(--color-surface-secondary);
+      --gmo-blue: var(--color-chart-1);
+      --gmo-copper: var(--color-chart-2);
+      --text-primary: var(--color-text-primary);
+      --text-secondary: var(--color-text-secondary);
+      --bg-primary: var(--color-bg-primary);
+      --bg-secondary: var(--color-bg-secondary);
     }
     
     * {
