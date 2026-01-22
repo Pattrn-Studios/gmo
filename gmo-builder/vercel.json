@@ -2,7 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/*.js",
+      "src": "api/pdf-export.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    },
+    {
+      "src": "api/!(pdf-export).js",
       "use": "@vercel/node"
     }
   ],
@@ -20,12 +27,5 @@
       "src": "/",
       "dest": "/api/build"
     }
-  ],
-  "functions": {
-    "api/pdf-export.js": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  }
+  ]
 }
-
