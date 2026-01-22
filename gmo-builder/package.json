@@ -8,8 +8,6 @@
   },
   "dependencies": {
     "@sanity/client": "^6.0.0",
-    "@sparticuz/chromium": "^131.0.0",
-    "puppeteer-core": "^23.0.0",
     "pdfkit": "^0.15.0"
   }
 }

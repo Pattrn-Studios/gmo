@@ -1,6 +1,4 @@
 import { createClient } from '@sanity/client';
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
 import PDFDocument from 'pdfkit';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -183,67 +181,104 @@ function buildChartConfig(section) {
 }
 
 /**
- * Render a chart to PNG using Puppeteer
+ * Render a chart to PNG using QuickChart.io API
+ * Converts Highcharts config to Chart.js format
  */
 async function renderChartToPNG(chartConfig, options = {}) {
   const { width = 700, height = 400 } = options;
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <script src="https://code.highcharts.com/highcharts.js"></script>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: white; }
-        #chart { width: ${width}px; height: ${height}px; }
-      </style>
-    </head>
-    <body>
-      <div id="chart"></div>
-      <script>
-        const config = ${JSON.stringify(chartConfig)};
-        if (config.plotOptions) {
-          if (config.plotOptions.series) {
-            config.plotOptions.series.animation = false;
-          }
-        }
-        config.chart = config.chart || {};
-        config.chart.animation = false;
+  // Map Highcharts chart types to Chart.js types
+  const chartTypeMap = {
+    line: 'line',
+    column: 'bar',
+    bar: 'horizontalBar',
+    area: 'line',
+  };
 
-        Highcharts.chart('chart', config);
-        window.chartReady = true;
-      </script>
-    </body>
-    </html>
-  `;
+  const chartType = chartTypeMap[chartConfig.chart?.type] || 'line';
+  const isArea = chartConfig.chart?.type === 'area';
+  const isStacked = chartConfig.plotOptions?.column?.stacking === 'normal' ||
+                    chartConfig.plotOptions?.area?.stacking === 'normal';
 
-  let browser = null;
+  // Convert Highcharts series to Chart.js datasets
+  const datasets = (chartConfig.series || []).map((s, index) => {
+    const color = s.color || GMO_COLORS.primaryGreen;
+    return {
+      label: s.name || `Series ${index + 1}`,
+      data: s.data,
+      backgroundColor: isArea ? color + '40' : color, // Add transparency for area
+      borderColor: color,
+      borderWidth: 2,
+      fill: isArea,
+      tension: 0.1,
+    };
+  });
+
+  // Build Chart.js configuration
+  const quickChartConfig = {
+    type: chartType,
+    data: {
+      labels: chartConfig.xAxis?.categories || [],
+      datasets: datasets,
+    },
+    options: {
+      responsive: false,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: { size: 11 },
+            color: GMO_COLORS.textPrimary,
+          },
+        },
+        title: {
+          display: false,
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: !!chartConfig.xAxis?.title?.text,
+            text: chartConfig.xAxis?.title?.text || '',
+          },
+          stacked: isStacked,
+        },
+        y: {
+          title: {
+            display: !!chartConfig.yAxis?.title?.text,
+            text: chartConfig.yAxis?.title?.text || '',
+          },
+          stacked: isStacked,
+        },
+      },
+    },
+  };
+
   try {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: { width: width + 40, height: height + 40 },
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+    const response = await fetch('https://quickchart.io/chart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chart: quickChartConfig,
+        width: width,
+        height: height,
+        backgroundColor: 'white',
+        format: 'png',
+        devicePixelRatio: 2, // Higher resolution
+      }),
     });
 
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    await page.waitForFunction('window.chartReady === true', { timeout: 10000 });
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const chartElement = await page.$('#chart');
-    const screenshot = await chartElement.screenshot({
-      type: 'png',
-      encoding: 'base64'
-    });
-
-    return screenshot;
-  } finally {
-    if (browser) {
-      await browser.close();
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`QuickChart API error: ${response.status} - ${errorText}`);
     }
+
+    const buffer = await response.arrayBuffer();
+    return Buffer.from(buffer).toString('base64');
+  } catch (error) {
+    console.error('[PDF Export] QuickChart rendering failed:', error);
+    throw error;
   }
 }
 
@@ -406,21 +441,24 @@ function generateTableOfContents(doc, report) {
   contentSections.forEach((section, index) => {
     if (yPos > PAGE_HEIGHT - MARGIN - 50) return;
 
+    // Render number and title separately at same Y position
     doc.fillColor(GMO_COLORS.primaryGreen)
       .fontSize(14)
       .font('BNPPSans-CondensedBold')
-      .text(`${index + 1}.`, MARGIN, yPos, { continued: true, width: 30 });
+      .text(`${index + 1}.`, MARGIN, yPos);
 
     doc.fillColor(GMO_COLORS.textPrimary)
       .font('BNPPSans-CondensedBold')
-      .text(` ${section.title || 'Untitled'}`, { continued: false });
+      .text(section.title || 'Untitled', MARGIN + 25, yPos, {
+        width: CONTENT_WIDTH - 25
+      });
 
     if (section.subtitle) {
       doc.fillColor(GMO_COLORS.textSecondary)
         .fontSize(11)
         .font('BNPPSans-Light')
-        .text(section.subtitle, MARGIN + 30, yPos + 18, {
-          width: CONTENT_WIDTH - 30
+        .text(section.subtitle, MARGIN + 25, yPos + 18, {
+          width: CONTENT_WIDTH - 25
         });
       yPos += lineHeight + 15;
     } else {
