@@ -243,9 +243,7 @@ function buildStandardConfig(section, parsedData, labels, chartType, options, co
           ticks: {
             color: '#5F5F5F',
             font: {size: 11},
-            callback: function (value) {
-              return formatYAxisValue(value, section.yAxisFormat)
-            },
+            callback: new Function('value', `return formatYAxisValue(value, '${section.yAxisFormat || ''}')`),
           },
           grid: {
             color: '#E8E8E8',
@@ -356,9 +354,7 @@ function buildScatterConfig(section, parsedData, options, colors = CHART_COLORS)
           ticks: {
             color: '#5F5F5F',
             font: {size: 11},
-            callback: function (value) {
-              return formatYAxisValue(value, section.yAxisFormat)
-            },
+            callback: new Function('value', `return formatYAxisValue(value, '${section.yAxisFormat || ''}')`),
           },
           grid: {color: '#E8E8E8', borderDash: [3, 3]},
           border: {display: false},
@@ -521,9 +517,7 @@ function buildWaterfallConfig(section, parsedData, labels, options, colors = CHA
           ticks: {
             color: '#5F5F5F',
             font: {size: 11},
-            callback: function (value) {
-              return formatYAxisValue(value, section.yAxisFormat)
-            },
+            callback: new Function('value', `return formatYAxisValue(value, '${section.yAxisFormat || ''}')`),
           },
           grid: {color: '#E8E8E8', borderDash: [3, 3]},
           border: {display: false},
@@ -595,9 +589,7 @@ function buildComposedConfig(section, parsedData, labels, options, colors = CHAR
           ticks: {
             color: '#5F5F5F',
             font: {size: 11},
-            callback: function (value) {
-              return formatYAxisValue(value, section.yAxisFormat)
-            },
+            callback: new Function('value', `return formatYAxisValue(value, '${section.yAxisFormat || ''}')`),
           },
           grid: {color: '#E8E8E8', borderDash: [3, 3]},
           border: {display: false},
@@ -783,9 +775,7 @@ function buildBarConfig(section, parsedData, labels, options, colors = CHART_COL
           ticks: {
             color: '#5F5F5F',
             font: {size: 11},
-            callback: function (value) {
-              return formatYAxisValue(value, section.yAxisFormat)
-            },
+            callback: new Function('value', `return formatYAxisValue(value, '${section.yAxisFormat || ''}')`),
           },
           grid: {color: '#E8E8E8', borderDash: [3, 3]},
           border: {display: false},
