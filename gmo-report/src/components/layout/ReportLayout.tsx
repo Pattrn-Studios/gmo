@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode, useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { TableOfContents } from './TableOfContents'
 import { ThemeToggle } from './ThemeToggle'
 import { Footer } from './Footer'
@@ -95,35 +96,47 @@ export function ReportLayout({ report, children }: ReportLayoutProps) {
           </div>
         </aside>
 
-        {/* Main content */}
+        {/* Main content with page transition */}
         <main className="flex-1 lg:ml-72">
-          {children}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          >
+            {children}
+          </motion.div>
           <Footer reportTitle={report?.title} />
         </main>
       </div>
 
       {/* Back to top button */}
-      <button
-        onClick={scrollToTop}
-        className={`fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-brand text-white shadow-lg flex items-center justify-center transition-all duration-300 hover:bg-brand/90 ${
-          showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-        }`}
-        aria-label="Back to top"
-      >
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 10l7-7m0 0l7 7m-7-7v18"
-          />
-        </svg>
-      </button>
+      <AnimatePresence>
+        {showBackToTop && (
+          <motion.button
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.8 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-brand text-white shadow-lg flex items-center justify-center hover:bg-brand/90 hover:scale-110 transition-transform"
+            aria-label="Back to top"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 10l7-7m0 0l7 7m-7-7v18"
+              />
+            </svg>
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

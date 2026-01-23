@@ -173,40 +173,69 @@ export function ContentSection({
             {content?.map((block: any, i: number) => {
               if (block._type === 'block') {
                 const style = block.style || 'normal'
+                const text = block.children?.map((child: any) => child.text).join('')
 
                 if (style === 'h3') {
                   return (
-                    <h3 key={i} className="text-xl font-semibold mb-4 mt-8 first:mt-0">
-                      {block.children?.map((child: any) => child.text).join('')}
-                    </h3>
+                    <motion.h3
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.1 * Math.min(i, 5) }}
+                      className="text-xl font-semibold mb-4 mt-8 first:mt-0"
+                    >
+                      {text}
+                    </motion.h3>
                   )
                 }
 
                 if (style === 'h4') {
                   return (
-                    <h4 key={i} className="text-lg font-semibold mb-3 mt-6 first:mt-0">
-                      {block.children?.map((child: any) => child.text).join('')}
-                    </h4>
+                    <motion.h4
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.1 * Math.min(i, 5) }}
+                      className="text-lg font-semibold mb-3 mt-6 first:mt-0"
+                    >
+                      {text}
+                    </motion.h4>
                   )
                 }
 
                 // Check if this is a list item
                 if (block.listItem) {
                   return (
-                    <li key={i} className="py-4 pl-6 relative border-b border-line-default last:border-b-0 list-none">
+                    <motion.li
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: 0.05 * Math.min(i, 10) }}
+                      className="py-4 pl-6 relative border-b border-line-default last:border-b-0 list-none"
+                    >
                       <span
                         className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
                         style={{ backgroundColor: hasColorTheme ? 'currentColor' : 'var(--gmo-green)' }}
                       />
-                      {block.children?.map((child: any) => child.text).join('')}
-                    </li>
+                      {text}
+                    </motion.li>
                   )
                 }
 
                 return (
-                  <p key={i} className="mb-6 last:mb-0">
-                    {block.children?.map((child: any) => child.text).join('')}
-                  </p>
+                  <motion.p
+                    key={i}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: 0.1 * Math.min(i, 5) }}
+                    className="mb-6 last:mb-0"
+                  >
+                    {text}
+                  </motion.p>
                 )
               }
               return null
