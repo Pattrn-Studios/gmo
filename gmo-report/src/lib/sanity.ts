@@ -81,12 +81,11 @@ export async function getLatestReport() {
         "xAxisLabel": chartConfig.xAxisLabel,
         "yAxisLabel": chartConfig.yAxisLabel,
         "yAxisFormat": chartConfig.yAxisFormat,
+        "gaugeMax": chartConfig.gaugeMax,
         chartSource,
-        insights[] {
-          "icon": icon.asset->url,
-          heading,
-          body
-        }
+        insightsPosition,
+        "colorTheme": insightsColor,
+        insights
       }
     }
   }`

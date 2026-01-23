@@ -5,12 +5,6 @@ import { RechartsRenderer } from '@/components/charts/RechartsRenderer'
 import { ChartType } from '@/components/charts/types'
 import { parseCSV } from '@/lib/utils'
 
-interface Insight {
-  icon?: string
-  heading?: string
-  body?: string
-}
-
 interface ChartInsightsSectionProps {
   title?: string
   subtitle?: string
@@ -20,8 +14,9 @@ interface ChartInsightsSectionProps {
   xAxisLabel?: string
   yAxisLabel?: string
   yAxisFormat?: 'number' | 'percent' | 'currency'
+  gaugeMax?: number
   chartSource?: string
-  insights?: Insight[]
+  insights?: string[]  // Array of strings, not objects
   insightsPosition?: 'left' | 'right' | 'top' | 'bottom'
   colorTheme?: string
   'data-section-index': number
@@ -46,14 +41,15 @@ export function ChartInsightsSection({
   xAxisLabel,
   yAxisLabel,
   yAxisFormat,
+  gaugeMax,
   chartSource,
   insights = [],
   insightsPosition = 'right',
-  colorTheme = 'none',
+  colorTheme = 'green',
   'data-section-index': index,
 }: ChartInsightsSectionProps) {
   const parsedData = chartData ? parseCSV(chartData) : []
-  const theme = COLOR_THEMES[colorTheme] || COLOR_THEMES.none
+  const theme = COLOR_THEMES[colorTheme] || COLOR_THEMES.green
   const validInsights = insights.filter(Boolean)
 
   // Determine grid layout based on insights position
@@ -83,26 +79,17 @@ export function ChartInsightsSection({
         color: theme.text,
       }}
     >
-      {title && (
-        <h4 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-80">
-          Key Insights
-        </h4>
-      )}
-      <ul className="space-y-4">
+      <h4 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-80">
+        Key Insights
+      </h4>
+      <ul className="space-y-3">
         {validInsights.map((insight, i) => (
-          <li key={i} className="relative pl-5">
+          <li key={i} className="relative pl-5 text-sm leading-relaxed">
             <span
               className="absolute left-0 top-2 w-2 h-2 rounded-full"
               style={{ backgroundColor: 'currentColor', opacity: 0.6 }}
             />
-            <div>
-              {insight.heading && (
-                <h5 className="font-semibold mb-1">{insight.heading}</h5>
-              )}
-              {insight.body && (
-                <p className="text-sm opacity-80">{insight.body}</p>
-              )}
-            </div>
+            {insight}
           </li>
         ))}
       </ul>
@@ -126,6 +113,7 @@ export function ChartInsightsSection({
           xAxisLabel={xAxisLabel}
           yAxisLabel={yAxisLabel}
           yAxisFormat={yAxisFormat}
+          gaugeMax={gaugeMax}
           height={400}
         />
       )}

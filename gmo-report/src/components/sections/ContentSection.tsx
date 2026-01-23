@@ -16,6 +16,7 @@ interface ContentSectionProps {
   xAxisLabel?: string
   yAxisLabel?: string
   yAxisFormat?: 'number' | 'percent' | 'currency'
+  gaugeMax?: number
   chartSource?: string
   layout?: string
   colorTheme?: string
@@ -44,8 +45,9 @@ export function ContentSection({
   xAxisLabel,
   yAxisLabel,
   yAxisFormat,
+  gaugeMax,
   chartSource,
-  layout = 'full',
+  layout = 'chartFull',
   colorTheme = 'none',
   sectionImage,
   'data-section-index': index,
@@ -53,8 +55,9 @@ export function ContentSection({
   const theme = COLOR_THEMES[colorTheme] || COLOR_THEMES.none
   const parsedData = chartData ? parseCSV(chartData) : []
   const hasColorTheme = colorTheme && colorTheme !== 'none'
-  const isChartLayout = layout === 'chart-left' || layout === 'chart-right'
-  const chartOnLeft = layout === 'chart-left'
+  // Handle both naming conventions (chartLeft/chartRight and chart-left/chart-right)
+  const isChartLayout = ['chartLeft', 'chartRight', 'chart-left', 'chart-right'].includes(layout || '')
+  const chartOnLeft = layout === 'chartLeft' || layout === 'chart-left'
 
   // Determine layout class
   const getLayoutClass = () => {
@@ -131,6 +134,7 @@ export function ContentSection({
                 xAxisLabel={xAxisLabel}
                 yAxisLabel={yAxisLabel}
                 yAxisFormat={yAxisFormat}
+                gaugeMax={gaugeMax}
                 height={380}
               />
               {chartSource && (
