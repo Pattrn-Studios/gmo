@@ -2,7 +2,6 @@
 import { createClient } from '@sanity/client';
 import fs from 'fs';
 import { GMO_COLORS, generateCSSVariablesString } from './lib/design-tokens/index.js';
-import { sectionThemes, getSectionTheme, keyInsightsColors } from './lib/design-tokens/colors.js';
 import { buildChartJsConfig } from './lib/chart-config.js';
 
 // Configure Sanity client

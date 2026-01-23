@@ -111,7 +111,6 @@ function downsampleChartData(labels, datasets, maxLabels = 100) {
     data: sampledIndices.map(i => ds.data[i]),
   }));
 
-  console.log(`[PDF Export] Downsampled chart from ${labels.length} to ${sampledLabels.length} points`);
   return { labels: sampledLabels, datasets: sampledDatasets };
 }
 
@@ -185,7 +184,6 @@ async function renderAllCharts(sections) {
 
   for (const { section, index } of chartsToRender) {
     try {
-      console.log(`[PDF Export] Rendering chart for section ${index} (${section.chartType || 'line'})...`);
       const png = await renderChartToPNG(section);
       if (png) {
         chartImages.set(index, png);
@@ -554,8 +552,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'reportId is required' });
     }
 
-    console.log(`[PDF Export] Starting export for report: ${reportId}`);
-
     // 1. Fetch report from Sanity
     const report = await fetchReportById(reportId);
 
@@ -563,23 +559,14 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Report not found' });
     }
 
-    console.log(`[PDF Export] Fetched report: ${report.title}`);
-
     // 2. Get layout hints (default for now, skip Claude to simplify)
     const layoutHints = getDefaultLayoutHints(report);
 
     // 3. Render charts to PNG
-    console.log('[PDF Export] Rendering charts...');
     const chartImages = await renderAllCharts(report.sections);
-    console.log(`[PDF Export] Rendered ${chartImages.size} charts`);
 
     // 4. Generate PDF
-    console.log('[PDF Export] Generating PDF...');
     const pdfBuffer = await generatePDF(report, chartImages, layoutHints);
-    console.log(`[PDF Export] Generated PDF: ${pdfBuffer.length} bytes`);
-
-    const elapsed = Date.now() - startTime;
-    console.log(`[PDF Export] Complete in ${elapsed}ms`);
 
     // 5. Send response
     const filename = sanitizeFilename(report.title);
