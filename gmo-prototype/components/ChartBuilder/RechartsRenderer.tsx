@@ -214,8 +214,11 @@ export function RechartsRenderer({
   // Use validated series for rendering
   const activeSeries = validSeries.length > 0 ? validSeries : series
 
+  // Normalize chartType to handle any whitespace issues
+  const trimmedChartType = String(chartType).trim()
+
   // Check if chart is stacked
-  const isStacked = chartType === 'stackedColumn' || chartType === 'stackedArea'
+  const isStacked = trimmedChartType === 'stackedColumn' || trimmedChartType === 'stackedArea'
 
   // Get colors for series
   const getColor = (index: number, overrideColor?: string) => {
@@ -238,16 +241,20 @@ export function RechartsRenderer({
   const axisLineStyle = {stroke: '#E0E0E0'}
   const gridStyle = {strokeDasharray: '3 3', stroke: '#E8E8E8'}
 
-  // DEBUG: Log before switch
+  // DEBUG: Log before switch with type info
   console.log('[RechartsRenderer] Before switch:', {
     chartType,
+    trimmedChartType,
+    chartTypeType: typeof chartType,
+    isPie: trimmedChartType === 'pie',
+    isDonut: trimmedChartType === 'donut',
     validSeriesCount: validSeries.length,
     activeSeriesCount: activeSeries.length,
     activeSeriesColumns: activeSeries.map((s) => s.dataColumn),
   })
 
-  // Render different chart types
-  switch (chartType) {
+  // Render different chart types using normalized trimmedChartType
+  switch (trimmedChartType) {
     case 'line':
       console.log('[RechartsRenderer] Entering LINE case')
       return (
@@ -481,7 +488,7 @@ export function RechartsRenderer({
 
       // Use larger outerRadius for thumbnails to fill the space better
       const outerRadius = showLegend ? '70%' : '85%'
-      const innerRadius = chartType === 'donut' ? (showLegend ? '50%' : '55%') : 0
+      const innerRadius = trimmedChartType === 'donut' ? (showLegend ? '50%' : '55%') : 0
 
       return (
         <ResponsiveContainer width="100%" height={height}>
@@ -494,7 +501,7 @@ export function RechartsRenderer({
               cy="50%"
               innerRadius={innerRadius}
               outerRadius={outerRadius}
-              paddingAngle={chartType === 'donut' ? 3 : 1}
+              paddingAngle={trimmedChartType === 'donut' ? 3 : 1}
               label={renderCustomLabel}
               labelLine={showLegend ? {stroke: '#BDBDBD', strokeWidth: 1} : false}
               stroke="#fff"
