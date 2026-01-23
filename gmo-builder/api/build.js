@@ -427,6 +427,20 @@ export default async function handler(req, res) {
     `;
   }
 
+  // Custom JSON serializer that handles functions
+  function serializeConfig(config) {
+    return JSON.stringify(config, (key, value) => {
+      if (typeof value === 'function') {
+        // Convert function to string representation
+        return '__FUNCTION__' + value.toString() + '__ENDFUNCTION__';
+      }
+      return value;
+    }, 2).replace(/"__FUNCTION__(.*?)__ENDFUNCTION__"/g, (match, fn) => {
+      // Unescape the function string and return as raw JS
+      return fn.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+    });
+  }
+
   // Build charts configuration JavaScript using Chart.js
   function buildChartsInitScript(sections) {
     const configs = [];
@@ -436,7 +450,7 @@ export default async function handler(req, res) {
       if (section._type === 'contentSection' && section.hasChart && section.chartData) {
         const config = buildChartJsConfig(section, { animation: true });
         if (config) {
-          configs.push(`new Chart(document.getElementById('chart-${index}'), ${JSON.stringify(config, null, 2)});`);
+          configs.push(`new Chart(document.getElementById('chart-${index}'), ${serializeConfig(config)});`);
         }
       }
 
@@ -444,7 +458,7 @@ export default async function handler(req, res) {
       if (section._type === 'chartInsightsSection' && section.chartData) {
         const config = buildChartJsConfig(section, { animation: true });
         if (config) {
-          configs.push(`new Chart(document.getElementById('chart-insights-${index}'), ${JSON.stringify(config, null, 2)});`);
+          configs.push(`new Chart(document.getElementById('chart-insights-${index}'), ${serializeConfig(config)});`);
         }
       }
     });
@@ -1205,6 +1219,37 @@ ${generateCSSVariablesString('      ')}
   </div>
 
   <script>
+    // Register custom Chart.js plugin for gauge center text
+    Chart.register({
+      id: 'centerText',
+      afterDraw: (chart) => {
+        const centerText = chart.config.options?.plugins?.centerText;
+        if (centerText?.display) {
+          const { ctx, chartArea } = chart;
+          const centerX = (chartArea.left + chartArea.right) / 2;
+          const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+          ctx.save();
+
+          // Draw main value
+          ctx.font = 'bold 24px sans-serif';
+          ctx.fillStyle = '#1A1A1A';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(centerText.value || '', centerX, centerY);
+
+          // Draw "of max" text below
+          if (centerText.maxValue) {
+            ctx.font = '12px sans-serif';
+            ctx.fillStyle = '#5F5F5F';
+            ctx.fillText('of ' + centerText.maxValue, centerX, centerY + 20);
+          }
+
+          ctx.restore();
+        }
+      }
+    });
+
     // Initialize all charts with Chart.js
     ${chartsInitScript}
 
