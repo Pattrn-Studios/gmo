@@ -1219,6 +1219,13 @@ ${generateCSSVariablesString('      ')}
   </div>
 
   <script>
+    // Y-axis value formatter (must be defined before charts initialize)
+    function formatYAxisValue(value, format) {
+      if (format === 'percent') return value + '%';
+      if (format === 'currency') return '$' + value.toLocaleString();
+      return value.toLocaleString();
+    }
+
     // Register custom Chart.js plugin for gauge center text
     Chart.register({
       id: 'centerText',
