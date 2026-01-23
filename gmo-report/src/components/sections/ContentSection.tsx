@@ -151,7 +151,7 @@ export function ContentSection({
             </motion.div>
           )}
 
-          {/* Text content */}
+          {/* Text content with optional section image */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -159,6 +159,17 @@ export function ContentSection({
             transition={{ duration: 0.6, delay: 0.3 }}
             className={`content-block ${isChartLayout ? (chartOnLeft ? 'order-2' : 'order-1') : ''}`}
           >
+            {/* Section image - shows in text column for chart layouts, or standalone for no-chart layouts */}
+            {sectionImage && (
+              <div className="mb-8">
+                <img
+                  src={sectionImage}
+                  alt={title || 'Section illustration'}
+                  className="max-w-full max-h-[300px] object-contain rounded-lg"
+                />
+              </div>
+            )}
+
             {content?.map((block: any, i: number) => {
               if (block._type === 'block') {
                 const style = block.style || 'normal'
@@ -201,22 +212,6 @@ export function ContentSection({
               return null
             })}
           </motion.div>
-
-          {/* Section image (when no chart) */}
-          {sectionImage && !hasChart && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              className="mt-12 text-center"
-            >
-              <img
-                src={sectionImage}
-                alt=""
-                className="max-w-full max-h-[300px] mx-auto object-contain rounded-lg"
-              />
-            </motion.div>
-          )}
         </div>
       </div>
     </section>

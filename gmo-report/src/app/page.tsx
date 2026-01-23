@@ -16,7 +16,12 @@ export default async function HomePage() {
   return (
     <ReportLayout report={report}>
       {report.sections?.map((section: any, index: number) => (
-        <SectionRenderer key={index} section={section} index={index} />
+        <SectionRenderer
+          key={index}
+          section={section}
+          index={index}
+          allSections={report.sections}
+        />
       ))}
     </ReportLayout>
   )

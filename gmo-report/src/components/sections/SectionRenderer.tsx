@@ -10,9 +10,10 @@ import { HeaderSection } from './HeaderSection'
 interface SectionRendererProps {
   section: any
   index: number
+  allSections?: any[]
 }
 
-export function SectionRenderer({ section, index }: SectionRendererProps) {
+export function SectionRenderer({ section, index, allSections = [] }: SectionRendererProps) {
   const sectionProps = {
     ...section,
     'data-section-index': index,
@@ -32,7 +33,7 @@ export function SectionRenderer({ section, index }: SectionRendererProps) {
       return <ChartInsightsSection {...sectionProps} />
 
     case 'navigationSection':
-      return <NavigationSection {...sectionProps} />
+      return <NavigationSection {...sectionProps} allSections={allSections} />
 
     case 'headerSection':
       return <HeaderSection {...sectionProps} />
