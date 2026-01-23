@@ -1,55 +1,42 @@
-import React from 'react';
-import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official';
-import { ChartRecommendation } from './types';
-import { parseCSV, mapChartType } from './utils';
-import { ThumbnailsGrid, ThumbnailCard } from './styles';
+import React, {useMemo} from 'react'
+import {ChartRecommendation} from './types'
+import {parseCSV} from './utils'
+import {ThumbnailsGrid, ThumbnailCard} from './styles'
+import {RechartsRenderer} from './RechartsRenderer'
 
 interface Props {
-  alternatives: ChartRecommendation[];
-  csvData: string;
-  onSelect: (index: number) => void;
+  alternatives: ChartRecommendation[]
+  csvData: string
+  onSelect: (index: number) => void
 }
 
-export function AlternativesThumbnails({ alternatives, csvData, onSelect }: Props) {
-  if (alternatives.length === 0) return null;
+export function AlternativesThumbnails({alternatives, csvData, onSelect}: Props) {
+  const parsedData = useMemo(() => parseCSV(csvData), [csvData])
+
+  if (alternatives.length === 0) return null
 
   return (
     <div>
       <h4>Alternative Charts</h4>
       <ThumbnailsGrid>
-        {alternatives.map((alt, idx) => {
-          const parsedData = parseCSV(csvData);
-          const categories = parsedData.map(row => row[Object.keys(row)[0]]);
-
-          const config: Highcharts.Options = {
-            chart: {
-              type: mapChartType(alt.chartType),
-              height: 150,
-              width: 200
-            },
-            title: { text: undefined },
-            xAxis: { categories, visible: false },
-            yAxis: { visible: false },
-            series: alt.series.map(s => ({
-              type: mapChartType(alt.chartType) as any,
-              name: s.label,
-              data: parsedData.map(row => parseFloat(row[s.dataColumn]) || 0),
-              color: s.colour
-            })),
-            legend: { enabled: false },
-            credits: { enabled: false },
-            tooltip: { enabled: false }
-          };
-
-          return (
-            <ThumbnailCard key={idx} onClick={() => onSelect(idx)}>
-              <HighchartsReact highcharts={Highcharts} options={config} />
-              <span>{alt.chartType}</span>
-            </ThumbnailCard>
-          );
-        })}
+        {alternatives.map((alt, idx) => (
+          <ThumbnailCard key={idx} onClick={() => onSelect(idx)}>
+            <RechartsRenderer
+              chartType={alt.chartType}
+              data={parsedData}
+              series={alt.series}
+              height={150}
+              showLegend={false}
+              showTooltip={false}
+              showAxes={false}
+              showGrid={false}
+              gaugeValue={alt.gaugeValue}
+              gaugeMax={alt.gaugeMax}
+            />
+            <span>{alt.chartType}</span>
+          </ThumbnailCard>
+        ))}
       </ThumbnailsGrid>
     </div>
-  );
+  )
 }

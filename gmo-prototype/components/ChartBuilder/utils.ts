@@ -67,25 +67,32 @@ export function parseCSV(csv: string): Record<string, any>[] {
   return result.data as Record<string, any>[];
 }
 
-// Chart type mapping
-export function mapChartType(sanityType: string): string {
-  const mapping: Record<string, string> = {
-    'line': 'line',
-    'column': 'column',
-    'bar': 'bar',
-    'area': 'area',
-    'stackedColumn': 'column',
-    'stackedArea': 'area'
-  };
-  return mapping[sanityType] || 'line';
+// Format a value based on the specified format type
+// Used by Recharts components for axis ticks and tooltips
+export function formatValue(value: number, format?: string): string {
+  if (format === 'percent') return `${value}%`
+  if (format === 'currency') return `$${value.toLocaleString()}`
+  return value.toLocaleString()
 }
 
-// Y-axis formatter
-export function getYAxisFormatter(format?: string) {
-  return function(this: any): string {
-    const value = this.value;
-    if (format === 'percent') return `${value}%`;
-    if (format === 'currency') return `$${value.toLocaleString()}`;
-    return value.toLocaleString();
-  };
+// Get display name for chart type
+export function getChartTypeDisplayName(chartType: string): string {
+  const displayNames: Record<string, string> = {
+    line: 'Line Chart',
+    column: 'Column Chart',
+    bar: 'Bar Chart',
+    area: 'Area Chart',
+    stackedColumn: 'Stacked Column',
+    stackedArea: 'Stacked Area',
+    pie: 'Pie Chart',
+    donut: 'Donut Chart',
+    scatter: 'Scatter Plot',
+    radar: 'Radar Chart',
+    composed: 'Composed Chart',
+    waterfall: 'Waterfall Chart',
+    gauge: 'Gauge',
+    treemap: 'Treemap',
+    heatmap: 'Heatmap',
+  }
+  return displayNames[chartType] || chartType
 }

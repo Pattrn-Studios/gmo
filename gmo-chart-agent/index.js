@@ -145,7 +145,7 @@ app.post('/api/analyse', async (req, res) => {
   }
 
   try {
-    const prompt = `You are a chart recommendation assistant for AXA Investment Managers' Global Market Outlook reports using Highcharts.
+    const prompt = `You are a chart recommendation assistant for AXA Investment Managers' Global Market Outlook reports.
 
 Analyse this CSV data and recommend the BEST chart configuration, plus 2-3 viable alternative chart types.
 
@@ -175,20 +175,41 @@ CRITICAL: Respond with ONLY valid JSON in this exact format, no other text, no m
   ]
 }
 
-RULES FOR MAIN RECOMMENDATION:
+CHART TYPE SELECTION RULES:
+
+Basic Charts:
 - Time series with 1-3 numeric columns → "line"
 - Time series with 4+ columns → "line" (highlight key series)
 - Categories under 7 items → "column" (vertical bar)
-- Categories 7+ items → "bar" (horizontal)
-- Part of whole data → stacked column or area
-- chartType must be one of: "line", "column", "bar", "area", "stackedColumn", "stackedArea"
-- yAxisFormat must be one of: "number", "percent", "currency"
-- First column is usually the x-axis (dates or categories)
+- Categories 7+ items → "bar" (horizontal bar)
+- Time series emphasizing magnitude → "area"
+- Part of whole over time → "stackedArea"
+- Part of whole by category → "stackedColumn"
+
+Proportional Charts:
+- Single series showing proportions/percentages → "pie"
+- Same as pie but with emphasis on total → "donut"
+
+Analytical Charts:
+- Correlation between two numeric variables → "scatter"
+- Multi-dimensional comparison (3+ axes) → "radar"
+- Mixed visualization (bars + lines) → "composed"
+- Sequential changes with running total → "waterfall"
+
+Specialized Charts:
+- Single KPI value with target/threshold → "gauge" (include gaugeMax field)
+- Hierarchical or nested category data → "treemap"
+- Matrix data (row × column with values) → "heatmap"
+
+chartType must be one of: "line", "column", "bar", "area", "stackedColumn", "stackedArea", "pie", "donut", "scatter", "radar", "composed", "waterfall", "gauge", "treemap", "heatmap"
+
+yAxisFormat must be one of: "number", "percent", "currency"
 
 RULES FOR ALTERNATIVES (provide 2-3 alternatives):
 - Suggest different chart types that could also work with this data
-- For time series: if main is "line", alternatives could be "area", "column"
-- For categories: if main is "column", alternatives could be "bar", "line"
+- For time series: if main is "line", alternatives could be "area", "column", "composed"
+- For categories: if main is "column", alternatives could be "bar", "radar", "treemap"
+- For proportions: if main is "pie", alternatives could be "donut", "treemap"
 - For part-to-whole: suggest both stacked and non-stacked versions
 - Each alternative should have the SAME series, xAxisLabel, and yAxisLabel as the main recommendation
 - Only change the chartType and update the reasoning to explain why this alternative could work
@@ -210,7 +231,7 @@ DO NOT include any text before or after the JSON. DO NOT wrap in markdown code b
 // Refinement endpoint
 app.post('/api/refine', async (req, res) => {
   const { csvData, currentRecommendation, refinementRequest } = req.body;
-  
+
   if (!csvData || !currentRecommendation || !refinementRequest) {
     return res.status(400).json({ error: 'Missing required data' });
   }
@@ -233,12 +254,14 @@ ${getColorPromptInstructions()}
 
 Common refinement requests and how to handle them:
 - "Show every year/month/quarter" → Ensure all x-axis categories are included, don't skip any
-- "Change to [chart type]" → Update chartType field to "line", "column", "bar", or "area"
+- "Change to [chart type]" → Update chartType field
 - "Use [color] for [series]" → Update the colour field (must use brand colors above)
 - "Remove [series]" → Remove that series from the series array
 - "Add title" → Update the title field
 - "Change y-axis to percentage" → Update yAxisFormat to "percent"
-- "Make it thicker/bolder" → Add note in reasoning (Highcharts styling not in JSON)
+- "Make it a pie chart" → Change chartType to "pie" or "donut"
+- "Show as radar" → Change chartType to "radar"
+- "Add a gauge" → Change chartType to "gauge" and add gaugeMax field
 
 CRITICAL: Respond with ONLY valid JSON in this exact format, no other text, no markdown, no explanation:
 {
@@ -253,10 +276,11 @@ CRITICAL: Respond with ONLY valid JSON in this exact format, no other text, no m
   "reasoning": "Brief explanation of the change you made"
 }
 
-IMPORTANT: 
+IMPORTANT:
 - Keep all the same data columns and structure. Only change what the user specifically requested.
-- chartType must be one of: "line", "column", "bar", "area"
+- chartType must be one of: "line", "column", "bar", "area", "stackedColumn", "stackedArea", "pie", "donut", "scatter", "radar", "composed", "waterfall", "gauge", "treemap", "heatmap"
 - yAxisFormat must be one of: "number", "percent", "currency"
+- For gauge charts, include "gaugeMax": number field
 - Colors must be from the brand palette above
 - DO NOT include any text before or after the JSON
 - DO NOT wrap in markdown code blocks`;

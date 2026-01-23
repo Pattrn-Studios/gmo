@@ -3,6 +3,7 @@ import PDFDocument from 'pdfkit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { buildChartJsConfig, parseCSV } from '../lib/chart-config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,102 +84,7 @@ async function fetchReportById(reportId) {
   return await client.fetch(query, { reportId });
 }
 
-/**
- * Parse CSV data into array of objects
- */
-function parseCSV(csv) {
-  if (!csv) return [];
-
-  const lines = csv.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim());
-
-  return lines.slice(1).map(line => {
-    const values = line.split(',');
-    const obj = {};
-    headers.forEach((header, i) => {
-      const val = values[i]?.trim();
-      obj[header] = isNaN(val) ? val : parseFloat(val);
-    });
-    return obj;
-  });
-}
-
-/**
- * Build Highcharts configuration for a section
- */
-function buildChartConfig(section) {
-  if (!section.hasChart || !section.chartData) return null;
-
-  const parsedData = parseCSV(section.chartData);
-  if (parsedData.length === 0) return null;
-
-  const xAxisKey = Object.keys(parsedData[0])[0];
-  const categories = parsedData.map(row => row[xAxisKey]);
-
-  const series = (section.chartSeries || []).map(s => ({
-    name: s.label,
-    data: parsedData.map(row => row[s.dataColumn]),
-    color: s.colour,
-  }));
-
-  const chartTypeMap = {
-    line: 'line',
-    column: 'column',
-    bar: 'bar',
-    area: 'area',
-    stackedColumn: 'column',
-    stackedArea: 'area',
-  };
-
-  const isStacked = section.chartType?.includes('stacked');
-
-  let yAxisFormatter;
-  if (section.yAxisFormat === 'percent') {
-    yAxisFormatter = 'percent';
-  } else if (section.yAxisFormat === 'currency') {
-    yAxisFormatter = 'currency';
-  } else {
-    yAxisFormatter = 'number';
-  }
-
-  return {
-    chart: {
-      type: chartTypeMap[section.chartType] || 'line',
-      style: { fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' },
-      backgroundColor: 'white',
-      height: 400,
-    },
-    title: { text: null },
-    xAxis: {
-      categories: categories,
-      title: { text: section.xAxisLabel || null },
-      labels: { style: { color: GMO_COLORS.textSecondary, fontSize: '11px' } },
-    },
-    yAxis: {
-      title: { text: section.yAxisLabel || null },
-      labels: {
-        style: { color: GMO_COLORS.textSecondary, fontSize: '11px' },
-        format: yAxisFormatter === 'percent' ? '{value}%' :
-                yAxisFormatter === 'currency' ? '${value:,.0f}' : '{value:,.0f}'
-      },
-    },
-    legend: {
-      align: 'left',
-      itemStyle: { color: GMO_COLORS.textPrimary, fontSize: '11px' },
-    },
-    plotOptions: {
-      series: {
-        animation: false,
-        marker: { enabled: false },
-        lineWidth: 3,
-      },
-      column: { stacking: isStacked ? 'normal' : undefined },
-      area: { stacking: isStacked ? 'normal' : undefined, fillOpacity: 0.25 },
-    },
-    series: series,
-    credits: { enabled: false },
-  };
-}
+// parseCSV and buildChartJsConfig are imported from ../lib/chart-config.js
 
 /**
  * Downsample data arrays to reduce total data points for QuickChart free tier
@@ -211,92 +117,35 @@ function downsampleChartData(labels, datasets, maxLabels = 100) {
 
 /**
  * Render a chart to PNG using QuickChart.io API
- * Converts Highcharts config to Chart.js format
+ * Uses the shared Chart.js configuration builder
  */
-async function renderChartToPNG(chartConfig, options = {}) {
+async function renderChartToPNG(section, options = {}) {
   const { width = 700, height = 400 } = options;
 
-  // Map Highcharts chart types to Chart.js types
-  const chartTypeMap = {
-    line: 'line',
-    column: 'bar',
-    bar: 'horizontalBar',
-    area: 'line',
-  };
-
-  const chartType = chartTypeMap[chartConfig.chart?.type] || 'line';
-  const isArea = chartConfig.chart?.type === 'area';
-  const isStacked = chartConfig.plotOptions?.column?.stacking === 'normal' ||
-                    chartConfig.plotOptions?.area?.stacking === 'normal';
-
-  // Convert Highcharts series to Chart.js datasets
-  let datasets = (chartConfig.series || []).map((s, index) => {
-    const color = s.color || GMO_COLORS.primaryGreen;
-    return {
-      label: s.name || `Series ${index + 1}`,
-      data: s.data,
-      backgroundColor: isArea ? color + '40' : color, // Add transparency for area
-      borderColor: color,
-      borderWidth: 2,
-      fill: isArea,
-      tension: 0.1,
-    };
-  });
-
-  let labels = chartConfig.xAxis?.categories || [];
+  // Build Chart.js configuration using shared builder (with PDF-specific options)
+  const chartJsConfig = buildChartJsConfig(section, { forPdf: true, animation: false });
+  if (!chartJsConfig) return null;
 
   // Downsample if too many data points (QuickChart free tier limit)
-  const downsampled = downsampleChartData(labels, datasets);
-  labels = downsampled.labels;
-  datasets = downsampled.datasets;
+  if (chartJsConfig.data?.labels && chartJsConfig.data?.datasets) {
+    const downsampled = downsampleChartData(chartJsConfig.data.labels, chartJsConfig.data.datasets);
+    chartJsConfig.data.labels = downsampled.labels;
+    chartJsConfig.data.datasets = downsampled.datasets;
+  }
 
-  // Build Chart.js configuration
-  const quickChartConfig = {
-    type: chartType,
-    data: {
-      labels: labels,
-      datasets: datasets,
-    },
-    options: {
-      responsive: false,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            font: { size: 11 },
-            color: GMO_COLORS.textPrimary,
-          },
-        },
-        title: {
-          display: false,
-        },
-      },
-      scales: {
-        x: {
-          title: {
-            display: !!chartConfig.xAxis?.title?.text,
-            text: chartConfig.xAxis?.title?.text || '',
-          },
-          stacked: isStacked,
-        },
-        y: {
-          title: {
-            display: !!chartConfig.yAxis?.title?.text,
-            text: chartConfig.yAxis?.title?.text || '',
-          },
-          stacked: isStacked,
-        },
-      },
-    },
-  };
+  // Disable animation for PDF rendering
+  if (chartJsConfig.options) {
+    chartJsConfig.options.animation = false;
+    chartJsConfig.options.responsive = false;
+    chartJsConfig.options.maintainAspectRatio = false;
+  }
 
   try {
     const response = await fetch('https://quickchart.io/chart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chart: quickChartConfig,
+        chart: chartJsConfig,
         width: width,
         height: height,
         backgroundColor: 'white',
@@ -336,10 +185,9 @@ async function renderAllCharts(sections) {
 
   for (const { section, index } of chartsToRender) {
     try {
-      const chartConfig = buildChartConfig(section);
-      if (chartConfig) {
-        console.log(`[PDF Export] Rendering chart for section ${index}...`);
-        const png = await renderChartToPNG(chartConfig);
+      console.log(`[PDF Export] Rendering chart for section ${index} (${section.chartType || 'line'})...`);
+      const png = await renderChartToPNG(section);
+      if (png) {
         chartImages.set(index, png);
       }
     } catch (error) {

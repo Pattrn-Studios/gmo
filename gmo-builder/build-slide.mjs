@@ -2,6 +2,7 @@
 import { createClient } from '@sanity/client';
 import fs from 'fs';
 import { GMO_COLORS, generateCSSVariablesString } from './lib/design-tokens/index.js';
+import { buildChartJsConfig } from './lib/chart-config.js';
 
 // Configure Sanity client
 const client = createClient({
@@ -20,53 +21,50 @@ async function fetchLatestReport() {
     summary,
     sections[] {
       _type,
-      
+
       _type == "titleSection" => {
         heading,
         subheading,
         backgroundColor
       },
-      
+
       _type == "navigationSection" => {
         title,
         showPageNumbers,
         layout
       },
-      
+
       _type == "contentSection" => {
         title,
         subtitle,
         content,
         hasChart,
-        chartType,
-        chartData,
-        chartSeries[] {
-          label,
-          dataColumn,
-          colour
-        },
-        xAxisLabel,
-        yAxisLabel,
-        yAxisFormat,
+        "chartType": chartConfig.chartType,
+        "chartData": chartConfig.chartData,
+        "chartSeries": chartConfig.chartSeries[] { label, dataColumn, colour },
+        "xAxisLabel": chartConfig.xAxisLabel,
+        "yAxisLabel": chartConfig.yAxisLabel,
+        "yAxisFormat": chartConfig.yAxisFormat,
+        "gaugeMax": chartConfig.gaugeMax,
         chartSource,
         layout
       }
     }
   }`;
-  
+
   return await client.fetch(query);
 }
 
 // Convert Sanity portable text to HTML
 function portableTextToHTML(blocks) {
   if (!blocks || !Array.isArray(blocks)) return '';
-  
+
   let html = '';
   let inList = false;
-  
+
   blocks.forEach(block => {
     if (block._type !== 'block') return;
-    
+
     const text = block.children
       ?.map(child => {
         let t = child.text || '';
@@ -76,7 +74,7 @@ function portableTextToHTML(blocks) {
         return t;
       })
       .join('') || '';
-    
+
     if (block.listItem === 'bullet') {
       if (!inList) {
         html += '<ul>';
@@ -88,142 +86,16 @@ function portableTextToHTML(blocks) {
         html += '</ul>';
         inList = false;
       }
-      
+
       if (block.style === 'h2') html += `<h2>${text}</h2>`;
       else if (block.style === 'h3') html += `<h3>${text}</h3>`;
       else html += `<p>${text}</p>`;
     }
   });
-  
+
   if (inList) html += '</ul>';
-  
+
   return html;
-}
-
-// Parse CSV data
-function parseCSV(csv) {
-  if (!csv) return [];
-  
-  const lines = csv.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim());
-  
-  return lines.slice(1).map(line => {
-    const values = line.split(',');
-    const obj = {};
-    headers.forEach((header, i) => {
-      const val = values[i]?.trim();
-      obj[header] = isNaN(val) ? val : parseFloat(val);
-    });
-    return obj;
-  });
-}
-
-// Build Highcharts configuration
-function buildChartConfig(section) {
-  if (!section.hasChart || !section.chartData) return null;
-  
-  const parsedData = parseCSV(section.chartData);
-  if (parsedData.length === 0) return null;
-  
-  const xAxisKey = Object.keys(parsedData[0])[0];
-  const categories = parsedData.map(row => row[xAxisKey]);
-  
-  const series = (section.chartSeries || []).map(s => ({
-    name: s.label,
-    data: parsedData.map(row => row[s.dataColumn]),
-    color: s.colour,
-  }));
-  
-  const chartTypeMap = {
-    line: 'line',
-    column: 'column',
-    bar: 'bar',
-    area: 'area',
-    stackedColumn: 'column',
-    stackedArea: 'area',
-  };
-  
-  const isStacked = section.chartType?.includes('stacked');
-  
-  return {
-    chart: {
-      type: chartTypeMap[section.chartType] || 'line',
-      style: {
-        fontFamily: '"BNPP Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      },
-      backgroundColor: 'transparent',
-      height: 450,
-    },
-    title: { text: null },
-    xAxis: {
-      categories: categories,
-      title: { 
-        text: section.xAxisLabel || null,
-        style: { color: GMO_COLORS.textSecondary, fontSize: '14px' }
-      },
-      labels: { style: { color: GMO_COLORS.textSecondary, fontSize: '13px' } },
-      lineColor: '#E0E0E0',
-      gridLineWidth: 0,
-    },
-    yAxis: {
-      title: { 
-        text: section.yAxisLabel || null,
-        style: { color: GMO_COLORS.textSecondary, fontSize: '14px' }
-      },
-      labels: {
-        style: { color: GMO_COLORS.textSecondary, fontSize: '13px' },
-        formatter: function() {
-          if (section.yAxisFormat === 'percent') return this.value + '%';
-          if (section.yAxisFormat === 'currency') return '$' + this.value.toLocaleString();
-          if (section.yAxisFormat === 'decimal') return this.value.toFixed(2);
-          return this.value.toLocaleString();
-        }
-      },
-      gridLineColor: '#F0F0F0',
-      gridLineWidth: 1,
-    },
-    legend: {
-      align: 'left',
-      verticalAlign: 'top',
-      itemStyle: { 
-        color: GMO_COLORS.textPrimary, 
-        fontWeight: '400',
-        fontSize: '14px'
-      },
-      itemHoverStyle: { color: GMO_COLORS.primaryGreen },
-    },
-    tooltip: {
-      shared: true,
-      crosshairs: true,
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: GMO_COLORS.primaryGreen,
-      borderWidth: 1,
-      shadow: false,
-      style: {
-        fontSize: '13px',
-        color: GMO_COLORS.textPrimary
-      },
-    },
-    plotOptions: {
-      series: {
-        animation: { duration: 1200, easing: 'easeOutQuart' },
-        marker: { enabled: false, states: { hover: { enabled: true, radius: 4 } } },
-        lineWidth: 3,
-      },
-      column: { 
-        stacking: isStacked ? 'normal' : undefined,
-        borderRadius: 4,
-        borderWidth: 0,
-      },
-      area: { 
-        stacking: isStacked ? 'normal' : undefined,
-        fillOpacity: 0.25,
-        lineWidth: 3,
-      },
-    },
-    series: series,
-    credits: { enabled: false },
-  };
 }
 
 // Build navigation HTML
@@ -235,7 +107,7 @@ function buildNavigationHTML(section, allSections) {
       subtitle: s.subtitle,
       id: `section-${i}`
     }));
-  
+
   const cards = contentSections
     .map(s => `
       <a href="#${s.id}" class="nav-card">
@@ -244,7 +116,7 @@ function buildNavigationHTML(section, allSections) {
       </a>
     `)
     .join('');
-  
+
   return `
     <section class="navigation-section">
       <div class="container">
@@ -261,24 +133,25 @@ function buildNavigationHTML(section, allSections) {
 function buildContentSectionHTML(section, index) {
   const hasChart = section.hasChart && section.chartData;
   const chartId = hasChart ? `chart-${index}` : null;
-  
+
   let layoutClass = 'container-narrow';
   let contentHTML = '';
-  
+
   if (hasChart) {
+    // Use canvas element for Chart.js
     const chartHTML = `
       <div class="chart-wrapper">
-        <div class="chart-container" id="${chartId}"></div>
+        <canvas class="chart-container" id="${chartId}"></canvas>
         ${section.chartSource ? `<p class="chart-source">Source: ${section.chartSource}</p>` : ''}
       </div>
     `;
-    
+
     const textHTML = `
       <div class="content-block">
         ${portableTextToHTML(section.content)}
       </div>
     `;
-    
+
     if (section.layout === 'chartLeft') {
       layoutClass = 'container';
       contentHTML = `
@@ -311,7 +184,7 @@ function buildContentSectionHTML(section, index) {
       </div>
     `;
   }
-  
+
   return `
     <section class="content-section" id="section-${index}">
       <div class="${layoutClass}">
@@ -325,21 +198,19 @@ function buildContentSectionHTML(section, index) {
   `;
 }
 
-// Build charts configuration JavaScript
-function buildChartsConfig(sections) {
+// Build charts configuration JavaScript using Chart.js
+function buildChartsInitScript(sections) {
   const configs = sections
     .map((section, index) => {
       if (!section.hasChart || !section.chartData) return null;
-      
-      const config = buildChartConfig(section);
+
+      const config = buildChartJsConfig(section, { animation: true });
       if (!config) return null;
-      
-      return `
-        Highcharts.chart('chart-${index}', ${JSON.stringify(config, null, 2)});
-      `;
+
+      return `new Chart(document.getElementById('chart-${index}'), ${JSON.stringify(config, null, 2)});`;
     })
     .filter(Boolean);
-  
+
   return configs.join('\n');
 }
 
@@ -356,26 +227,31 @@ function generateHTML(report) {
       return '';
     })
     .join('\n');
-  
-  const chartsConfig = buildChartsConfig(report.sections);
-  
+
+  const chartsInitScript = buildChartsInitScript(report.sections);
+
   const publicationDate = new Date(report.publicationDate).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
-  
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${report.title}</title>
-  
-  <script src="https://code.highcharts.com/highcharts.js"></script>
+
+  <!-- Chart.js for chart rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Optional Chart.js plugins for specialized chart types -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1/dist/chartjs-chart-matrix.min.js"></script>
+  <!-- GSAP for animations -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
-  
+
   <style>
     :root {
 ${generateCSSVariablesString('      ')}
@@ -388,36 +264,36 @@ ${generateCSSVariablesString('      ')}
       --bg-primary: var(--color-bg-primary);
       --bg-secondary: var(--color-bg-secondary);
     }
-    
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     html {
       scroll-behavior: smooth;
     }
-    
+
     body {
       font-family: 'BNPP Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
       background: var(--bg-primary);
       line-height: 1.6;
     }
-    
+
     .container {
       max-width: 1400px;
       margin: 0 auto;
       padding: 0 24px;
     }
-    
+
     .container-narrow {
       max-width: 900px;
       margin: 0 auto;
       padding: 0 24px;
     }
-    
+
     /* Header */
     .report-header {
       background: linear-gradient(135deg, var(--gmo-green) 0%, #132728 100%);
@@ -426,7 +302,7 @@ ${generateCSSVariablesString('      ')}
       position: relative;
       overflow: hidden;
     }
-    
+
     .report-header::before {
       content: '';
       position: absolute;
@@ -438,47 +314,47 @@ ${generateCSSVariablesString('      ')}
       background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
       background-size: 50px 50px;
     }
-    
+
     .report-header .container {
       position: relative;
       z-index: 1;
     }
-    
+
     h1 {
       font-size: clamp(2.5rem, 5vw, 4rem);
       font-weight: 700;
       line-height: 1.05;
       margin-bottom: 16px;
     }
-    
+
     .lead {
       font-size: 1.375rem;
       line-height: 2rem;
       opacity: 0.9;
       margin-bottom: 24px;
     }
-    
+
     .report-meta {
       display: flex;
       gap: 24px;
       font-size: 1rem;
       opacity: 0.85;
     }
-    
+
     /* Navigation */
     .navigation-section {
       background: var(--bg-secondary);
       padding: 72px 0;
       border-top: 4px solid var(--gmo-green);
     }
-    
+
     .nav-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 24px;
       margin-top: 48px;
     }
-    
+
     .nav-card {
       background: white;
       padding: 24px;
@@ -489,39 +365,39 @@ ${generateCSSVariablesString('      ')}
       color: inherit;
       display: block;
     }
-    
+
     .nav-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 24px rgba(62, 114, 116, 0.15);
       border-left-color: var(--gmo-blue);
     }
-    
+
     .nav-card h4 {
       font-size: 1.25rem;
       margin-bottom: 8px;
       color: var(--gmo-green);
     }
-    
+
     .nav-card p {
       font-size: 0.95rem;
       color: var(--text-secondary);
       margin: 0;
     }
-    
+
     /* Content Sections */
     .content-section {
       padding: 96px 0;
       border-bottom: 1px solid #E0E0E0;
     }
-    
+
     .content-section:last-of-type {
       border-bottom: none;
     }
-    
+
     .section-header {
       margin-bottom: 72px;
     }
-    
+
     .section-header h2 {
       font-size: clamp(2rem, 4vw, 3.5rem);
       font-weight: 700;
@@ -529,7 +405,7 @@ ${generateCSSVariablesString('      ')}
       position: relative;
       display: inline-block;
     }
-    
+
     .section-header h2::after {
       content: '';
       position: absolute;
@@ -540,14 +416,14 @@ ${generateCSSVariablesString('      ')}
       background: var(--gmo-green);
       border-radius: 2px;
     }
-    
+
     .section-subtitle {
       font-size: 1.5rem;
       color: var(--text-secondary);
       font-weight: 300;
       margin-top: 16px;
     }
-    
+
     /* Layouts */
     .layout-chart-left {
       display: grid;
@@ -555,14 +431,14 @@ ${generateCSSVariablesString('      ')}
       gap: 72px;
       align-items: start;
     }
-    
+
     .layout-chart-right {
       display: grid;
       grid-template-columns: 1fr 1.2fr;
       gap: 72px;
       align-items: start;
     }
-    
+
     @media (max-width: 900px) {
       .layout-chart-left,
       .layout-chart-right {
@@ -570,7 +446,7 @@ ${generateCSSVariablesString('      ')}
         gap: 48px;
       }
     }
-    
+
     /* Charts */
     .chart-wrapper {
       background: white;
@@ -578,47 +454,50 @@ ${generateCSSVariablesString('      ')}
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
       border: 1px solid #E0E0E0;
-    }
-    
-    .chart-container {
-      width: 100%;
+      position: relative;
       height: 450px;
     }
-    
+
+    .chart-container {
+      width: 100%;
+      height: 100%;
+      max-height: 450px;
+    }
+
     .chart-source {
       margin-top: 16px;
       font-size: 0.875rem;
       color: var(--text-secondary);
       font-style: italic;
     }
-    
+
     /* Content */
     .content-block {
       font-size: 1.125rem;
       line-height: 1.8;
     }
-    
+
     .content-block p {
       margin-bottom: 24px;
     }
-    
+
     .content-block ul {
       list-style: none;
       padding: 0;
       margin: 48px 0;
     }
-    
+
     .content-block li {
       padding: 16px 0;
       padding-left: 24px;
       position: relative;
       border-bottom: 1px solid #F0F0F0;
     }
-    
+
     .content-block li:last-child {
       border-bottom: none;
     }
-    
+
     .content-block li::before {
       content: '';
       position: absolute;
@@ -629,13 +508,13 @@ ${generateCSSVariablesString('      ')}
       background: var(--gmo-green);
       border-radius: 50%;
     }
-    
+
     h3 {
       font-size: clamp(1.5rem, 3vw, 2rem);
       font-weight: 300;
       margin-bottom: 16px;
     }
-    
+
     /* Footer */
     .report-footer {
       background: var(--bg-secondary);
@@ -644,12 +523,12 @@ ${generateCSSVariablesString('      ')}
       text-align: center;
       border-top: 1px solid #E0E0E0;
     }
-    
+
     .report-footer p {
       margin: 0;
       color: var(--text-secondary);
     }
-    
+
     /* Scroll Progress */
     .scroll-indicator {
       position: fixed;
@@ -666,33 +545,34 @@ ${generateCSSVariablesString('      ')}
 </head>
 <body>
   <div class="scroll-indicator" id="scroll-indicator"></div>
-  
+
   <header class="report-header">
     <div class="container">
       <h1>${report.title}</h1>
       ${report.summary ? `<p class="lead">${report.summary}</p>` : ''}
       <div class="report-meta">
-        <span>📅 ${publicationDate}</span>
-        <span>✍️ ${report.author}</span>
+        <span>${publicationDate}</span>
+        <span>${report.author}</span>
       </div>
     </div>
   </header>
-  
+
   ${sectionsHTML}
-  
+
   <footer class="report-footer">
     <div class="container">
       <p>&copy; ${new Date().getFullYear()} AXA Investment Managers. All rights reserved.</p>
       <p>Global Market Outlook</p>
     </div>
   </footer>
-  
+
   <script>
-    ${chartsConfig}
-    
+    // Initialize all charts with Chart.js
+    ${chartsInitScript}
+
     // GSAP Animations
     gsap.registerPlugin(ScrollTrigger);
-    
+
     // Scroll progress
     gsap.to('#scroll-indicator', {
       scaleX: 1,
@@ -703,7 +583,7 @@ ${generateCSSVariablesString('      ')}
         scrub: 0.3
       }
     });
-    
+
     // Header animations
     gsap.from('.report-header h1', {
       opacity: 0,
@@ -711,21 +591,21 @@ ${generateCSSVariablesString('      ')}
       duration: 0.8,
       delay: 0.2
     });
-    
+
     gsap.from('.report-header .lead', {
       opacity: 0,
       y: 20,
       duration: 0.6,
       delay: 0.4
     });
-    
+
     gsap.from('.report-header .report-meta', {
       opacity: 0,
       y: 20,
       duration: 0.6,
       delay: 0.6
     });
-    
+
     // Section animations
     gsap.utils.toArray('.content-section').forEach((section) => {
       gsap.from(section.querySelector('.section-header'), {
@@ -738,7 +618,7 @@ ${generateCSSVariablesString('      ')}
           toggleActions: 'play none none none'
         }
       });
-      
+
       const chart = section.querySelector('.chart-wrapper');
       if (chart) {
         gsap.from(chart, {
@@ -752,7 +632,7 @@ ${generateCSSVariablesString('      ')}
           }
         });
       }
-      
+
       gsap.from(section.querySelectorAll('.content-block p, .content-block li'), {
         opacity: 0,
         y: 20,
@@ -765,7 +645,7 @@ ${generateCSSVariablesString('      ')}
         }
       });
     });
-    
+
     // Navigation cards
     gsap.from('.nav-card', {
       opacity: 0,
@@ -785,29 +665,29 @@ ${generateCSSVariablesString('      ')}
 
 // Main build function
 async function build() {
-  console.log('📊 Fetching report from Sanity...');
-  
+  console.log('Fetching report from Sanity...');
+
   const report = await fetchLatestReport();
-  
+
   if (!report) {
-    console.error('❌ No report found in Sanity');
+    console.error('No report found in Sanity');
     process.exit(1);
   }
-  
-  console.log(`✅ Building: ${report.title}`);
-  console.log(`📄 Sections: ${report.sections.length}`);
-  
+
+  console.log(`Building: ${report.title}`);
+  console.log(`Sections: ${report.sections.length}`);
+
   const html = generateHTML(report);
-  
+
   // Ensure output directory exists
   if (!fs.existsSync('output')) {
     fs.mkdirSync('output');
   }
-  
+
   // Write to output/index.html
   fs.writeFileSync('output/index.html', html);
-  console.log('✅ Built output/index.html');
-  console.log('🌍 Open in browser to view');
+  console.log('Built output/index.html');
+  console.log('Open in browser to view');
 }
 
 build().catch(console.error);

@@ -1,0 +1,735 @@
+/**
+ * Shared Chart.js Configuration Builder
+ *
+ * This module provides unified Chart.js configuration generation for:
+ * - HTML report generation (build.js, build-slide.mjs)
+ * - PDF export (pdf-export.js via QuickChart.io)
+ *
+ * Supports all 15 chart types:
+ * Basic: line, column, bar, area, stackedColumn, stackedArea
+ * Proportional: pie, donut
+ * Analytical: scatter, radar, composed, waterfall
+ * Specialized: gauge, treemap, heatmap
+ */
+
+import {GMO_COLORS} from './design-tokens/index.js'
+
+// Chart color palette
+const CHART_COLORS = [
+  '#3E7274', // Blue Dianne (primary)
+  '#3D748F', // Coast Blue
+  '#AC5359', // Metallic Copper
+  '#F07662', // Orange
+  '#3A7862', // Silver Tree Green
+  '#132728', // Firefly Dark
+  '#955073', // Plum
+]
+
+/**
+ * Parse CSV data into array of objects
+ * @param {string} csv - CSV string to parse
+ * @returns {Array<Record<string, any>>} Parsed data
+ */
+export function parseCSV(csv) {
+  if (!csv) return []
+
+  const lines = csv.trim().split('\n')
+  const headers = lines[0].split(',').map((h) => h.trim())
+
+  return lines.slice(1).map((line) => {
+    const values = line.split(',')
+    const obj = {}
+    headers.forEach((header, i) => {
+      const val = values[i]?.trim()
+      obj[header] = isNaN(val) ? val : parseFloat(val)
+    })
+    return obj
+  })
+}
+
+/**
+ * Build Chart.js configuration for a section
+ * @param {Object} section - Content section with chart data
+ * @param {Object} options - Configuration options
+ * @returns {Object|null} Chart.js configuration object
+ */
+export function buildChartJsConfig(section, options = {}) {
+  const {forPdf = false, animation = true} = options
+
+  if (!section.hasChart || !section.chartData) return null
+
+  const parsedData = parseCSV(section.chartData)
+  if (parsedData.length === 0) return null
+
+  // Limit data points to prevent performance issues
+  const MAX_DATA_POINTS = 500
+  const limitedData = parsedData.length > MAX_DATA_POINTS
+    ? parsedData.slice(0, MAX_DATA_POINTS)
+    : parsedData
+
+  const xAxisKey = Object.keys(limitedData[0])[0]
+  const labels = limitedData.map((row) => row[xAxisKey])
+  const chartType = section.chartType || 'line'
+
+  // Handle different chart types
+  switch (chartType) {
+    case 'pie':
+    case 'donut':
+      return buildPieConfig(section, limitedData, labels, chartType, options)
+
+    case 'scatter':
+      return buildScatterConfig(section, limitedData, options)
+
+    case 'radar':
+      return buildRadarConfig(section, limitedData, labels, options)
+
+    case 'gauge':
+      return buildGaugeConfig(section, limitedData, options)
+
+    case 'waterfall':
+      return buildWaterfallConfig(section, limitedData, labels, options)
+
+    case 'treemap':
+      // Treemap requires chartjs-chart-treemap plugin
+      // Fall back to horizontal bar for PDF if not available
+      return forPdf
+        ? buildBarConfig(section, limitedData, labels, options)
+        : buildTreemapConfig(section, limitedData, labels, options)
+
+    case 'heatmap':
+      // Heatmap requires chartjs-chart-matrix plugin
+      // Fall back to stacked bar for PDF if not available
+      return forPdf
+        ? buildStackedBarConfig(section, limitedData, labels, options)
+        : buildHeatmapConfig(section, limitedData, labels, options)
+
+    case 'composed':
+      return buildComposedConfig(section, limitedData, labels, options)
+
+    default:
+      return buildStandardConfig(section, limitedData, labels, chartType, options)
+  }
+}
+
+/**
+ * Build standard chart config (line, bar, area, stacked variants)
+ */
+function buildStandardConfig(section, parsedData, labels, chartType, options) {
+  const {animation = true} = options
+
+  // Map internal chart types to Chart.js types
+  const chartTypeMap = {
+    line: 'line',
+    column: 'bar',
+    bar: 'bar',
+    area: 'line',
+    stackedColumn: 'bar',
+    stackedArea: 'line',
+  }
+
+  const isStacked = chartType.includes('stacked')
+  const isHorizontal = chartType === 'bar'
+  const isArea = chartType.includes('area')
+
+  const datasets = (section.chartSeries || []).map((s, index) => {
+    const color = s.colour || CHART_COLORS[index % CHART_COLORS.length]
+    return {
+      label: s.label,
+      data: parsedData.map((row) => row[s.dataColumn]),
+      backgroundColor: isArea ? color + '40' : color,
+      borderColor: color,
+      borderWidth: 2,
+      fill: isArea,
+      tension: 0.1,
+    }
+  })
+
+  return {
+    type: chartTypeMap[chartType] || 'line',
+    data: {labels, datasets},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: animation ? {duration: 800} : false,
+      indexAxis: isHorizontal ? 'y' : 'x',
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'start',
+          labels: {
+            color: GMO_COLORS.textPrimary,
+            font: {size: 11},
+          },
+        },
+        title: {display: false},
+      },
+      scales: {
+        x: {
+          stacked: isStacked,
+          title: {
+            display: !!section.xAxisLabel,
+            text: section.xAxisLabel || '',
+            color: GMO_COLORS.textSecondary,
+          },
+          ticks: {color: GMO_COLORS.textSecondary, font: {size: 11}},
+          grid: {color: '#e0e0e0'},
+        },
+        y: {
+          stacked: isStacked,
+          title: {
+            display: !!section.yAxisLabel,
+            text: section.yAxisLabel || '',
+            color: GMO_COLORS.textSecondary,
+          },
+          ticks: {
+            color: GMO_COLORS.textSecondary,
+            font: {size: 11},
+            callback: function (value) {
+              return formatYAxisValue(value, section.yAxisFormat)
+            },
+          },
+          grid: {color: '#e0e0e0'},
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Build pie/donut chart config
+ */
+function buildPieConfig(section, parsedData, labels, chartType, options) {
+  const {animation = true} = options
+  const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
+
+  const colors = parsedData.map((_, index) => CHART_COLORS[index % CHART_COLORS.length])
+
+  return {
+    type: chartType === 'donut' ? 'doughnut' : 'pie',
+    data: {
+      labels,
+      datasets: [
+        {
+          data: parsedData.map((row) => row[valueColumn]),
+          backgroundColor: colors,
+          borderColor: '#fff',
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: animation ? {duration: 800} : false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: GMO_COLORS.textPrimary,
+            font: {size: 11},
+          },
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Build scatter chart config
+ */
+function buildScatterConfig(section, parsedData, options) {
+  const {animation = true} = options
+  const xKey = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[0]
+  const yKey = section.chartSeries?.[1]?.dataColumn || Object.keys(parsedData[0])[1]
+
+  const scatterData = parsedData.map((row) => ({
+    x: row[xKey],
+    y: row[yKey],
+  }))
+
+  return {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: section.chartSeries?.[0]?.label || 'Data',
+          data: scatterData,
+          backgroundColor: section.chartSeries?.[0]?.colour || CHART_COLORS[0],
+          borderColor: section.chartSeries?.[0]?.colour || CHART_COLORS[0],
+          pointRadius: 5,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: animation ? {duration: 800} : false,
+      plugins: {
+        legend: {position: 'top'},
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: {
+            display: !!section.xAxisLabel,
+            text: section.xAxisLabel || '',
+          },
+          ticks: {color: GMO_COLORS.textSecondary},
+        },
+        y: {
+          type: 'linear',
+          title: {
+            display: !!section.yAxisLabel,
+            text: section.yAxisLabel || '',
+          },
+          ticks: {
+            color: GMO_COLORS.textSecondary,
+            callback: function (value) {
+              return formatYAxisValue(value, section.yAxisFormat)
+            },
+          },
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Build radar chart config
+ */
+function buildRadarConfig(section, parsedData, labels, options) {
+  const {animation = true} = options
+
+  const datasets = (section.chartSeries || []).map((s, index) => {
+    const color = s.colour || CHART_COLORS[index % CHART_COLORS.length]
+    return {
+      label: s.label,
+      data: parsedData.map((row) => row[s.dataColumn]),
+      backgroundColor: color + '40',
+      borderColor: color,
+      borderWidth: 2,
+      pointBackgroundColor: color,
+    }
+  })
+
+  return {
+    type: 'radar',
+    data: {labels, datasets},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: animation ? {duration: 800} : false,
+      plugins: {
+        legend: {position: 'top'},
+      },
+      scales: {
+        r: {
+          ticks: {
+            color: GMO_COLORS.textSecondary,
+            backdropColor: 'transparent',
+          },
+          grid: {color: '#e0e0e0'},
+          pointLabels: {
+            color: GMO_COLORS.textPrimary,
+            font: {size: 11},
+          },
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Build gauge chart config (using doughnut as base)
+ */
+function buildGaugeConfig(section, parsedData, options) {
+  const {animation = true} = options
+  const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
+  const value = parsedData[0]?.[valueColumn] || 0
+  const maxValue = section.gaugeMax || 100
+  const percentage = Math.min((value / maxValue) * 100, 100)
+
+  return {
+    type: 'doughnut',
+    data: {
+      labels: ['Value', 'Remaining'],
+      datasets: [
+        {
+          data: [percentage, 100 - percentage],
+          backgroundColor: [section.chartSeries?.[0]?.colour || CHART_COLORS[0], '#e0e0e0'],
+          borderWidth: 0,
+          circumference: 180,
+          rotation: 270,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: animation ? {duration: 800} : false,
+      cutout: '70%',
+      plugins: {
+        legend: {display: false},
+        tooltip: {enabled: false},
+      },
+    },
+  }
+}
+
+/**
+ * Build waterfall chart config (using bar chart with floating bars)
+ */
+function buildWaterfallConfig(section, parsedData, labels, options) {
+  const {animation = true} = options
+  const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
+
+  let cumulative = 0
+  const waterfallData = parsedData.map((row, index) => {
+    const value = row[valueColumn] || 0
+    const start = cumulative
+    cumulative += value
+    return {
+      y: [start, cumulative],
+      color: index === parsedData.length - 1 ? CHART_COLORS[0] : value >= 0 ? '#3A7862' : '#AC5359',
+    }
+  })
+
+  return {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: section.chartSeries?.[0]?.label || 'Value',
+          data: waterfallData.map((d) => d.y),
+          backgroundColor: waterfallData.map((d) => d.color),
+          borderColor: waterfallData.map((d) => d.color),
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: animation ? {duration: 800} : false,
+      plugins: {
+        legend: {display: false},
+      },
+      scales: {
+        x: {
+          ticks: {color: GMO_COLORS.textSecondary},
+          grid: {display: false},
+        },
+        y: {
+          ticks: {
+            color: GMO_COLORS.textSecondary,
+            callback: function (value) {
+              return formatYAxisValue(value, section.yAxisFormat)
+            },
+          },
+          grid: {color: '#e0e0e0'},
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Build composed (mixed) chart config
+ */
+function buildComposedConfig(section, parsedData, labels, options) {
+  const {animation = true} = options
+
+  const datasets = (section.chartSeries || []).map((s, index) => {
+    const color = s.colour || CHART_COLORS[index % CHART_COLORS.length]
+    // First series as bar, rest as lines
+    if (index === 0) {
+      return {
+        type: 'bar',
+        label: s.label,
+        data: parsedData.map((row) => row[s.dataColumn]),
+        backgroundColor: color,
+        borderColor: color,
+        borderWidth: 1,
+        order: 2,
+      }
+    }
+    return {
+      type: 'line',
+      label: s.label,
+      data: parsedData.map((row) => row[s.dataColumn]),
+      borderColor: color,
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      tension: 0.1,
+      pointRadius: 0,
+      order: 1,
+    }
+  })
+
+  return {
+    type: 'bar', // Base type for mixed charts
+    data: {labels, datasets},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: animation ? {duration: 800} : false,
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'start',
+        },
+      },
+      scales: {
+        x: {
+          title: {display: !!section.xAxisLabel, text: section.xAxisLabel || ''},
+          ticks: {color: GMO_COLORS.textSecondary},
+        },
+        y: {
+          title: {display: !!section.yAxisLabel, text: section.yAxisLabel || ''},
+          ticks: {
+            color: GMO_COLORS.textSecondary,
+            callback: function (value) {
+              return formatYAxisValue(value, section.yAxisFormat)
+            },
+          },
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Build treemap config (requires chartjs-chart-treemap plugin)
+ */
+function buildTreemapConfig(section, parsedData, labels, options) {
+  const {animation = true} = options
+  const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
+
+  const treemapData = parsedData.map((row, index) => ({
+    label: row[Object.keys(row)[0]],
+    value: row[valueColumn] || 0,
+    color: CHART_COLORS[index % CHART_COLORS.length],
+  }))
+
+  return {
+    type: 'treemap',
+    data: {
+      datasets: [
+        {
+          tree: treemapData,
+          key: 'value',
+          groups: ['label'],
+          backgroundColor: (ctx) => treemapData[ctx.dataIndex]?.color || CHART_COLORS[0],
+          borderColor: '#fff',
+          borderWidth: 2,
+          labels: {
+            display: true,
+            color: '#fff',
+            font: {size: 11, weight: 'bold'},
+          },
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: animation ? {duration: 800} : false,
+      plugins: {
+        legend: {display: false},
+      },
+    },
+  }
+}
+
+/**
+ * Build heatmap config (requires chartjs-chart-matrix plugin)
+ * Falls back to stacked bar for browsers without plugin support
+ */
+function buildHeatmapConfig(section, parsedData, labels, options) {
+  const xAxisKey = Object.keys(parsedData[0])[0]
+  const columns = Object.keys(parsedData[0]).filter((k) => k !== xAxisKey)
+
+  // If too many rows, fall back to stacked bar for better display
+  if (parsedData.length > 20 || columns.length > 15) {
+    return buildStackedBarConfig(section, parsedData, labels, options)
+  }
+
+  // Calculate value range for color scaling
+  const allValues = parsedData.flatMap((row) => columns.map((col) => row[col] || 0))
+  const minValue = Math.min(...allValues)
+  const maxValue = Math.max(...allValues)
+
+  const matrixData = []
+  parsedData.forEach((row, rowIndex) => {
+    columns.forEach((col, colIndex) => {
+      matrixData.push({
+        x: colIndex,
+        y: rowIndex,
+        v: row[col] || 0,
+      })
+    })
+  })
+
+  return {
+    type: 'matrix',
+    data: {
+      datasets: [
+        {
+          label: 'Heatmap',
+          data: matrixData,
+          backgroundColor: (ctx) => {
+            const value = ctx.dataset.data[ctx.dataIndex]?.v || 0
+            const ratio = (value - minValue) / (maxValue - minValue || 1)
+            // Green gradient
+            const r = Math.round(255 - ratio * (255 - 62))
+            const g = Math.round(255 - ratio * (255 - 114))
+            const b = Math.round(255 - ratio * (255 - 116))
+            return `rgb(${r}, ${g}, ${b})`
+          },
+          borderColor: '#fff',
+          borderWidth: 1,
+          width: ({chart}) => (chart.chartArea || {}).width / columns.length - 2,
+          height: ({chart}) => (chart.chartArea || {}).height / parsedData.length - 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          callbacks: {
+            title: () => '',
+            label: (ctx) => {
+              const data = ctx.dataset.data[ctx.dataIndex]
+              const rowLabel = labels[data.y]
+              const colLabel = columns[data.x]
+              return `${rowLabel}, ${colLabel}: ${data.v}`
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          type: 'category',
+          labels: columns,
+          ticks: {color: GMO_COLORS.textSecondary},
+          grid: {display: false},
+        },
+        y: {
+          type: 'category',
+          labels: labels,
+          offset: true,
+          ticks: {color: GMO_COLORS.textSecondary},
+          grid: {display: false},
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Build horizontal bar config (fallback for treemap in PDF)
+ */
+function buildBarConfig(section, parsedData, labels, options) {
+  const {animation = true} = options
+  const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
+
+  return {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: section.chartSeries?.[0]?.label || 'Value',
+          data: parsedData.map((row) => row[valueColumn]),
+          backgroundColor: parsedData.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]),
+          borderWidth: 0,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: animation ? {duration: 800} : false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {display: false},
+      },
+      scales: {
+        x: {
+          ticks: {
+            callback: function (value) {
+              return formatYAxisValue(value, section.yAxisFormat)
+            },
+          },
+        },
+        y: {
+          ticks: {color: GMO_COLORS.textSecondary},
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Build stacked bar config (fallback for heatmap in PDF)
+ */
+function buildStackedBarConfig(section, parsedData, labels, options) {
+  const xAxisKey = Object.keys(parsedData[0])[0]
+  const columns = Object.keys(parsedData[0]).filter((k) => k !== xAxisKey)
+
+  const datasets = columns.map((col, index) => ({
+    label: col,
+    data: parsedData.map((row) => row[col]),
+    backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
+  }))
+
+  return {
+    type: 'bar',
+    data: {labels, datasets},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {position: 'top'},
+      },
+      scales: {
+        x: {stacked: true},
+        y: {stacked: true},
+      },
+    },
+  }
+}
+
+/**
+ * Format Y-axis values based on format type
+ * @param {number} value - Value to format
+ * @param {string} format - Format type (number, percent, currency)
+ * @returns {string} Formatted value
+ */
+export function formatYAxisValue(value, format) {
+  if (format === 'percent') return `${value}%`
+  if (format === 'currency') return `$${value.toLocaleString()}`
+  return value.toLocaleString()
+}
+
+/**
+ * Get JavaScript code for initializing charts in HTML
+ * @param {Array} sections - Report sections
+ * @returns {string} JavaScript code string
+ */
+export function buildChartsInitScript(sections) {
+  const configs = sections
+    .map((section, index) => {
+      if (!section.hasChart || !section.chartData) return null
+      const config = buildChartJsConfig(section, {animation: true})
+      if (!config) return null
+      return `new Chart(document.getElementById('chart-${index}'), ${JSON.stringify(config)});`
+    })
+    .filter(Boolean)
+
+  return configs.join('\n')
+}

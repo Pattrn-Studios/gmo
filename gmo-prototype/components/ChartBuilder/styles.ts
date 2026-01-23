@@ -192,6 +192,16 @@ export const PreviewContainer = styled.div`
   h3 {
     color: #132728;
     margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  /* Container for the chart with proper background */
+  > div:not(:first-child):not(:last-child) {
+    background: #fafafa;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #e8e8e8;
   }
 `;
 
@@ -217,28 +227,32 @@ export const ReasoningBox = styled.div`
 
 export const ThumbnailsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
 `;
 
 export const ThumbnailCard = styled.div`
-  border: 2px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 0.5rem;
+  border: 2px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  background: #fafafa;
 
   &:hover {
     border-color: #3E7274;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(62, 114, 116, 0.12);
+    transform: translateY(-2px);
   }
 
   span {
     display: block;
     text-align: center;
-    margin-top: 0.5rem;
+    margin-top: 8px;
     font-size: 0.85rem;
-    color: #495057;
+    color: #5F5F5F;
+    font-weight: 500;
+    text-transform: capitalize;
   }
 `;

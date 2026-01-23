@@ -17,8 +17,7 @@
   "dependencies": {
     "@sanity/vision": "^4.22.0",
     "@types/papaparse": "^5.5.2",
-    "highcharts": "^12.5.0",
-    "highcharts-react-official": "^3.2.3",
+    "recharts": "^2.15.0",
     "papaparse": "^5.5.3",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

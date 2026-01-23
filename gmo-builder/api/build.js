@@ -1,5 +1,6 @@
 import { createClient } from '@sanity/client';
 import { GMO_COLORS, generateCSSVariablesString } from '../lib/design-tokens/index.js';
+import { buildChartJsConfig } from '../lib/chart-config.js';
 
 const client = createClient({
   projectId: 'mb7v1vpy',
@@ -10,7 +11,7 @@ const client = createClient({
 
 export default async function handler(req, res) {
   // All functions defined inside handler for proper scope
-  
+
   async function fetchLatestReport() {
     const query = `*[_type == "report"] | order(publicationDate desc)[0] {
       title,
@@ -19,19 +20,19 @@ export default async function handler(req, res) {
       summary,
       sections[] {
         _type,
-        
+
         _type == "titleSection" => {
           heading,
           subheading,
           backgroundColor
         },
-        
+
         _type == "navigationSection" => {
           title,
           showPageNumbers,
           layout
         },
-        
+
         _type == "contentSection" => {
           title,
           subtitle,
@@ -44,24 +45,25 @@ export default async function handler(req, res) {
           "xAxisLabel": chartConfig.xAxisLabel,
           "yAxisLabel": chartConfig.yAxisLabel,
           "yAxisFormat": chartConfig.yAxisFormat,
+          "gaugeMax": chartConfig.gaugeMax,
           chartSource,
           layout
         }
       }
     }`;
-    
+
     return await client.fetch(query);
   }
 
   function portableTextToHTML(blocks) {
     if (!blocks || !Array.isArray(blocks)) return '';
-    
+
     let html = '';
     let inList = false;
-    
+
     blocks.forEach(block => {
       if (block._type !== 'block') return;
-      
+
       const text = block.children
         ?.map(child => {
           let t = child.text || '';
@@ -71,7 +73,7 @@ export default async function handler(req, res) {
           return t;
         })
         .join('') || '';
-      
+
       if (block.listItem === 'bullet') {
         if (!inList) {
           html += '<ul>';
@@ -83,108 +85,23 @@ export default async function handler(req, res) {
           html += '</ul>';
           inList = false;
         }
-        
+
         if (block.style === 'h2') html += `<h2>${text}</h2>`;
         else if (block.style === 'h3') html += `<h3>${text}</h3>`;
         else html += `<p>${text}</p>`;
       }
     });
-    
+
     if (inList) html += '</ul>';
-    
+
     return html;
-  }
-
-  function parseCSV(csv) {
-    if (!csv) return [];
-    
-    const lines = csv.trim().split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
-    
-    return lines.slice(1).map(line => {
-      const values = line.split(',');
-      const obj = {};
-      headers.forEach((header, i) => {
-        const val = values[i]?.trim();
-        obj[header] = isNaN(val) ? val : parseFloat(val);
-      });
-      return obj;
-    });
-  }
-
-  function buildChartConfig(section) {
-    if (!section.hasChart || !section.chartData) return null;
-    
-    const parsedData = parseCSV(section.chartData);
-    if (parsedData.length === 0) return null;
-    
-    const xAxisKey = Object.keys(parsedData[0])[0];
-    const categories = parsedData.map(row => row[xAxisKey]);
-    
-    const series = (section.chartSeries || []).map(s => ({
-      name: s.label,
-      data: parsedData.map(row => row[s.dataColumn]),
-      color: s.colour,
-    }));
-    
-    const chartTypeMap = {
-      line: 'line',
-      column: 'column',
-      bar: 'bar',
-      area: 'area',
-      stackedColumn: 'column',
-      stackedArea: 'area',
-    };
-    
-    const isStacked = section.chartType?.includes('stacked');
-    
-    return {
-      chart: {
-        type: chartTypeMap[section.chartType] || 'line',
-        style: { fontFamily: '"BNPP Sans", -apple-system, sans-serif' },
-        backgroundColor: 'transparent',
-        height: 450,
-      },
-      title: { text: null },
-      xAxis: {
-        categories: categories,
-        title: { text: section.xAxisLabel || null },
-        labels: { style: { color: GMO_COLORS.textSecondary } },
-      },
-      yAxis: {
-        title: { text: section.yAxisLabel || null },
-        labels: {
-          style: { color: GMO_COLORS.textSecondary },
-          formatter: function() {
-            if (section.yAxisFormat === 'percent') return this.value + '%';
-            if (section.yAxisFormat === 'currency') return '$' + this.value.toLocaleString();
-            return this.value.toLocaleString();
-          }
-        },
-      },
-      legend: {
-        align: 'left',
-        itemStyle: { color: GMO_COLORS.textPrimary },
-      },
-      plotOptions: {
-        series: {
-          animation: { duration: 1200 },
-          marker: { enabled: false },
-          lineWidth: 3,
-        },
-        column: { stacking: isStacked ? 'normal' : undefined },
-        area: { stacking: isStacked ? 'normal' : undefined, fillOpacity: 0.25 },
-      },
-      series: series,
-      credits: { enabled: false },
-    };
   }
 
   function buildNavigationHTML(section, allSections) {
     const contentSections = allSections
       .filter(s => s._type === 'contentSection')
       .map((s, i) => ({ title: s.title, subtitle: s.subtitle, id: `section-${i}` }));
-    
+
     const cards = contentSections
       .map(s => `
         <a href="#${s.id}" class="nav-card">
@@ -193,7 +110,7 @@ export default async function handler(req, res) {
         </a>
       `)
       .join('');
-    
+
     return `
       <section class="navigation-section">
         <div class="container">
@@ -207,20 +124,21 @@ export default async function handler(req, res) {
   function buildContentSectionHTML(section, index) {
     const hasChart = section.hasChart && section.chartData;
     const chartId = hasChart ? `chart-${index}` : null;
-    
+
     let layoutClass = 'container-narrow';
     let contentHTML = '';
-    
+
     if (hasChart) {
+      // Use canvas element for Chart.js (instead of div for Highcharts)
       const chartHTML = `
         <div class="chart-wrapper">
-          <div class="chart-container" id="${chartId}"></div>
+          <canvas class="chart-container" id="${chartId}"></canvas>
           ${section.chartSource ? `<p class="chart-source">Source: ${section.chartSource}</p>` : ''}
         </div>
       `;
-      
+
       const textHTML = `<div class="content-block">${portableTextToHTML(section.content)}</div>`;
-      
+
       if (section.layout === 'chartLeft') {
         layoutClass = 'container';
         contentHTML = `<div class="layout-chart-left">${chartHTML}${textHTML}</div>`;
@@ -234,7 +152,7 @@ export default async function handler(req, res) {
     } else {
       contentHTML = `<div class="content-block">${portableTextToHTML(section.content)}</div>`;
     }
-    
+
     return `
       <section class="content-section" id="section-${index}">
         <div class="${layoutClass}">
@@ -248,16 +166,17 @@ export default async function handler(req, res) {
     `;
   }
 
-  function buildChartsConfig(sections) {
+  function buildChartsInitScript(sections) {
     const configs = sections
       .map((section, index) => {
         if (!section.hasChart || !section.chartData) return null;
-        const config = buildChartConfig(section);
+        const config = buildChartJsConfig(section, { animation: true });
         if (!config) return null;
-        return `Highcharts.chart('chart-${index}', ${JSON.stringify(config)});`;
+        // Chart.js initialization: new Chart(canvas, config)
+        return `new Chart(document.getElementById('chart-${index}'), ${JSON.stringify(config)});`;
       })
       .filter(Boolean);
-    
+
     return configs.join('\n');
   }
 
@@ -269,19 +188,24 @@ export default async function handler(req, res) {
         return '';
       })
       .join('\n');
-    
-    const chartsConfig = buildChartsConfig(report.sections);
+
+    const chartsInitScript = buildChartsInitScript(report.sections);
     const publicationDate = new Date(report.publicationDate).toLocaleDateString('en-US', {
       year: 'numeric', month: 'long', day: 'numeric'
     });
-    
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${report.title}</title>
-  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <!-- Chart.js for chart rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Optional Chart.js plugins for specialized chart types -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1/dist/chartjs-chart-matrix.min.js"></script>
+  <!-- GSAP for animations -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
   <style>
@@ -358,8 +282,14 @@ ${generateCSSVariablesString('      ')}
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
       border: 1px solid #E0E0E0;
+      position: relative;
+      height: 450px;
     }
-    .chart-container { width: 100%; height: 450px; }
+    .chart-container {
+      width: 100%;
+      height: 100%;
+      max-height: 450px;
+    }
     .chart-source { margin-top: 16px; font-size: 0.875rem; color: var(--text-secondary); font-style: italic; }
     .content-block { font-size: 1.125rem; line-height: 1.8; }
     .content-block ul { list-style: none; padding: 0; margin: 48px 0; }
@@ -399,8 +329,8 @@ ${generateCSSVariablesString('      ')}
       <h1>${report.title}</h1>
       ${report.summary ? `<p class="lead">${report.summary}</p>` : ''}
       <div class="report-meta">
-        <span>📅 ${publicationDate}</span>
-        <span>✍️ ${report.author}</span>
+        <span>${publicationDate}</span>
+        <span>${report.author}</span>
       </div>
     </div>
   </header>
@@ -411,7 +341,10 @@ ${generateCSSVariablesString('      ')}
     </div>
   </footer>
   <script>
-    ${chartsConfig}
+    // Initialize all charts with Chart.js
+    ${chartsInitScript}
+
+    // GSAP animations
     gsap.registerPlugin(ScrollTrigger);
     gsap.to('#scroll-indicator', {
       scaleX: 1,
@@ -433,11 +366,11 @@ ${generateCSSVariablesString('      ')}
   // Main handler logic
   try {
     const report = await fetchLatestReport();
-    
+
     if (!report) {
       return res.status(404).send('<h1>No report found</h1><p>Create a report in Sanity CMS first.</p>');
     }
-    
+
     const html = generateHTML(report);
     res.setHeader('Content-Type', 'text/html');
     res.status(200).send(html);
