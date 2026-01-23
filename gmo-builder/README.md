@@ -1,5 +1,12 @@
 # GMO Builder
 
+> **⚠️ DEPRECATED**: This module is being replaced by [`gmo-report`](../gmo-report/), a React-based viewer with improved chart rendering and interactivity.
+>
+> **New development should target `gmo-report`.**
+> This module is maintained for backwards compatibility only.
+
+---
+
 Generates HTML reports from Sanity CMS content for BNP Paribas Asset Management's Global Market Outlook.
 
 ## Overview

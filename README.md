@@ -1,24 +1,52 @@
 # GMO (Global Market Outlook) Suite
 
-A collection of tools for creating and managing AXA Investment Managers' Global Market Outlook reports.
+A collection of tools for creating and managing BNP Paribas' Global Market Outlook reports.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         SANITY CMS                              │
+│                      (gmo-prototype)                            │
+│              Content Management & Chart Builder                  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+              ┌───────────────┴───────────────┐
+              │                               │
+              ▼                               ▼
+┌─────────────────────────┐     ┌─────────────────────────┐
+│      gmo-report         │     │    gmo-chart-agent      │
+│   (Next.js React App)   │     │   (AI Recommendations)  │
+│      PRIMARY VIEWER     │     │                         │
+└─────────────────────────┘     └─────────────────────────┘
+              │
+              ▼
+┌─────────────────────────┐
+│      gmo-builder        │
+│   (Legacy HTML Gen)     │
+│       DEPRECATED        │
+└─────────────────────────┘
+```
 
 ## Projects
 
+### gmo-report ⭐ PRIMARY
+
+**Interactive React-based report viewer** - The primary way to view GMO reports.
+
+- **Tech Stack**: Next.js 14, React 18, TypeScript, Recharts, Tailwind CSS, Framer Motion
+- **Features**: Dark mode, animations, interactive charts, scroll-spy TOC
+- **Local Dev**: `cd gmo-report && npm install && npm run dev`
+- **Build**: `npm run build` (static export to `/out`)
+
 ### gmo-prototype
 
-Sanity CMS studio for managing GMO report content.
+Sanity CMS Studio for managing GMO report content with integrated Chart Builder.
 
 - **Tech Stack**: Sanity v4, React 19, TypeScript
 - **Local Dev**: `cd gmo-prototype && npm install && npm run dev`
 - **Deploy**: `npm run deploy` (deploys to Sanity Studio hosting)
-
-### gmo-builder
-
-HTML report generator that fetches content from Sanity and produces static HTML with Highcharts visualizations.
-
-- **Tech Stack**: Node.js, @sanity/client
-- **Local Dev**: `cd gmo-builder && npm install && npm run dev`
-- **Production**: Deployed on Vercel as serverless function at https://gmo-builder.vercel.app
 
 ### gmo-chart-agent
 
@@ -27,6 +55,15 @@ AI-powered chart recommendation tool using Claude API for analyzing data and sug
 - **Tech Stack**: Express, multer, xlsx
 - **Local Dev**: `cd gmo-chart-agent && npm install && npm run dev` (requires `.env` file with `CLAUDE_API_KEY`)
 - **Production**: Deployed on Vercel
+
+### gmo-builder ⚠️ DEPRECATED
+
+> **Note**: This module is deprecated. Use `gmo-report` for viewing reports.
+
+Legacy HTML report generator that fetches content from Sanity and produces static HTML with Chart.js.
+
+- **Tech Stack**: Node.js, @sanity/client, Chart.js
+- **Status**: Maintained for backwards compatibility only
 
 ## Documentation
 
@@ -42,37 +79,37 @@ See the `/documentation` folder for:
 - **GMO Typestack.pdf** - Typography guidelines
 - **GMO Digital Enhancements_Project Brief.pdf** - Project brief
 
-## Architecture
+## Shared Backend
 
 All projects connect to a shared Sanity backend:
 
 - **Project ID**: `mb7v1vpy`
 - **Dataset**: `production`
 
-The workflow is:
+## Workflow
 
 1. Content is edited in **gmo-prototype** (Sanity Studio)
-2. **gmo-builder** fetches content from Sanity and generates interactive HTML reports
-3. **gmo-chart-agent** helps create chart configurations by analyzing data with AI
+2. **gmo-chart-agent** analyzes data and recommends chart configurations
+3. **gmo-report** displays the interactive report (primary viewer)
 
 ## Quick Start
 
 ```bash
 # Clone the repository
-git clone https://github.com/joepattrn/gmo.git
+git clone https://github.com/Pattrn-Studios/gmo.git
 cd gmo
 
-# Start the Sanity Studio
+# Start the React Report Viewer
+cd gmo-report
+npm install
+npm run dev
+# Opens at http://localhost:3000
+
+# Start the Sanity Studio (for content editing)
 cd gmo-prototype
 npm install
 npm run dev
 # Opens at http://localhost:3333
-
-# In another terminal, test the builder
-cd gmo-builder
-npm install
-npm run build
-# Check output/index.html
 
 # For the chart agent (requires API key)
 cd gmo-chart-agent
@@ -80,7 +117,7 @@ npm install
 cp .env.example .env
 # Edit .env to add your CLAUDE_API_KEY
 npm run dev
-# Opens at http://localhost:3000
+# Opens at http://localhost:3001
 ```
 
 ## Environment Variables
