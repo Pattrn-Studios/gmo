@@ -9,21 +9,17 @@ export function ChartBuilderInput(props: ObjectInputProps) {
   const { value, onChange, renderDefault } = props;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  console.log('ChartBuilderInput rendering!', { value, hasRenderDefault: !!renderDefault });
-
   // Type-cast value to our expected shape
   const chartConfig = value as ChartBuilderValue | undefined;
   const hasChartConfig = chartConfig?.chartType && chartConfig?.chartData;
 
   const handleSave = (config: ChartBuilderValue) => {
-    console.log('Saving chart config:', config);
     // Use onChange(set(...)) to properly update Sanity document
     onChange(set(config));
     setIsModalOpen(false);
   };
 
   const handleClear = () => {
-    console.log('Clearing chart config');
     // Use onChange(unset()) to clear the field
     onChange(unset());
   };

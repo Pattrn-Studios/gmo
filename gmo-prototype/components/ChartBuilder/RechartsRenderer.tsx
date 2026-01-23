@@ -149,21 +149,6 @@ export function RechartsRenderer({
   gaugeValue,
   gaugeMax = 100,
 }: RechartsRendererProps) {
-  // DEBUG: Alert to prove this component is being rendered
-  // This should be visible immediately if RechartsRenderer is actually being used
-  if (typeof window !== 'undefined' && !(window as any).__rechartsRendererLogged) {
-    (window as any).__rechartsRendererLogged = true
-    console.log('%c[RechartsRenderer] COMPONENT IS BEING RENDERED!', 'background: #ff0000; color: #ffffff; font-size: 20px; padding: 10px;')
-  }
-
-  // DEBUG: Log props received
-  console.log('[RechartsRenderer] Props:', {
-    chartType,
-    seriesCount: series?.length,
-    dataCount: data?.length,
-    firstDataRow: data?.[0],
-    seriesColumns: series?.map((s) => s.dataColumn),
-  })
 
   // Get the x-axis key (first column of data)
   const xAxisKey = useMemo(() => {
@@ -248,22 +233,9 @@ export function RechartsRenderer({
   const axisLineStyle = {stroke: '#E0E0E0'}
   const gridStyle = {strokeDasharray: '3 3', stroke: '#E8E8E8'}
 
-  // DEBUG: Log before switch with type info
-  console.log('[RechartsRenderer] Before switch:', {
-    chartType,
-    trimmedChartType,
-    chartTypeType: typeof chartType,
-    isPie: trimmedChartType === 'pie',
-    isDonut: trimmedChartType === 'donut',
-    validSeriesCount: validSeries.length,
-    activeSeriesCount: activeSeries.length,
-    activeSeriesColumns: activeSeries.map((s) => s.dataColumn),
-  })
-
   // Render different chart types using normalized trimmedChartType
   switch (trimmedChartType) {
     case 'line':
-      console.log('[RechartsRenderer] Entering LINE case')
       return (
         <ResponsiveContainer width="100%" height={height}>
           <LineChart data={data} margin={{top: 20, right: 30, left: 20, bottom: 20}}>
@@ -362,7 +334,7 @@ export function RechartsRenderer({
           <BarChart
             data={data}
             layout="vertical"
-            margin={{top: 20, right: 30, left: 80, bottom: 20}}
+            margin={{top: 20, right: 30, left: 20, bottom: 20}}
             barCategoryGap="20%"
           >
             {showGrid && <CartesianGrid {...gridStyle} horizontal={false} />}
@@ -383,11 +355,10 @@ export function RechartsRenderer({
                 <YAxis
                   type="category"
                   dataKey={xAxisKey}
-                  label={xAxisLabel ? {value: xAxisLabel, angle: -90, position: 'insideLeft', fill: '#5F5F5F'} : undefined}
                   tick={axisTickStyle}
                   axisLine={false}
                   tickLine={false}
-                  width={70}
+                  width={120}
                 />
               </>
             )}
@@ -459,16 +430,13 @@ export function RechartsRenderer({
 
     case 'pie':
     case 'donut': {
-      console.log('[RechartsRenderer] Entering PIE/DONUT case, chartType:', chartType)
       // For pie/donut, use first series dataColumn as value and xAxisKey as label
       const pieDataColumn = activeSeries[0]?.dataColumn || Object.keys(data[0] || {})[1] || ''
-      console.log('[RechartsRenderer] Pie data column:', pieDataColumn, 'xAxisKey:', xAxisKey)
       const pieData = data.map((row, index) => ({
         name: String(row[xAxisKey]),
         value: Number(row[pieDataColumn]) || 0,
         color: CHART_COLORS[index % CHART_COLORS.length],
       }))
-      console.log('[RechartsRenderer] Pie data:', pieData)
 
       // Custom label renderer for cleaner pie labels (only show in full view, not thumbnails)
       const renderCustomLabel = showLegend
@@ -576,7 +544,6 @@ export function RechartsRenderer({
     }
 
     case 'radar':
-      console.log('[RechartsRenderer] Entering RADAR case')
       return (
         <ResponsiveContainer width="100%" height={height}>
           <RadarChart data={data} margin={{top: 20, right: 30, bottom: 20, left: 30}}>
@@ -885,7 +852,6 @@ export function RechartsRenderer({
     }
 
     default:
-      console.log('[RechartsRenderer] Entering DEFAULT case - unsupported chartType:', chartType)
       return (
         <div
           style={{
