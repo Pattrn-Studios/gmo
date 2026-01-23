@@ -149,6 +149,13 @@ export function RechartsRenderer({
   gaugeValue,
   gaugeMax = 100,
 }: RechartsRendererProps) {
+  // DEBUG: Alert to prove this component is being rendered
+  // This should be visible immediately if RechartsRenderer is actually being used
+  if (typeof window !== 'undefined' && !(window as any).__rechartsRendererLogged) {
+    (window as any).__rechartsRendererLogged = true
+    console.log('%c[RechartsRenderer] COMPONENT IS BEING RENDERED!', 'background: #ff0000; color: #ffffff; font-size: 20px; padding: 10px;')
+  }
+
   // DEBUG: Log props received
   console.log('[RechartsRenderer] Props:', {
     chartType,
