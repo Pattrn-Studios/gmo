@@ -149,6 +149,15 @@ export function RechartsRenderer({
   gaugeValue,
   gaugeMax = 100,
 }: RechartsRendererProps) {
+  // DEBUG: Log props received
+  console.log('[RechartsRenderer] Props:', {
+    chartType,
+    seriesCount: series?.length,
+    dataCount: data?.length,
+    firstDataRow: data?.[0],
+    seriesColumns: series?.map((s) => s.dataColumn),
+  })
+
   // Get the x-axis key (first column of data)
   const xAxisKey = useMemo(() => {
     if (!data || data.length === 0) return ''
@@ -229,9 +238,18 @@ export function RechartsRenderer({
   const axisLineStyle = {stroke: '#E0E0E0'}
   const gridStyle = {strokeDasharray: '3 3', stroke: '#E8E8E8'}
 
+  // DEBUG: Log before switch
+  console.log('[RechartsRenderer] Before switch:', {
+    chartType,
+    validSeriesCount: validSeries.length,
+    activeSeriesCount: activeSeries.length,
+    activeSeriesColumns: activeSeries.map((s) => s.dataColumn),
+  })
+
   // Render different chart types
   switch (chartType) {
     case 'line':
+      console.log('[RechartsRenderer] Entering LINE case')
       return (
         <ResponsiveContainer width="100%" height={height}>
           <LineChart data={data} margin={{top: 20, right: 30, left: 20, bottom: 20}}>
@@ -427,13 +445,16 @@ export function RechartsRenderer({
 
     case 'pie':
     case 'donut': {
+      console.log('[RechartsRenderer] Entering PIE/DONUT case, chartType:', chartType)
       // For pie/donut, use first series dataColumn as value and xAxisKey as label
       const pieDataColumn = activeSeries[0]?.dataColumn || Object.keys(data[0] || {})[1] || ''
+      console.log('[RechartsRenderer] Pie data column:', pieDataColumn, 'xAxisKey:', xAxisKey)
       const pieData = data.map((row, index) => ({
         name: String(row[xAxisKey]),
         value: Number(row[pieDataColumn]) || 0,
         color: CHART_COLORS[index % CHART_COLORS.length],
       }))
+      console.log('[RechartsRenderer] Pie data:', pieData)
 
       // Custom label renderer for cleaner pie labels (only show in full view, not thumbnails)
       const renderCustomLabel = showLegend
@@ -541,6 +562,7 @@ export function RechartsRenderer({
     }
 
     case 'radar':
+      console.log('[RechartsRenderer] Entering RADAR case')
       return (
         <ResponsiveContainer width="100%" height={height}>
           <RadarChart data={data} margin={{top: 20, right: 30, bottom: 20, left: 30}}>
@@ -849,6 +871,7 @@ export function RechartsRenderer({
     }
 
     default:
+      console.log('[RechartsRenderer] Entering DEFAULT case - unsupported chartType:', chartType)
       return (
         <div
           style={{
