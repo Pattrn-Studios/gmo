@@ -286,29 +286,33 @@ export function RechartsRenderer({
     case 'stackedColumn':
       return (
         <ResponsiveContainer width="100%" height={height}>
-          <BarChart data={data} margin={{top: 20, right: 30, left: 20, bottom: 20}} barCategoryGap="20%">
+          <BarChart
+            data={data}
+            margin={showAxes ? {top: 20, right: 30, left: 20, bottom: 40} : {top: 10, right: 10, left: 10, bottom: 10}}
+            barCategoryGap="20%"
+          >
             {showGrid && <CartesianGrid {...gridStyle} vertical={false} />}
+            {/* XAxis is required for data mapping - hide visually when showAxes is false */}
+            <XAxis
+              dataKey={xAxisKey}
+              label={showAxes && xAxisLabel ? {value: xAxisLabel, position: 'bottom', offset: 0, fill: '#5F5F5F'} : undefined}
+              tick={showAxes ? axisTickStyle : false}
+              axisLine={showAxes ? axisLineStyle : false}
+              tickLine={false}
+              height={showAxes ? 60 : 0}
+            />
             {showAxes && (
-              <>
-                <XAxis
-                  dataKey={xAxisKey}
-                  label={xAxisLabel ? {value: xAxisLabel, position: 'bottom', offset: 0, fill: '#5F5F5F'} : undefined}
-                  tick={axisTickStyle}
-                  axisLine={axisLineStyle}
-                  tickLine={false}
-                />
-                <YAxis
-                  tickFormatter={yAxisTickFormatter}
-                  label={
-                    yAxisLabel
-                      ? {value: yAxisLabel, angle: -90, position: 'insideLeft', offset: 10, fill: '#5F5F5F'}
-                      : undefined
-                  }
-                  tick={axisTickStyle}
-                  axisLine={false}
-                  tickLine={false}
-                />
-              </>
+              <YAxis
+                tickFormatter={yAxisTickFormatter}
+                label={
+                  yAxisLabel
+                    ? {value: yAxisLabel, angle: -90, position: 'insideLeft', offset: 10, fill: '#5F5F5F'}
+                    : undefined
+                }
+                tick={axisTickStyle}
+                axisLine={false}
+                tickLine={false}
+              />
             )}
             {showTooltip && (
               <Tooltip content={<CustomTooltip format={yAxisFormat} />} cursor={{fill: 'rgba(62, 114, 116, 0.08)'}} />
@@ -334,34 +338,33 @@ export function RechartsRenderer({
           <BarChart
             data={data}
             layout="vertical"
-            margin={{top: 20, right: 30, left: 20, bottom: 20}}
+            margin={showAxes ? {top: 20, right: 30, left: 20, bottom: 20} : {top: 10, right: 10, left: 10, bottom: 10}}
             barCategoryGap="20%"
           >
             {showGrid && <CartesianGrid {...gridStyle} horizontal={false} />}
-            {showAxes && (
-              <>
-                <XAxis
-                  type="number"
-                  tickFormatter={yAxisTickFormatter}
-                  label={
-                    yAxisLabel
-                      ? {value: yAxisLabel, position: 'bottom', offset: 0, fill: '#5F5F5F'}
-                      : undefined
-                  }
-                  tick={axisTickStyle}
-                  axisLine={axisLineStyle}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey={xAxisKey}
-                  tick={axisTickStyle}
-                  axisLine={false}
-                  tickLine={false}
-                  width={120}
-                />
-              </>
-            )}
+            {/* XAxis (values) - hide visually when showAxes is false */}
+            <XAxis
+              type="number"
+              tickFormatter={yAxisTickFormatter}
+              label={
+                showAxes && yAxisLabel
+                  ? {value: yAxisLabel, position: 'bottom', offset: 0, fill: '#5F5F5F'}
+                  : undefined
+              }
+              tick={showAxes ? axisTickStyle : false}
+              axisLine={showAxes ? axisLineStyle : false}
+              tickLine={false}
+              height={showAxes ? undefined : 0}
+            />
+            {/* YAxis (categories) is required for vertical layout data mapping */}
+            <YAxis
+              type="category"
+              dataKey={xAxisKey}
+              tick={showAxes ? axisTickStyle : false}
+              axisLine={false}
+              tickLine={false}
+              width={showAxes ? 120 : 0}
+            />
             {showTooltip && (
               <Tooltip content={<CustomTooltip format={yAxisFormat} />} cursor={{fill: 'rgba(62, 114, 116, 0.08)'}} />
             )}
