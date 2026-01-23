@@ -13,6 +13,10 @@ import {
   buttonColors,
   editorialColors,
   overlayColors,
+  sectionThemes,
+  pdfChartColors,
+  keyInsightsColors,
+  numberedBoxColors,
 } from './colors.js';
 
 import {
@@ -98,6 +102,45 @@ export function generateCSSVariables() {
     '--color-overlay-light': overlayColors.dark.light,
     '--color-overlay-medium': overlayColors.dark.medium,
     '--color-overlay-strong': overlayColors.dark.strong,
+
+    // Section theme colors (from PDF reference)
+    '--color-section-market-themes-bg': sectionThemes['market-themes'].background,
+    '--color-section-market-themes-text': sectionThemes['market-themes'].text,
+    '--color-section-economic-outlook-bg': sectionThemes['economic-outlook'].background,
+    '--color-section-economic-outlook-text': sectionThemes['economic-outlook'].text,
+    '--color-section-geopolitical-bg': sectionThemes['geopolitical'].background,
+    '--color-section-geopolitical-text': sectionThemes['geopolitical'].text,
+    '--color-section-central-banks-bg': sectionThemes['central-banks'].background,
+    '--color-section-central-banks-text': sectionThemes['central-banks'].text,
+    '--color-section-ai-capex-bg': sectionThemes['ai-capex'].background,
+    '--color-section-ai-capex-text': sectionThemes['ai-capex'].text,
+    '--color-section-american-exceptionalism-bg': sectionThemes['american-exceptionalism'].background,
+    '--color-section-american-exceptionalism-text': sectionThemes['american-exceptionalism'].text,
+    '--color-section-our-view-bg': sectionThemes['our-view'].background,
+    '--color-section-our-view-text': sectionThemes['our-view'].text,
+    '--color-section-december-review-bg': sectionThemes['december-review'].background,
+    '--color-section-december-review-text': sectionThemes['december-review'].text,
+    '--color-section-appendix-bg': sectionThemes['appendix'].background,
+    '--color-section-appendix-text': sectionThemes['appendix'].text,
+    '--color-section-default-bg': sectionThemes['default'].background,
+    '--color-section-default-text': sectionThemes['default'].text,
+
+    // PDF chart palette colors
+    '--color-chart-pdf-1': pdfChartColors[0],
+    '--color-chart-pdf-2': pdfChartColors[1],
+    '--color-chart-pdf-3': pdfChartColors[2],
+    '--color-chart-pdf-4': pdfChartColors[3],
+    '--color-chart-pdf-5': pdfChartColors[4],
+    '--color-chart-pdf-6': pdfChartColors[5],
+
+    // Key insights sidebar colors
+    '--color-key-insights-bg': keyInsightsColors.background,
+    '--color-key-insights-text': keyInsightsColors.text,
+    '--color-key-insights-bullet': keyInsightsColors.bullet,
+
+    // Numbered boxes colors
+    '--color-numbered-box-teal': numberedBoxColors.teal,
+    '--color-numbered-box-bg': numberedBoxColors.background,
 
     // Typography - Font families
     '--font-family-primary': fontFamilies.primary,
@@ -209,4 +252,31 @@ export function getEditorialThemeVars(theme) {
     '--theme-middle': colors.middle,
     '--theme-shade': colors.shade,
   };
+}
+
+/**
+ * Generate CSS for a specific section theme
+ * @param {string} sectionType - Section type key (e.g., 'market-themes', 'ai-capex', 'our-view')
+ * @returns {Object} CSS variables for the section theme
+ */
+export function getSectionThemeVars(sectionType) {
+  const theme = sectionThemes[sectionType] || sectionThemes['default'];
+
+  return {
+    '--section-bg': theme.background,
+    '--section-bg-darker': theme.backgroundDarker,
+    '--section-text': theme.text,
+  };
+}
+
+/**
+ * Get section theme CSS as inline style string
+ * @param {string} sectionType - Section type key
+ * @returns {string} Inline style string
+ */
+export function getSectionThemeStyle(sectionType) {
+  const vars = getSectionThemeVars(sectionType);
+  return Object.entries(vars)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join('; ');
 }

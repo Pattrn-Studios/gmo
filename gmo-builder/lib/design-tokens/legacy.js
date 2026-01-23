@@ -13,6 +13,9 @@ import {
   textColors,
   surfaceColors,
   backgroundColors,
+  sectionThemes,
+  pdfChartColors,
+  keyInsightsColors,
 } from './colors.js';
 
 /**
@@ -38,6 +41,22 @@ export const GMO_COLORS = {
   // Background colors
   bgPrimary: backgroundColors.primary,       // #FFFFFF
   bgSecondary: backgroundColors.secondary,   // #F7F5F3
+
+  // Section theme backgrounds (from PDF reference)
+  sectionMarketThemes: sectionThemes['market-themes'].background,    // #7CC5D9 - Light Cyan
+  sectionAiCapex: sectionThemes['ai-capex'].background,              // #E8967B - Coral
+  sectionOurView: sectionThemes['our-view'].background,              // #008252 - BNPP Green
+  sectionDecember: sectionThemes['december-review'].background,      // #9DD9C7 - Light Mint
+  sectionAppendix: sectionThemes['appendix'].background,             // #008252 - BNPP Green
+
+  // Key insights sidebar
+  keyInsightsBg: keyInsightsColors.background,  // #008252 - BNPP Green
+  keyInsightsText: keyInsightsColors.text,      // #FFFFFF
+
+  // PDF chart palette
+  chartPdfPrimary: pdfChartColors[0],    // #E86E58 - Coral/Red
+  chartPdfSecondary: pdfChartColors[1],  // #3E7274 - Teal
+  chartPdfTertiary: pdfChartColors[2],   // #C9A227 - Gold
 };
 
 /**
@@ -47,6 +66,12 @@ export const GMO_COLORS = {
 export const CHART_PALETTE = chartColors;
 
 /**
+ * PDF-matched chart colors (from reference PDF)
+ * @deprecated Use pdfChartColors from colors.js instead
+ */
+export const PDF_CHART_PALETTE = pdfChartColors;
+
+/**
  * Get a legacy color by name
  * @param {string} name - Color name (e.g., 'primaryGreen', 'textPrimary')
  * @returns {string|undefined} Hex color value
@@ -54,4 +79,13 @@ export const CHART_PALETTE = chartColors;
  */
 export function getLegacyColor(name) {
   return GMO_COLORS[name];
+}
+
+/**
+ * Get section theme colors by name
+ * @param {string} sectionType - Section type (e.g., 'market-themes', 'ai-capex')
+ * @returns {object} Theme colors with background and text
+ */
+export function getSectionThemeColors(sectionType) {
+  return sectionThemes[sectionType] || sectionThemes['default'];
 }

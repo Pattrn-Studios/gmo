@@ -13,8 +13,9 @@
  */
 
 import {GMO_COLORS} from './design-tokens/index.js'
+import {pdfChartColors} from './design-tokens/colors.js'
 
-// Chart color palette
+// Standard chart color palette (for web)
 const CHART_COLORS = [
   '#3E7274', // Blue Dianne (primary)
   '#3D748F', // Coast Blue
@@ -23,6 +24,17 @@ const CHART_COLORS = [
   '#3A7862', // Silver Tree Green
   '#132728', // Firefly Dark
   '#955073', // Plum
+]
+
+// PDF-matched chart color palette (from reference PDF)
+// Used for PDF exports to match the official design
+const PDF_CHART_COLORS = [
+  '#E86E58', // Coral/Red (primary data lines)
+  '#3E7274', // Teal (secondary lines)
+  '#C9A227', // Gold (tertiary lines)
+  '#3D748F', // Coast Blue
+  '#3A7862', // Silver Tree Green
+  '#CCCCCC', // Muted/Gray
 ]
 
 /**
@@ -48,6 +60,15 @@ export function parseCSV(csv) {
 }
 
 /**
+ * Get the appropriate color palette based on context
+ * @param {boolean} forPdf - Whether this is for PDF export
+ * @returns {string[]} Color palette array
+ */
+function getChartColors(forPdf = false) {
+  return forPdf ? PDF_CHART_COLORS : CHART_COLORS
+}
+
+/**
  * Build Chart.js configuration for a section
  * @param {Object} section - Content section with chart data
  * @param {Object} options - Configuration options
@@ -55,6 +76,7 @@ export function parseCSV(csv) {
  */
 export function buildChartJsConfig(section, options = {}) {
   const {forPdf = false, animation = true} = options
+  const colors = getChartColors(forPdf)
 
   if (!section.hasChart || !section.chartData) return null
 
@@ -75,46 +97,46 @@ export function buildChartJsConfig(section, options = {}) {
   switch (chartType) {
     case 'pie':
     case 'donut':
-      return buildPieConfig(section, limitedData, labels, chartType, options)
+      return buildPieConfig(section, limitedData, labels, chartType, options, colors)
 
     case 'scatter':
-      return buildScatterConfig(section, limitedData, options)
+      return buildScatterConfig(section, limitedData, options, colors)
 
     case 'radar':
-      return buildRadarConfig(section, limitedData, labels, options)
+      return buildRadarConfig(section, limitedData, labels, options, colors)
 
     case 'gauge':
-      return buildGaugeConfig(section, limitedData, options)
+      return buildGaugeConfig(section, limitedData, options, colors)
 
     case 'waterfall':
-      return buildWaterfallConfig(section, limitedData, labels, options)
+      return buildWaterfallConfig(section, limitedData, labels, options, colors)
 
     case 'treemap':
       // Treemap requires chartjs-chart-treemap plugin
       // Fall back to horizontal bar for PDF if not available
       return forPdf
-        ? buildBarConfig(section, limitedData, labels, options)
-        : buildTreemapConfig(section, limitedData, labels, options)
+        ? buildBarConfig(section, limitedData, labels, options, colors)
+        : buildTreemapConfig(section, limitedData, labels, options, colors)
 
     case 'heatmap':
       // Heatmap requires chartjs-chart-matrix plugin
       // Fall back to stacked bar for PDF if not available
       return forPdf
-        ? buildStackedBarConfig(section, limitedData, labels, options)
-        : buildHeatmapConfig(section, limitedData, labels, options)
+        ? buildStackedBarConfig(section, limitedData, labels, options, colors)
+        : buildHeatmapConfig(section, limitedData, labels, options, colors)
 
     case 'composed':
-      return buildComposedConfig(section, limitedData, labels, options)
+      return buildComposedConfig(section, limitedData, labels, options, colors)
 
     default:
-      return buildStandardConfig(section, limitedData, labels, chartType, options)
+      return buildStandardConfig(section, limitedData, labels, chartType, options, colors)
   }
 }
 
 /**
  * Build standard chart config (line, bar, area, stacked variants)
  */
-function buildStandardConfig(section, parsedData, labels, chartType, options) {
+function buildStandardConfig(section, parsedData, labels, chartType, options, colors = CHART_COLORS) {
   const {animation = true} = options
 
   // Map internal chart types to Chart.js types
@@ -132,7 +154,7 @@ function buildStandardConfig(section, parsedData, labels, chartType, options) {
   const isArea = chartType.includes('area')
 
   const datasets = (section.chartSeries || []).map((s, index) => {
-    const color = s.colour || CHART_COLORS[index % CHART_COLORS.length]
+    const color = s.colour || colors[index % colors.length]
     return {
       label: s.label,
       data: parsedData.map((row) => row[s.dataColumn]),
@@ -198,11 +220,11 @@ function buildStandardConfig(section, parsedData, labels, chartType, options) {
 /**
  * Build pie/donut chart config
  */
-function buildPieConfig(section, parsedData, labels, chartType, options) {
+function buildPieConfig(section, parsedData, labels, chartType, options, colors = CHART_COLORS) {
   const {animation = true} = options
   const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
 
-  const colors = parsedData.map((_, index) => CHART_COLORS[index % CHART_COLORS.length])
+  const sliceColors = parsedData.map((_, index) => colors[index % colors.length])
 
   return {
     type: chartType === 'donut' ? 'doughnut' : 'pie',
@@ -211,7 +233,7 @@ function buildPieConfig(section, parsedData, labels, chartType, options) {
       datasets: [
         {
           data: parsedData.map((row) => row[valueColumn]),
-          backgroundColor: colors,
+          backgroundColor: sliceColors,
           borderColor: '#fff',
           borderWidth: 2,
         },
@@ -237,7 +259,7 @@ function buildPieConfig(section, parsedData, labels, chartType, options) {
 /**
  * Build scatter chart config
  */
-function buildScatterConfig(section, parsedData, options) {
+function buildScatterConfig(section, parsedData, options, colors = CHART_COLORS) {
   const {animation = true} = options
   const xKey = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[0]
   const yKey = section.chartSeries?.[1]?.dataColumn || Object.keys(parsedData[0])[1]
@@ -254,8 +276,8 @@ function buildScatterConfig(section, parsedData, options) {
         {
           label: section.chartSeries?.[0]?.label || 'Data',
           data: scatterData,
-          backgroundColor: section.chartSeries?.[0]?.colour || CHART_COLORS[0],
-          borderColor: section.chartSeries?.[0]?.colour || CHART_COLORS[0],
+          backgroundColor: section.chartSeries?.[0]?.colour || colors[0],
+          borderColor: section.chartSeries?.[0]?.colour || colors[0],
           pointRadius: 5,
         },
       ],
@@ -297,11 +319,11 @@ function buildScatterConfig(section, parsedData, options) {
 /**
  * Build radar chart config
  */
-function buildRadarConfig(section, parsedData, labels, options) {
+function buildRadarConfig(section, parsedData, labels, options, colors = CHART_COLORS) {
   const {animation = true} = options
 
   const datasets = (section.chartSeries || []).map((s, index) => {
-    const color = s.colour || CHART_COLORS[index % CHART_COLORS.length]
+    const color = s.colour || colors[index % colors.length]
     return {
       label: s.label,
       data: parsedData.map((row) => row[s.dataColumn]),
@@ -342,7 +364,7 @@ function buildRadarConfig(section, parsedData, labels, options) {
 /**
  * Build gauge chart config (using doughnut as base)
  */
-function buildGaugeConfig(section, parsedData, options) {
+function buildGaugeConfig(section, parsedData, options, colors = CHART_COLORS) {
   const {animation = true} = options
   const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
   const value = parsedData[0]?.[valueColumn] || 0
@@ -356,7 +378,7 @@ function buildGaugeConfig(section, parsedData, options) {
       datasets: [
         {
           data: [percentage, 100 - percentage],
-          backgroundColor: [section.chartSeries?.[0]?.colour || CHART_COLORS[0], '#e0e0e0'],
+          backgroundColor: [section.chartSeries?.[0]?.colour || colors[0], '#e0e0e0'],
           borderWidth: 0,
           circumference: 180,
           rotation: 270,
@@ -379,7 +401,7 @@ function buildGaugeConfig(section, parsedData, options) {
 /**
  * Build waterfall chart config (using bar chart with floating bars)
  */
-function buildWaterfallConfig(section, parsedData, labels, options) {
+function buildWaterfallConfig(section, parsedData, labels, options, colors = CHART_COLORS) {
   const {animation = true} = options
   const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
 
@@ -390,7 +412,7 @@ function buildWaterfallConfig(section, parsedData, labels, options) {
     cumulative += value
     return {
       y: [start, cumulative],
-      color: index === parsedData.length - 1 ? CHART_COLORS[0] : value >= 0 ? '#3A7862' : '#AC5359',
+      color: index === parsedData.length - 1 ? colors[0] : value >= 0 ? '#3A7862' : '#AC5359',
     }
   })
 
@@ -437,11 +459,11 @@ function buildWaterfallConfig(section, parsedData, labels, options) {
 /**
  * Build composed (mixed) chart config
  */
-function buildComposedConfig(section, parsedData, labels, options) {
+function buildComposedConfig(section, parsedData, labels, options, colors = CHART_COLORS) {
   const {animation = true} = options
 
   const datasets = (section.chartSeries || []).map((s, index) => {
-    const color = s.colour || CHART_COLORS[index % CHART_COLORS.length]
+    const color = s.colour || colors[index % colors.length]
     // First series as bar, rest as lines
     if (index === 0) {
       return {
@@ -502,14 +524,14 @@ function buildComposedConfig(section, parsedData, labels, options) {
 /**
  * Build treemap config (requires chartjs-chart-treemap plugin)
  */
-function buildTreemapConfig(section, parsedData, labels, options) {
+function buildTreemapConfig(section, parsedData, labels, options, colors = CHART_COLORS) {
   const {animation = true} = options
   const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
 
   const treemapData = parsedData.map((row, index) => ({
     label: row[Object.keys(row)[0]],
     value: row[valueColumn] || 0,
-    color: CHART_COLORS[index % CHART_COLORS.length],
+    color: colors[index % colors.length],
   }))
 
   return {
@@ -520,7 +542,7 @@ function buildTreemapConfig(section, parsedData, labels, options) {
           tree: treemapData,
           key: 'value',
           groups: ['label'],
-          backgroundColor: (ctx) => treemapData[ctx.dataIndex]?.color || CHART_COLORS[0],
+          backgroundColor: (ctx) => treemapData[ctx.dataIndex]?.color || colors[0],
           borderColor: '#fff',
           borderWidth: 2,
           labels: {
@@ -546,13 +568,13 @@ function buildTreemapConfig(section, parsedData, labels, options) {
  * Build heatmap config (requires chartjs-chart-matrix plugin)
  * Falls back to stacked bar for browsers without plugin support
  */
-function buildHeatmapConfig(section, parsedData, labels, options) {
+function buildHeatmapConfig(section, parsedData, labels, options, colors = CHART_COLORS) {
   const xAxisKey = Object.keys(parsedData[0])[0]
   const columns = Object.keys(parsedData[0]).filter((k) => k !== xAxisKey)
 
   // If too many rows, fall back to stacked bar for better display
   if (parsedData.length > 20 || columns.length > 15) {
-    return buildStackedBarConfig(section, parsedData, labels, options)
+    return buildStackedBarConfig(section, parsedData, labels, options, colors)
   }
 
   // Calculate value range for color scaling
@@ -633,7 +655,7 @@ function buildHeatmapConfig(section, parsedData, labels, options) {
 /**
  * Build horizontal bar config (fallback for treemap in PDF)
  */
-function buildBarConfig(section, parsedData, labels, options) {
+function buildBarConfig(section, parsedData, labels, options, colors = CHART_COLORS) {
   const {animation = true} = options
   const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
 
@@ -645,7 +667,7 @@ function buildBarConfig(section, parsedData, labels, options) {
         {
           label: section.chartSeries?.[0]?.label || 'Value',
           data: parsedData.map((row) => row[valueColumn]),
-          backgroundColor: parsedData.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]),
+          backgroundColor: parsedData.map((_, i) => colors[i % colors.length]),
           borderWidth: 0,
         },
       ],
@@ -677,14 +699,14 @@ function buildBarConfig(section, parsedData, labels, options) {
 /**
  * Build stacked bar config (fallback for heatmap in PDF)
  */
-function buildStackedBarConfig(section, parsedData, labels, options) {
+function buildStackedBarConfig(section, parsedData, labels, options, colors = CHART_COLORS) {
   const xAxisKey = Object.keys(parsedData[0])[0]
   const columns = Object.keys(parsedData[0]).filter((k) => k !== xAxisKey)
 
   const datasets = columns.map((col, index) => ({
     label: col,
     data: parsedData.map((row) => row[col]),
-    backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
+    backgroundColor: colors[index % colors.length],
   }))
 
   return {

@@ -34,6 +34,47 @@ export const navigationSection = defineType({
       },
       initialValue: 'vertical',
     }),
+    defineField({
+      name: 'cardImages',
+      title: 'Card Images',
+      type: 'array',
+      description: 'Images for navigation cards (matched by section number). Images bleed 20% over right edge of cards.',
+      hidden: ({parent}) => parent?.layout !== 'cards',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'sectionIndex',
+              title: 'Section Number',
+              type: 'number',
+              description: 'Which section this image is for (1, 2, 3...)',
+              validation: (Rule) => Rule.required().min(1),
+            }),
+            defineField({
+              name: 'image',
+              title: 'Card Image',
+              type: 'image',
+              options: {
+                hotspot: true,
+              },
+            }),
+          ],
+          preview: {
+            select: {
+              index: 'sectionIndex',
+              media: 'image',
+            },
+            prepare({index, media}) {
+              return {
+                title: `Section ${index || '?'}`,
+                media,
+              }
+            },
+          },
+        },
+      ],
+    }),
   ],
   preview: {
     select: {

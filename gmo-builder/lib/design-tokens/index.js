@@ -21,9 +21,15 @@ export {
   overlayColors,
   navigationColors,
   interactionColors,
+  sectionThemes,
+  pdfChartColors,
+  keyInsightsColors,
+  numberedBoxColors,
   getColor,
   getAccentColors,
   getAccentBackground,
+  getSectionTheme,
+  getPdfChartColors,
 } from './colors.js';
 
 // Re-export typography
@@ -46,13 +52,17 @@ export {
   generateCSSVariablesString,
   generateCSSRootBlock,
   getEditorialThemeVars,
+  getSectionThemeVars,
+  getSectionThemeStyle,
 } from './css.js';
 
 // Re-export legacy compatibility
 export {
   GMO_COLORS,
   CHART_PALETTE,
+  PDF_CHART_PALETTE,
   getLegacyColor,
+  getSectionThemeColors,
 } from './legacy.js';
 
 // Import raw tokens for direct access if needed

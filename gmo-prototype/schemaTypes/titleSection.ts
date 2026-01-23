@@ -21,6 +21,20 @@ export const titleSection = defineType({
       description: 'Optional subtitle',
     }),
     defineField({
+      name: 'backgroundType',
+      title: 'Background Type',
+      type: 'string',
+      description: 'Choose between solid color or hero image background',
+      options: {
+        list: [
+          {title: 'Solid Color', value: 'color'},
+          {title: 'Hero Image', value: 'image'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'color',
+    }),
+    defineField({
       name: 'backgroundColor',
       title: 'Background Color',
       type: 'string',
@@ -34,6 +48,26 @@ export const titleSection = defineType({
         layout: 'radio',
       },
       initialValue: '#3E7274',
+      hidden: ({parent}) => parent?.backgroundType === 'image',
+    }),
+    defineField({
+      name: 'backgroundImage',
+      title: 'Background Image',
+      type: 'image',
+      description: 'Full-width hero image with dark tint overlay for text legibility',
+      options: {
+        hotspot: true,
+      },
+      hidden: ({parent}) => parent?.backgroundType !== 'image',
+    }),
+    defineField({
+      name: 'companyLogo',
+      title: 'Company Logo',
+      type: 'image',
+      description: 'Logo displayed in bottom left corner',
+      options: {
+        hotspot: true,
+      },
     }),
   ],
   preview: {

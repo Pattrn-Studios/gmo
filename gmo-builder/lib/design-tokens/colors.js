@@ -156,6 +156,83 @@ export const interactionColors = {
   active: tokens.colour['interaction-states']['active-state']['on-light'].primary, // #29A376
 };
 
+// Section theme colors for full-bleed section backgrounds (from PDF reference)
+export const sectionThemes = {
+  'market-themes': {
+    background: tokens.colour.sections['market-themes'].base,     // #7CC5D9 - Light Cyan
+    backgroundDarker: tokens.colour.sections['market-themes'].darker,
+    text: tokens.colour.sections['market-themes'].text,           // #FFFFFF
+  },
+  'economic-outlook': {
+    background: tokens.colour.sections['economic-outlook'].base,  // #7CC5D9 - Light Cyan
+    backgroundDarker: tokens.colour.sections['economic-outlook'].darker,
+    text: tokens.colour.sections['economic-outlook'].text,        // #FFFFFF
+  },
+  'geopolitical': {
+    background: tokens.colour.sections['geopolitical'].base,      // #7CC5D9 - Light Cyan
+    backgroundDarker: tokens.colour.sections['geopolitical'].darker,
+    text: tokens.colour.sections['geopolitical'].text,            // #FFFFFF
+  },
+  'central-banks': {
+    background: tokens.colour.sections['central-banks'].base,     // #7CC5D9 - Light Cyan
+    backgroundDarker: tokens.colour.sections['central-banks'].darker,
+    text: tokens.colour.sections['central-banks'].text,           // #FFFFFF
+  },
+  'ai-capex': {
+    background: tokens.colour.sections['ai-capex'].base,          // #E8967B - Coral/Salmon
+    backgroundDarker: tokens.colour.sections['ai-capex'].darker,
+    text: tokens.colour.sections['ai-capex'].text,                // #FFFFFF
+  },
+  'american-exceptionalism': {
+    background: tokens.colour.sections['american-exceptionalism'].base, // #A8887A - Dusty Rose
+    backgroundDarker: tokens.colour.sections['american-exceptionalism'].darker,
+    text: tokens.colour.sections['american-exceptionalism'].text, // #FFFFFF
+  },
+  'our-view': {
+    background: tokens.colour.sections['our-view'].base,          // #008252 - BNPP Green
+    backgroundDarker: tokens.colour.sections['our-view'].darker,
+    text: tokens.colour.sections['our-view'].text,                // #FFFFFF
+  },
+  'december-review': {
+    background: tokens.colour.sections['december-review'].base,   // #9DD9C7 - Light Mint
+    backgroundDarker: tokens.colour.sections['december-review'].darker,
+    text: tokens.colour.sections['december-review'].text,         // #1A1A1A
+  },
+  'appendix': {
+    background: tokens.colour.sections['appendix'].base,          // #008252 - BNPP Green
+    backgroundDarker: tokens.colour.sections['appendix'].darker,
+    text: tokens.colour.sections['appendix'].text,                // #FFFFFF
+  },
+  'default': {
+    background: tokens.colour.sections['default'].base,           // #FFFFFF - White
+    backgroundDarker: tokens.colour.sections['default'].darker,
+    text: tokens.colour.sections['default'].text,                 // #1A1A1A
+  },
+};
+
+// PDF-matched chart color palette (from reference PDF)
+export const pdfChartColors = [
+  tokens.colour.charts['pdf-palette'].primary,    // #E86E58 - Coral/Red (primary data lines)
+  tokens.colour.charts['pdf-palette'].secondary,  // #3E7274 - Teal (secondary lines)
+  tokens.colour.charts['pdf-palette'].tertiary,   // #C9A227 - Gold (tertiary lines)
+  tokens.colour.charts['pdf-palette'].quaternary, // #3D748F - Coast Blue
+  tokens.colour.charts['pdf-palette'].quinary,    // #3A7862 - Silver Tree Green
+  tokens.colour.charts['pdf-palette'].muted,      // #CCCCCC - Muted/Gray
+];
+
+// Key insights sidebar colors
+export const keyInsightsColors = {
+  background: tokens.colour['key-insights'].background,  // #008252 - BNPP Green
+  text: tokens.colour['key-insights'].text,              // #FFFFFF
+  bullet: tokens.colour['key-insights'].bullet,          // #FFFFFF
+};
+
+// Numbered boxes colors (for 01, 02, 03 style cards)
+export const numberedBoxColors = {
+  teal: tokens.colour['numbered-boxes'].teal,            // #00897B
+  background: tokens.colour['numbered-boxes'].background, // #EDF7F7
+};
+
 /**
  * Get a color by dot-notation path
  * @param {string} path - e.g., 'surfaces.primary.base' or 'text.on-light.neutral.primary'
@@ -190,4 +267,22 @@ export function getAccentColors(count = 6) {
 export function getAccentBackground(accentNumber) {
   const key = `accent-${accentNumber}`;
   return tokens.colour.backgrounds[key] || null;
+}
+
+/**
+ * Get section theme colors by section type
+ * @param {string} sectionType - Section type key (e.g., 'market-themes', 'ai-capex', 'our-view')
+ * @returns {object} Theme object with background, backgroundDarker, and text colors
+ */
+export function getSectionTheme(sectionType) {
+  return sectionThemes[sectionType] || sectionThemes['default'];
+}
+
+/**
+ * Get PDF chart colors as an array
+ * @param {number} count - Number of colors to return (default: all)
+ * @returns {string[]} Array of chart color hex values
+ */
+export function getPdfChartColors(count = 6) {
+  return pdfChartColors.slice(0, count);
 }

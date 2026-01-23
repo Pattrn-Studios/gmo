@@ -337,6 +337,77 @@
       "white": {
         "subtle": "rgba(255, 255, 255, 0.15)"
       }
+    },
+    "sections": {
+      "market-themes": {
+        "base": "#7CC5D9",
+        "darker": "#5EAFC4",
+        "text": "#FFFFFF"
+      },
+      "economic-outlook": {
+        "base": "#7CC5D9",
+        "darker": "#5EAFC4",
+        "text": "#FFFFFF"
+      },
+      "geopolitical": {
+        "base": "#7CC5D9",
+        "darker": "#5EAFC4",
+        "text": "#FFFFFF"
+      },
+      "central-banks": {
+        "base": "#7CC5D9",
+        "darker": "#5EAFC4",
+        "text": "#FFFFFF"
+      },
+      "ai-capex": {
+        "base": "#E8967B",
+        "darker": "#D9886E",
+        "text": "#FFFFFF"
+      },
+      "american-exceptionalism": {
+        "base": "#A8887A",
+        "darker": "#9A7A6C",
+        "text": "#FFFFFF"
+      },
+      "our-view": {
+        "base": "#008252",
+        "darker": "#006B44",
+        "text": "#FFFFFF"
+      },
+      "december-review": {
+        "base": "#9DD9C7",
+        "darker": "#7FCCB5",
+        "text": "#1A1A1A"
+      },
+      "appendix": {
+        "base": "#008252",
+        "darker": "#006B44",
+        "text": "#FFFFFF"
+      },
+      "default": {
+        "base": "#FFFFFF",
+        "darker": "#F7F5F3",
+        "text": "#1A1A1A"
+      }
+    },
+    "charts": {
+      "pdf-palette": {
+        "primary": "#E86E58",
+        "secondary": "#3E7274",
+        "tertiary": "#C9A227",
+        "quaternary": "#3D748F",
+        "quinary": "#3A7862",
+        "muted": "#CCCCCC"
+      }
+    },
+    "key-insights": {
+      "background": "#008252",
+      "text": "#FFFFFF",
+      "bullet": "#FFFFFF"
+    },
+    "numbered-boxes": {
+      "teal": "#00897B",
+      "background": "#EDF7F7"
     }
   },
   "type": {

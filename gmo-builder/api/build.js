@@ -320,6 +320,104 @@ ${generateCSSVariablesString('      ')}
       width: 100%;
       transform: scaleX(0);
     }
+
+    /* Section Dividers - Full-bleed colored backgrounds */
+    .section-divider {
+      min-height: 50vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 80px 0;
+    }
+    .section-divider h2 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 700;
+      line-height: 1.05;
+      max-width: 60%;
+    }
+    .section-divider h2::after { display: none; }
+
+    /* Themed Content Section backgrounds */
+    .content-section[data-theme="market-themes"],
+    .content-section[data-theme="economic-outlook"],
+    .content-section[data-theme="geopolitical"],
+    .content-section[data-theme="central-banks"] {
+      background: var(--color-section-market-themes-bg, #7CC5D9);
+      color: var(--color-section-market-themes-text, #FFFFFF);
+    }
+    .content-section[data-theme="ai-capex"] {
+      background: var(--color-section-ai-capex-bg, #E8967B);
+      color: var(--color-section-ai-capex-text, #FFFFFF);
+    }
+    .content-section[data-theme="american-exceptionalism"] {
+      background: var(--color-section-american-exceptionalism-bg, #A8887A);
+      color: var(--color-section-american-exceptionalism-text, #FFFFFF);
+    }
+    .content-section[data-theme="our-view"],
+    .content-section[data-theme="appendix"] {
+      background: var(--color-section-our-view-bg, #008252);
+      color: var(--color-section-our-view-text, #FFFFFF);
+    }
+    .content-section[data-theme="december-review"] {
+      background: var(--color-section-december-review-bg, #9DD9C7);
+      color: var(--color-section-december-review-text, #1A1A1A);
+    }
+
+    /* Key Insights Sidebar */
+    .layout-with-insights {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 48px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .layout-with-insights { grid-template-columns: 1fr; gap: 32px; }
+    }
+    .key-insights-sidebar {
+      background: var(--color-key-insights-bg, #008252);
+      color: var(--color-key-insights-text, #FFFFFF);
+      padding: 28px 24px;
+      border-radius: 8px;
+      position: sticky;
+      top: 24px;
+    }
+    .key-insights-sidebar h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .key-insights-sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .key-insights-sidebar li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      border-bottom: none;
+    }
+    .key-insights-sidebar li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 6px;
+      height: 6px;
+      background: var(--color-key-insights-bullet, #FFFFFF);
+      border-radius: 50%;
+    }
+
+    /* Footer Bar (BNPP Style) */
+    .report-footer-bar {
+      background: #1A1A1A;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+    }
+    .footer-tagline { color: #CCCCCC; font-size: 12px; font-style: italic; }
   </style>
 </head>
 <body>
@@ -337,9 +435,16 @@ ${generateCSSVariablesString('      ')}
   ${sectionsHTML}
   <footer class="report-footer">
     <div class="container">
-      <p>&copy; ${new Date().getFullYear()} AXA Investment Managers</p>
+      <p>&copy; ${new Date().getFullYear()} BNP Paribas Asset Management</p>
+      <p>The sustainable investor for a changing world</p>
     </div>
   </footer>
+  <div class="report-footer-bar">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="color: #008252; font-weight: bold; font-size: 14px;">BNP PARIBAS</span>
+      <span class="footer-tagline">The sustainable investor for a changing world</span>
+    </div>
+  </div>
   <script>
     // Initialize all charts with Chart.js
     ${chartsInitScript}

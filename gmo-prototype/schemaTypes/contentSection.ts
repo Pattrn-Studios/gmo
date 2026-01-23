@@ -26,6 +26,34 @@ export const contentSection = defineType({
     }),
 
     defineField({
+      name: 'colorTheme',
+      title: 'Color Theme',
+      type: 'string',
+      description: 'Background color for this section (text will be white on colored backgrounds)',
+      options: {
+        list: [
+          {title: 'None (White)', value: 'none'},
+          {title: 'Blue (#7CC5D9)', value: 'blue'},
+          {title: 'Green (#008252)', value: 'green'},
+          {title: 'Orange (#E8967B)', value: 'orange'},
+          {title: 'Brown (#A8887A)', value: 'brown'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'none',
+    }),
+
+    defineField({
+      name: 'sectionImage',
+      title: 'Section Image',
+      type: 'image',
+      description: 'Optional image/illustration displayed above text content',
+      options: {
+        hotspot: true,
+      },
+    }),
+
+    defineField({
       name: 'content',
       title: 'Content',
       type: 'array',
