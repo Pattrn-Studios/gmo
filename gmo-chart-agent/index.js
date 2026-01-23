@@ -205,14 +205,16 @@ chartType must be one of: "line", "column", "bar", "area", "stackedColumn", "sta
 
 yAxisFormat must be one of: "number", "percent", "currency"
 
-RULES FOR ALTERNATIVES (provide 2-3 alternatives):
-- Suggest different chart types that could also work with this data
-- For time series: if main is "line", alternatives could be "area", "column", "composed"
-- For categories: if main is "column", alternatives could be "bar", "radar", "treemap"
-- For proportions: if main is "pie", alternatives could be "donut", "treemap"
-- For part-to-whole: suggest both stacked and non-stacked versions
+RULES FOR ALTERNATIVES (provide exactly 3 unique alternatives):
+- CRITICAL: Each alternative MUST have a DIFFERENT chartType - NO DUPLICATES allowed
+- CRITICAL: Do NOT repeat the main recommendation's chartType in alternatives
+- For time series: if main is "line", alternatives should be "area", "column", "stackedArea" (all different)
+- For categories: if main is "column", alternatives should be "bar", "pie", "donut" (all different)
+- For proportions: if main is "pie", alternatives should be "donut", "column", "bar" (all different)
+- For part-to-whole: suggest "stackedColumn", "stackedArea", "treemap" as alternatives
 - Each alternative should have the SAME series, xAxisLabel, and yAxisLabel as the main recommendation
 - Only change the chartType and update the reasoning to explain why this alternative could work
+- If few viable alternatives exist, provide fewer alternatives but NEVER duplicate chart types
 
 ${getColorPromptInstructions()}
 - Use the SAME colors for each series across main and alternatives

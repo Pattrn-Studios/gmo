@@ -435,26 +435,32 @@ export function RechartsRenderer({
         color: CHART_COLORS[index % CHART_COLORS.length],
       }))
 
-      // Custom label renderer for cleaner pie labels
-      const renderCustomLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, name}: any) => {
-        if (percent < 0.05) return null // Don't show labels for small slices
-        const RADIAN = Math.PI / 180
-        const radius = outerRadius * 1.2
-        const x = cx + radius * Math.cos(-midAngle * RADIAN)
-        const y = cy + radius * Math.sin(-midAngle * RADIAN)
-        return (
-          <text
-            x={x}
-            y={y}
-            fill="#5F5F5F"
-            textAnchor={x > cx ? 'start' : 'end'}
-            dominantBaseline="central"
-            fontSize={11}
-          >
-            {`${name} (${(percent * 100).toFixed(0)}%)`}
-          </text>
-        )
-      }
+      // Custom label renderer for cleaner pie labels (only show in full view, not thumbnails)
+      const renderCustomLabel = showLegend
+        ? ({cx, cy, midAngle, innerRadius, outerRadius, percent, name}: any) => {
+            if (percent < 0.05) return null // Don't show labels for small slices
+            const RADIAN = Math.PI / 180
+            const radius = outerRadius * 1.2
+            const x = cx + radius * Math.cos(-midAngle * RADIAN)
+            const y = cy + radius * Math.sin(-midAngle * RADIAN)
+            return (
+              <text
+                x={x}
+                y={y}
+                fill="#5F5F5F"
+                textAnchor={x > cx ? 'start' : 'end'}
+                dominantBaseline="central"
+                fontSize={11}
+              >
+                {`${name} (${(percent * 100).toFixed(0)}%)`}
+              </text>
+            )
+          }
+        : false
+
+      // Use larger outerRadius for thumbnails to fill the space better
+      const outerRadius = showLegend ? '70%' : '85%'
+      const innerRadius = chartType === 'donut' ? (showLegend ? '50%' : '55%') : 0
 
       return (
         <ResponsiveContainer width="100%" height={height}>
@@ -465,11 +471,11 @@ export function RechartsRenderer({
               nameKey="name"
               cx="50%"
               cy="50%"
-              innerRadius={chartType === 'donut' ? '50%' : 0}
-              outerRadius="70%"
+              innerRadius={innerRadius}
+              outerRadius={outerRadius}
               paddingAngle={chartType === 'donut' ? 3 : 1}
               label={renderCustomLabel}
-              labelLine={{stroke: '#BDBDBD', strokeWidth: 1}}
+              labelLine={showLegend ? {stroke: '#BDBDBD', strokeWidth: 1} : false}
               stroke="#fff"
               strokeWidth={2}
             >
@@ -537,10 +543,11 @@ export function RechartsRenderer({
     case 'radar':
       return (
         <ResponsiveContainer width="100%" height={height}>
-          <RadarChart data={data}>
+          <RadarChart data={data} margin={{top: 20, right: 30, bottom: 20, left: 30}}>
             <PolarGrid stroke="#e0e0e0" />
-            <PolarAngleAxis dataKey={xAxisKey} tick={{fontSize: 11}} />
-            <PolarRadiusAxis tick={{fontSize: 10}} />
+            {/* PolarAngleAxis is required for radar to render - always include but hide ticks in thumbnail mode */}
+            <PolarAngleAxis dataKey={xAxisKey} tick={showAxes ? {fontSize: 11, fill: '#5F5F5F'} : false} />
+            {showAxes && <PolarRadiusAxis tick={{fontSize: 10, fill: '#5F5F5F'}} />}
             {activeSeries.map((s, i) => (
               <Radar
                 key={s.dataColumn}
@@ -548,7 +555,8 @@ export function RechartsRenderer({
                 dataKey={s.dataColumn}
                 stroke={getColor(i, s.colour)}
                 fill={getColor(i, s.colour)}
-                fillOpacity={0.3}
+                fillOpacity={0.4}
+                strokeWidth={2}
               />
             ))}
             {showTooltip && <Tooltip />}
