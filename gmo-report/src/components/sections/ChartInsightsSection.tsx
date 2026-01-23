@@ -22,7 +22,19 @@ interface ChartInsightsSectionProps {
   yAxisFormat?: 'number' | 'percent' | 'currency'
   chartSource?: string
   insights?: Insight[]
+  insightsPosition?: 'left' | 'right' | 'top' | 'bottom'
+  colorTheme?: string
   'data-section-index': number
+}
+
+// Color theme mapping
+const COLOR_THEMES: Record<string, { background: string; text: string }> = {
+  blue: { background: '#7CC5D9', text: '#FFFFFF' },
+  green: { background: '#008252', text: '#FFFFFF' },
+  orange: { background: '#E8967B', text: '#FFFFFF' },
+  brown: { background: '#A8887A', text: '#FFFFFF' },
+  mint: { background: '#9DD9C7', text: '#1A1A1A' },
+  none: { background: '#F7F5F3', text: '#1A1A1A' },
 }
 
 export function ChartInsightsSection({
@@ -36,97 +48,133 @@ export function ChartInsightsSection({
   yAxisFormat,
   chartSource,
   insights = [],
+  insightsPosition = 'right',
+  colorTheme = 'none',
   'data-section-index': index,
 }: ChartInsightsSectionProps) {
   const parsedData = chartData ? parseCSV(chartData) : []
+  const theme = COLOR_THEMES[colorTheme] || COLOR_THEMES.none
+  const validInsights = insights.filter(Boolean)
+
+  // Determine grid layout based on insights position
+  const getLayoutClass = () => {
+    switch (insightsPosition) {
+      case 'left':
+        return 'grid lg:grid-cols-[300px_1fr] gap-8'
+      case 'right':
+        return 'grid lg:grid-cols-[1fr_300px] gap-8'
+      case 'top':
+      case 'bottom':
+        return 'grid grid-cols-1 gap-8'
+      default:
+        return 'grid lg:grid-cols-[1fr_300px] gap-8'
+    }
+  }
+
+  const InsightsPanel = () => (
+    <motion.div
+      initial={{ opacity: 0, x: insightsPosition === 'left' ? -20 : 20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: 0.2 }}
+      className="rounded-lg p-6 sm:p-7"
+      style={{
+        backgroundColor: theme.background,
+        color: theme.text,
+      }}
+    >
+      {title && (
+        <h4 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-80">
+          Key Insights
+        </h4>
+      )}
+      <ul className="space-y-4">
+        {validInsights.map((insight, i) => (
+          <li key={i} className="relative pl-5">
+            <span
+              className="absolute left-0 top-2 w-2 h-2 rounded-full"
+              style={{ backgroundColor: 'currentColor', opacity: 0.6 }}
+            />
+            <div>
+              {insight.heading && (
+                <h5 className="font-semibold mb-1">{insight.heading}</h5>
+              )}
+              {insight.body && (
+                <p className="text-sm opacity-80">{insight.body}</p>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </motion.div>
+  )
+
+  const ChartPanel = () => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+      className="chart-wrapper"
+      style={{ minHeight: '450px' }}
+    >
+      {chartData && (
+        <RechartsRenderer
+          chartType={(chartType || 'line') as ChartType}
+          data={parsedData}
+          series={chartSeries || []}
+          xAxisLabel={xAxisLabel}
+          yAxisLabel={yAxisLabel}
+          yAxisFormat={yAxisFormat}
+          height={400}
+        />
+      )}
+      {chartSource && (
+        <p className="text-sm text-text-secondary mt-4 italic">
+          Source: {chartSource}
+        </p>
+      )}
+    </motion.div>
+  )
 
   return (
     <section
       data-section-index={index}
-      className="py-16 px-4 bg-bg-primary"
+      className="py-20 sm:py-24"
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="container">
         {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-8"
-        >
-          {title && (
-            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-2">
-              {title}
-            </h2>
-          )}
-          {subtitle && (
-            <p className="text-lg text-text-secondary">{subtitle}</p>
-          )}
-        </motion.div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Chart - takes 2 columns */}
+        {(title || subtitle) && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="lg:col-span-2 bg-white rounded-xl p-6 shadow-lg"
+            className="section-header mb-12"
           >
-            {chartData && (
-              <RechartsRenderer
-                chartType={(chartType || 'line') as ChartType}
-                data={parsedData}
-                series={chartSeries || []}
-                xAxisLabel={xAxisLabel}
-                yAxisLabel={yAxisLabel}
-                yAxisFormat={yAxisFormat}
-                height={450}
-              />
+            {title && (
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary mb-4">
+                {title}
+              </h2>
             )}
-            {chartSource && (
-              <p className="text-sm text-gray-500 mt-4">Source: {chartSource}</p>
+            {subtitle && (
+              <p className="text-xl text-text-secondary">{subtitle}</p>
             )}
           </motion.div>
+        )}
 
-          {/* Insights panel */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-4"
-          >
-            {insights.filter(Boolean).map((insight, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
-                className="bg-bg-secondary rounded-xl p-4"
-              >
-                <div className="flex items-start gap-3">
-                  {insight.icon && (
-                    <img
-                      src={insight.icon}
-                      alt=""
-                      className="w-8 h-8 object-contain flex-shrink-0"
-                    />
-                  )}
-                  <div>
-                    {insight.heading && (
-                      <h3 className="font-semibold text-text-primary mb-1">
-                        {insight.heading}
-                      </h3>
-                    )}
-                    {insight.body && (
-                      <p className="text-sm text-text-secondary">{insight.body}</p>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+        {/* Layout based on insights position */}
+        <div className={getLayoutClass()}>
+          {insightsPosition === 'left' || insightsPosition === 'top' ? (
+            <>
+              <InsightsPanel />
+              <ChartPanel />
+            </>
+          ) : (
+            <>
+              <ChartPanel />
+              <InsightsPanel />
+            </>
+          )}
         </div>
       </div>
     </section>

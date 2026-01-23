@@ -19,44 +19,65 @@ export function TitleSection({
   companyLogo,
   'data-section-index': index,
 }: TitleSectionProps) {
+  // Build background style matching the original HTML template
+  const bgColor = backgroundColor || '#008252'
+  const backgroundStyle = backgroundImage
+    ? {
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }
+    : {
+        background: `linear-gradient(135deg, ${bgColor} 0%, #132728 100%)`,
+      }
+
   return (
     <section
       data-section-index={index}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      style={{
-        backgroundColor: backgroundColor || '#008252',
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      className="relative min-h-[60vh] flex items-center overflow-hidden"
+      style={backgroundStyle}
     >
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/20" />
+      {/* Dot pattern overlay */}
+      <div
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)',
+          backgroundSize: '20px 20px',
+        }}
+      />
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="relative z-10 text-center px-4 max-w-4xl"
-      >
+      <div className="container relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+            {heading || 'Report Title'}
+          </h1>
+
+          {subheading && (
+            <p className="text-xl sm:text-2xl text-white/90 max-w-3xl">
+              {subheading}
+            </p>
+          )}
+        </motion.div>
+
         {companyLogo && (
-          <img
-            src={companyLogo}
-            alt="Company Logo"
-            className="h-16 mx-auto mb-8 object-contain"
-          />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="absolute bottom-10 left-6"
+          >
+            <img
+              src={companyLogo}
+              alt="Company Logo"
+              className="h-12 sm:h-16 w-auto max-w-[200px] object-contain"
+            />
+          </motion.div>
         )}
-
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-          {heading || 'Report Title'}
-        </h1>
-
-        {subheading && (
-          <p className="text-xl md:text-2xl text-white/90">
-            {subheading}
-          </p>
-        )}
-      </motion.div>
+      </div>
 
       {/* Scroll indicator */}
       <motion.div

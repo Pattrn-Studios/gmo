@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Design Tokens - Light Theme (default) */
 :root {
   /* Text colors */
@@ -7,7 +11,7 @@
 
   /* Background colors */
   --color-bg-primary: #FFFFFF;
-  --color-bg-secondary: #F5F5F5;
+  --color-bg-secondary: #F7F5F3;
   --color-bg-tertiary: #E8E8E8;
 
   /* Brand colors */
@@ -38,6 +42,11 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  /* GMO specific */
+  --gmo-green: #008252;
+  --gmo-blue: #3E7274;
+  --gmo-copper: #3D748F;
 }
 
 /* Dark Theme */
@@ -74,27 +83,128 @@ body {
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  line-height: 1.6;
 }
-
-/* Utility classes mapped to CSS variables */
-.text-text-primary { color: var(--color-text-primary); }
-.text-text-secondary { color: var(--color-text-secondary); }
-.text-text-inverse { color: var(--color-text-inverse); }
-.text-brand { color: var(--color-brand); }
-
-.bg-bg-primary { background-color: var(--color-bg-primary); }
-.bg-bg-secondary { background-color: var(--color-bg-secondary); }
-.bg-bg-tertiary { background-color: var(--color-bg-tertiary); }
-.bg-brand { background-color: var(--color-brand); }
-.bg-brand\/10 { background-color: rgba(0, 130, 82, 0.1); }
-
-.border-line-default { border-color: var(--color-line-default); }
-.border-line-strong { border-color: var(--color-line-strong); }
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   line-height: 1.2;
+}
+
+/* Container utilities */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.container-narrow {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Section header with underline */
+.section-header h2 {
+  position: relative;
+  display: inline-block;
+}
+
+.section-header h2::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -12px;
+  width: 60px;
+  height: 4px;
+  background: var(--gmo-green);
+}
+
+/* Chart wrapper */
+.chart-wrapper {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E0E0E0;
+}
+
+/* Navigation card styles */
+.nav-card {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border-left: 4px solid var(--gmo-green);
+  transition: all 0.3s ease;
+  display: block;
+  text-decoration: none;
+}
+
+.nav-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(62, 114, 116, 0.15);
+  border-left-color: var(--gmo-blue);
+}
+
+/* Content block styling */
+.content-block {
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
+.content-block p {
+  margin-bottom: 24px;
+}
+
+.content-block ul {
+  list-style: none;
+  padding: 0;
+  margin: 48px 0;
+}
+
+.content-block li {
+  padding: 16px 0;
+  padding-left: 24px;
+  position: relative;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.content-block li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: var(--gmo-green);
+  border-radius: 50%;
+}
+
+/* Prose styling for content */
+.prose {
+  line-height: 1.7;
+}
+
+.prose p {
+  margin-bottom: 1em;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose ul, .prose ol {
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.prose li {
+  margin-bottom: 0.25em;
 }
 
 /* Scrollbar styling */
@@ -135,27 +245,18 @@ h1, h2, h3, h4, h5, h6 {
   animation: slideUp 0.6s ease-out forwards;
 }
 
-/* Prose styling for content */
-.prose {
-  line-height: 1.7;
-}
+/* Custom Tailwind layer utilities */
+@layer utilities {
+  .text-text-primary { color: var(--color-text-primary); }
+  .text-text-secondary { color: var(--color-text-secondary); }
+  .text-text-inverse { color: var(--color-text-inverse); }
+  .text-brand { color: var(--color-brand); }
 
-.prose p {
-  margin-bottom: 1em;
-}
+  .bg-bg-primary { background-color: var(--color-bg-primary); }
+  .bg-bg-secondary { background-color: var(--color-bg-secondary); }
+  .bg-bg-tertiary { background-color: var(--color-bg-tertiary); }
+  .bg-brand { background-color: var(--color-brand); }
 
-.prose h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-}
-
-.prose ul, .prose ol {
-  margin-left: 1.5em;
-  margin-bottom: 1em;
-}
-
-.prose li {
-  margin-bottom: 0.25em;
+  .border-line-default { border-color: var(--color-line-default); }
+  .border-line-strong { border-color: var(--color-line-strong); }
 }

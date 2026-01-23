@@ -25,73 +25,70 @@ export function TimelineSection({
   return (
     <section
       data-section-index={index}
-      className="py-16 px-4 bg-bg-secondary"
+      className="py-20 sm:py-24 bg-bg-secondary"
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="container">
         {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          {title && (
-            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-2">
-              {title}
-            </h2>
-          )}
-          {subtitle && (
-            <p className="text-lg text-text-secondary">{subtitle}</p>
-          )}
-        </motion.div>
+        {(title || subtitle) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="section-header text-center mb-16"
+          >
+            {title && (
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary mb-4">
+                {title}
+              </h2>
+            )}
+            {subtitle && (
+              <p className="text-xl text-text-secondary">{subtitle}</p>
+            )}
+          </motion.div>
+        )}
 
-        {/* Timeline */}
+        {/* Timeline - Horizontal layout matching original */}
         <div className="relative">
-          {/* Connecting line */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-line-default -translate-x-1/2 hidden md:block" />
+          {/* Horizontal track line */}
+          <div className="absolute top-[60px] left-0 right-0 h-1 bg-[#008252] hidden lg:block" />
 
-          <div className="space-y-8 md:space-y-0">
+          <div className="flex flex-col lg:flex-row lg:justify-between gap-8 lg:gap-4">
             {items.map((item, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`md:flex md:items-center ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                className="flex-1 min-w-[180px] max-w-[280px] mx-auto lg:mx-0 text-center"
               >
-                {/* Content card */}
-                <div className={`md:w-5/12 ${i % 2 === 0 ? 'md:pr-8 md:text-right' : 'md:pl-8'}`}>
-                  <div className="bg-bg-primary rounded-xl p-6 shadow-md">
-                    {item.number && (
-                      <span className="inline-block px-3 py-1 bg-brand/10 text-brand text-sm font-semibold rounded-full mb-3">
-                        {item.number}
-                      </span>
-                    )}
-                    {item.header && (
-                      <h3 className="text-xl font-semibold text-text-primary mb-2">
-                        {item.header}
-                      </h3>
-                    )}
-                    {item.body && (
-                      <p className="text-text-secondary">{item.body}</p>
-                    )}
+                {/* Number/icon at top */}
+                {item.number && (
+                  <div className="text-4xl sm:text-5xl font-bold text-[#008252] mb-4">
+                    {item.number}
                   </div>
-                </div>
+                )}
 
-                {/* Center dot */}
-                <div className="hidden md:flex md:w-2/12 justify-center">
-                  <div className="w-4 h-4 bg-brand rounded-full border-4 border-bg-primary" />
-                </div>
-
-                {/* Image */}
-                <div className={`md:w-5/12 mt-4 md:mt-0 ${i % 2 === 0 ? 'md:pl-8' : 'md:pr-8'}`}>
-                  {item.image && (
+                {/* Image (circular) */}
+                {item.image && (
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden shadow-lg">
                     <img
                       src={item.image}
                       alt={item.header || ''}
-                      className="w-full h-48 object-cover rounded-xl"
+                      className="w-full h-full object-cover"
                     />
+                  </div>
+                )}
+
+                {/* Content */}
+                <div className="mt-4">
+                  {item.header && (
+                    <h3 className="text-lg font-semibold text-text-primary mb-2">
+                      {item.header}
+                    </h3>
+                  )}
+                  {item.body && (
+                    <p className="text-sm text-text-secondary">{item.body}</p>
                   )}
                 </div>
               </motion.div>

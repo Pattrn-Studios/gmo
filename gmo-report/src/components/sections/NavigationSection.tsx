@@ -5,6 +5,8 @@ import { motion } from 'framer-motion'
 interface CardImage {
   sectionIndex?: number
   imageUrl?: string
+  title?: string
+  subtitle?: string
 }
 
 interface NavigationSectionProps {
@@ -29,24 +31,32 @@ export function NavigationSection({
     }
   }
 
+  const hasImages = cardImages.some(card => card.imageUrl)
+
   return (
     <section
       data-section-index={index}
-      className="py-16 px-4 bg-bg-secondary"
+      className="py-16 sm:py-20 bg-bg-secondary border-t-4 border-t-[#008252]"
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="container">
         {title && (
-          <motion.h2
+          <motion.h3
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold text-text-primary text-center mb-12"
+            className="text-2xl sm:text-3xl font-bold text-text-primary mb-12"
           >
             {title}
-          </motion.h2>
+          </motion.h3>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div
+          className={`grid gap-6 ${
+            hasImages
+              ? 'grid-cols-1 md:grid-cols-2 gap-12'
+              : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+          }`}
+        >
           {cardImages.map((card, i) => (
             <motion.button
               key={i}
@@ -54,23 +64,36 @@ export function NavigationSection({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.05 }}
-              whileHover={{ y: -4, scale: 1.02 }}
               onClick={() => card.sectionIndex !== undefined && scrollToSection(card.sectionIndex)}
-              className="relative overflow-hidden rounded-xl bg-white shadow-md hover:shadow-xl transition-shadow aspect-[4/3] group"
+              className={`nav-card text-left group relative ${
+                card.imageUrl ? 'flex items-stretch p-0 overflow-visible mr-10' : ''
+              }`}
             >
+              <div className={card.imageUrl ? 'flex-1 p-6 pr-28' : ''}>
+                {showPageNumbers && card.sectionIndex !== undefined && (
+                  <span className="text-sm text-[#008252] font-semibold mb-2 block">
+                    {String(card.sectionIndex + 1).padStart(2, '0')}
+                  </span>
+                )}
+                {card.title && (
+                  <h4 className="text-lg font-semibold text-[#008252] mb-2 group-hover:text-[#3E7274] transition-colors">
+                    {card.title}
+                  </h4>
+                )}
+                {card.subtitle && (
+                  <p className="text-sm text-text-secondary">{card.subtitle}</p>
+                )}
+              </div>
+
               {card.imageUrl && (
-                <img
-                  src={card.imageUrl}
-                  alt={`Section ${card.sectionIndex}`}
-                  className="w-full h-full object-cover"
-                />
+                <div className="absolute right-[-20%] top-1/2 -translate-y-1/2 w-[40%] h-[120%] overflow-visible">
+                  <img
+                    src={card.imageUrl}
+                    alt={card.title || `Section ${card.sectionIndex}`}
+                    className="w-full h-full object-contain object-center"
+                  />
+                </div>
               )}
-              {showPageNumbers && card.sectionIndex !== undefined && (
-                <span className="absolute top-2 left-2 bg-brand text-white text-sm font-bold px-2 py-1 rounded">
-                  {card.sectionIndex + 1}
-                </span>
-              )}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
             </motion.button>
           ))}
         </div>
