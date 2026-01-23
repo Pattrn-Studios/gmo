@@ -68,7 +68,7 @@ export function NavigationSection({
   return (
     <section
       data-section-index={index}
-      className="py-16 sm:py-20 bg-bg-secondary border-t-4 border-t-[#008252]"
+      className="py-16 sm:py-20 bg-bg-secondary border-t-4 border-t-brand"
     >
       <div className="container">
         {title && (
@@ -103,12 +103,12 @@ export function NavigationSection({
             >
               <div className={card.imageUrl ? 'flex-1 p-6 pr-28' : ''}>
                 {showPageNumbers && (
-                  <span className="text-sm text-[#008252] font-semibold mb-2 block">
+                  <span className="text-sm text-brand font-semibold mb-2 block">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                 )}
                 {card.title && (
-                  <h4 className="text-lg font-semibold text-[#008252] mb-2 group-hover:text-[#3E7274] transition-colors">
+                  <h4 className="text-lg font-semibold text-brand mb-2 group-hover:opacity-80 transition-colors">
                     {card.title}
                   </h4>
                 )}

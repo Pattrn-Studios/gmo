@@ -75,7 +75,7 @@ export function ContentSection({
   return (
     <section
       data-section-index={index}
-      className="py-20 sm:py-24 border-b border-[#E0E0E0] last:border-b-0"
+      className="py-20 sm:py-24 border-b border-line-default last:border-b-0"
       style={{
         backgroundColor: theme.background,
         color: theme.text,
@@ -193,7 +193,7 @@ export function ContentSection({
                 // Check if this is a list item
                 if (block.listItem) {
                   return (
-                    <li key={i} className="py-4 pl-6 relative border-b border-[#F0F0F0] last:border-b-0 list-none">
+                    <li key={i} className="py-4 pl-6 relative border-b border-line-default last:border-b-0 list-none">
                       <span
                         className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
                         style={{ backgroundColor: hasColorTheme ? 'currentColor' : 'var(--gmo-green)' }}

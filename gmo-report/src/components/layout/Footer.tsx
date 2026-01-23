@@ -12,7 +12,7 @@ export function Footer({ reportTitle }: FooterProps) {
   return (
     <>
       {/* Main Footer */}
-      <footer className="bg-bg-secondary py-16 mt-20 border-t border-[#E0E0E0]">
+      <footer className="bg-bg-secondary py-16 mt-20 border-t border-line-default">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -50,7 +50,7 @@ export function TimelineSection({
         {/* Timeline - Horizontal layout matching original */}
         <div className="relative">
           {/* Horizontal track line */}
-          <div className="absolute top-[60px] left-0 right-0 h-1 bg-[#008252] hidden lg:block" />
+          <div className="absolute top-[60px] left-0 right-0 h-1 bg-brand hidden lg:block" />
 
           <div className="flex flex-col lg:flex-row lg:justify-between gap-8 lg:gap-4">
             {items.map((item, i) => (
@@ -64,7 +64,7 @@ export function TimelineSection({
               >
                 {/* Number/icon at top */}
                 {item.number && (
-                  <div className="text-4xl sm:text-5xl font-bold text-[#008252] mb-4">
+                  <div className="text-4xl sm:text-5xl font-bold text-brand mb-4">
                     {item.number}
                   </div>
                 )}
