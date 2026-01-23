@@ -29,7 +29,7 @@ export default defineConfig({
             label: 'View Live Report',
             icon: EarthGlobeIcon,
             onHandle: () => {
-              window.open('https://gmo-builder.vercel.app', '_blank')
+              window.open('https://gmo-report.vercel.app', '_blank')
             },
           }
         }
