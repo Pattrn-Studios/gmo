@@ -9,23 +9,18 @@ import { createClient } from '@sanity/client';
 import { createRequire } from 'module';
 import { buildChartJsConfig } from '../lib/chart-config.js';
 
-// Use CommonJS require for pptxgenjs CJS bundle directly
+// Lazy-load pptxgenjs - will be initialized on first request
+let PptxGenJS = null;
 const require = createRequire(import.meta.url);
-let PptxGenJS;
-try {
-  PptxGenJS = require('pptxgenjs/dist/pptxgen.cjs.js');
-  console.log('[PPTX Export] PptxGenJS loaded successfully');
-} catch (err) {
-  console.error('[PPTX Export] Failed to load pptxgenjs:', err.message);
-  // Try the default export
-  try {
-    const mod = require('pptxgenjs');
-    PptxGenJS = mod.default || mod;
-    console.log('[PPTX Export] PptxGenJS loaded via default');
-  } catch (err2) {
-    console.error('[PPTX Export] Fallback failed:', err2.message);
-    throw err2;
-  }
+
+function loadPptxGenJS() {
+  if (PptxGenJS) return PptxGenJS;
+
+  console.log('[PPTX Export] Loading pptxgenjs...');
+  const mod = require('pptxgenjs');
+  PptxGenJS = mod.default || mod;
+  console.log('[PPTX Export] PptxGenJS loaded:', typeof PptxGenJS);
+  return PptxGenJS;
 }
 
 const client = createClient({
@@ -598,7 +593,8 @@ const SECTION_TYPE_MAP = {
 };
 
 async function exportToPowerPoint(report) {
-  const pptx = new PptxGenJS();
+  const PptxClass = loadPptxGenJS();
+  const pptx = new PptxClass();
   pptx.layout = 'LAYOUT_WIDE';
   pptx.title = report.title || 'GMO Report';
   pptx.author = report.author || 'BNP Paribas Asset Management';
