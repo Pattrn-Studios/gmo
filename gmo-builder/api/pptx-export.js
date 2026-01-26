@@ -9,12 +9,24 @@ import { createClient } from '@sanity/client';
 import { createRequire } from 'module';
 import { buildChartJsConfig } from '../lib/chart-config.js';
 
-// Use CommonJS require for pptxgenjs (better serverless compatibility)
+// Use CommonJS require for pptxgenjs CJS bundle directly
 const require = createRequire(import.meta.url);
-const PptxGenJS = require('pptxgenjs');
-
-// Verify module loaded (for debugging)
-console.log('[PPTX Export] Module loaded, PptxGenJS available:', typeof PptxGenJS);
+let PptxGenJS;
+try {
+  PptxGenJS = require('pptxgenjs/dist/pptxgen.cjs.js');
+  console.log('[PPTX Export] PptxGenJS loaded successfully');
+} catch (err) {
+  console.error('[PPTX Export] Failed to load pptxgenjs:', err.message);
+  // Try the default export
+  try {
+    const mod = require('pptxgenjs');
+    PptxGenJS = mod.default || mod;
+    console.log('[PPTX Export] PptxGenJS loaded via default');
+  } catch (err2) {
+    console.error('[PPTX Export] Fallback failed:', err2.message);
+    throw err2;
+  }
+}
 
 const client = createClient({
   projectId: 'mb7v1vpy',
