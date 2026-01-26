@@ -2,9 +2,10 @@ import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
-import {EarthGlobeIcon, DownloadIcon} from '@sanity/icons'
+import {EarthGlobeIcon, DownloadIcon, SparklesIcon} from '@sanity/icons'
 import type {DocumentActionComponent} from 'sanity'
-import {useState} from 'react'
+import {useState, createElement} from 'react'
+import {PowerPointReviewModal} from './components/PowerPointReview'
 
 export default defineConfig({
   name: 'default',
@@ -129,7 +130,32 @@ export default defineConfig({
           }
         }
 
-        return [...prev, ViewLiveReportAction, ExportPDFAction, ExportPowerPointAction]
+        const ExportPowerPointWithReviewAction: DocumentActionComponent = (props) => {
+          const [isOpen, setIsOpen] = useState(false)
+          const {id, draft, published} = props
+          const title = (draft || published)?.title as string || 'report'
+
+          return {
+            label: 'Export with AI Review',
+            icon: SparklesIcon,
+            disabled: !draft && !published,
+            onHandle: () => {
+              setIsOpen(true)
+            },
+            dialog: isOpen ? {
+              type: 'dialog',
+              content: createElement(PowerPointReviewModal, {
+                reportId: id,
+                reportTitle: title,
+                isOpen: true,
+                onClose: () => setIsOpen(false),
+                onExportComplete: () => setIsOpen(false),
+              }),
+            } : undefined,
+          }
+        }
+
+        return [...prev, ViewLiveReportAction, ExportPDFAction, ExportPowerPointAction, ExportPowerPointWithReviewAction]
       }
       return prev
     },
