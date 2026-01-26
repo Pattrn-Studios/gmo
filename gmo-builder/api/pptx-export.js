@@ -6,7 +6,6 @@
  */
 
 import { createClient } from '@sanity/client';
-import PptxGenJS from 'pptxgenjs';
 import { buildChartJsConfig } from '../lib/chart-config.js';
 
 const client = createClient({
@@ -579,6 +578,9 @@ const SECTION_TYPE_MAP = {
 };
 
 async function exportToPowerPoint(report) {
+  // Dynamic import for better serverless compatibility
+  const pptxModule = await import('pptxgenjs');
+  const PptxGenJS = pptxModule.default;
   const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_WIDE';
   pptx.title = report.title || 'GMO Report';
@@ -786,7 +788,8 @@ export default async function handler(req, res) {
 
     return res.status(500).json({
       error: 'PowerPoint generation failed',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: error.message,
+      stack: error.stack?.split('\n').slice(0, 5)
     });
   }
 }
