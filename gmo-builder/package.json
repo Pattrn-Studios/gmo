@@ -7,6 +7,7 @@
     "dev": "node build-slide.mjs && open output/index.html"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "@sanity/client": "^6.0.0",
     "adm-zip": "^0.5.16",
     "canvas": "^3.2.1",
