@@ -18,9 +18,9 @@ export function Footer({ reportTitle }: FooterProps) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid md:grid-cols-2 gap-8"
           >
-            {/* Report Info */}
+            {/* Report Info / Disclaimer */}
             <div>
               <h3 className="text-lg font-semibold text-text-primary mb-4">
                 {reportTitle || 'Financial Report'}
@@ -28,31 +28,6 @@ export function Footer({ reportTitle }: FooterProps) {
               <p className="text-sm text-text-secondary">
                 This report is provided for informational purposes only and does not constitute investment advice.
               </p>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h4 className="text-sm font-semibold text-text-primary uppercase tracking-wide mb-4">
-                Quick Links
-              </h4>
-              <ul className="space-y-2">
-                <li>
-                  <button
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="text-sm text-text-secondary hover:text-brand transition-colors"
-                  >
-                    Back to Top
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => window.print()}
-                    className="text-sm text-text-secondary hover:text-brand transition-colors"
-                  >
-                    Print Report
-                  </button>
-                </li>
-              </ul>
             </div>
 
             {/* Contact */}

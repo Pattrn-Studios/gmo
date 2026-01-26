@@ -85,7 +85,7 @@ export function NavigationSection({
         <div
           className={`grid gap-6 ${
             hasImages
-              ? 'grid-cols-1 md:grid-cols-2 gap-12'
+              ? 'grid-cols-1 md:grid-cols-2 gap-x-24 gap-y-8'
               : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
           }`}
         >
@@ -98,7 +98,7 @@ export function NavigationSection({
               transition={{ duration: 0.4, delay: i * 0.05 }}
               onClick={() => scrollToSection(card.sectionIndex)}
               className={`nav-card text-left group relative ${
-                card.imageUrl ? 'flex items-stretch p-0 overflow-visible mr-10' : ''
+                card.imageUrl ? 'flex items-stretch p-0 overflow-visible' : ''
               }`}
             >
               <div className={card.imageUrl ? 'flex-1 p-6 pr-28' : ''}>

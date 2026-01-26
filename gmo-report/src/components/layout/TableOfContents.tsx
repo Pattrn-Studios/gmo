@@ -62,19 +62,24 @@ export function TableOfContents({ sections, activeSection }: TableOfContentsProp
         ))}
       </div>
 
-      {/* Progress indicator */}
+      {/* Quick Links */}
       <div className="mt-8 pt-6 border-t border-line-default">
-        <div className="flex items-center justify-between text-xs text-text-secondary mb-2">
-          <span>Progress</span>
-          <span>{Math.round((activeSection / Math.max(tocItems.length - 1, 1)) * 100)}%</span>
-        </div>
-        <div className="h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
-          <div
-            className="h-full bg-brand rounded-full transition-all duration-300"
-            style={{
-              width: `${(activeSection / Math.max(tocItems.length - 1, 1)) * 100}%`,
-            }}
-          />
+        <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-3">
+          Quick Links
+        </h4>
+        <div className="space-y-2">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="block text-sm text-text-secondary hover:text-brand transition-colors"
+          >
+            Back to Top
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="block text-sm text-text-secondary hover:text-brand transition-colors"
+          >
+            Print Report
+          </button>
         </div>
       </div>
     </nav>

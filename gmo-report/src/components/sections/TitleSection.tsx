@@ -62,22 +62,23 @@ export function TitleSection({
             </p>
           )}
         </motion.div>
-
-        {companyLogo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="absolute bottom-10 left-6"
-          >
-            <img
-              src={companyLogo}
-              alt="Company Logo"
-              className="h-12 sm:h-16 w-auto max-w-[200px] object-contain"
-            />
-          </motion.div>
-        )}
       </div>
+
+      {/* Logo anchored to bottom of section */}
+      {companyLogo && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="absolute bottom-6 left-6 z-10"
+        >
+          <img
+            src={companyLogo}
+            alt="Company Logo"
+            className="h-12 sm:h-16 w-auto max-w-[200px] object-contain"
+          />
+        </motion.div>
+      )}
 
       {/* Scroll indicator */}
       <motion.div
