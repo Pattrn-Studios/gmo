@@ -1,0 +1,723 @@
+[
+  {
+    "slideNumber": 1,
+    "elements": [
+      {
+        "type": "shape",
+        "name": "Google Shape;55;p1",
+        "x": 0.49538167104111985,
+        "y": 2.994996719160105,
+        "w": 7.611548556430447,
+        "h": 1.5101706036745406,
+        "text": "TITLE SECTION"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;56;p1",
+        "x": 0.4953707349081365,
+        "y": 4.6723939195100614,
+        "w": 4.060184820647419,
+        "h": 0.4100262467191601,
+        "text": "DATE"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;57;p1",
+        "x": 0.4953696412948381,
+        "y": 0.26611111111111113,
+        "w": 11.221048775153106,
+        "h": 0.4543941382327209,
+        "text": "This material is for information purposes only and intended to broaden readers’ awareness of financial markets and of the investment management industry. No part of the material should be construed to represent financial advice or an offer to buy, sell or otherwise participate in any investment activity or strategy. This material is intended for the target audience only and in no circumstances should be distributed to a retail audience. This is not a financial promotion.",
+        "fontSize": 9,
+        "bold": true
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;54;p1",
+        "x": 0,
+        "y": 0,
+        "w": 13.333333333333334,
+        "h": 5.511811023622047
+      }
+    ]
+  },
+  {
+    "slideNumber": 2,
+    "elements": [
+      {
+        "type": "shape",
+        "name": "Google Shape;62;p4",
+        "x": 0.4953718285214348,
+        "y": 0.2921139545056868,
+        "w": 12.32754593175853,
+        "h": 0.3855708661417323,
+        "text": "TABLE OF CONTENTS"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;63;p4",
+        "x": 8.038255686789151,
+        "y": 1.7011734470691164,
+        "w": 2.2544706911636045,
+        "h": 4.9921205161854765,
+        "fillColor": "F49F7B"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;64;p4",
+        "x": 8.284517716535433,
+        "y": 2.952911198600175,
+        "w": 1.7673326771653544,
+        "h": 1.5773009623797025,
+        "text": "Blurb goes here.",
+        "fontSize": 12
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;65;p4",
+        "x": 8.284517716535433,
+        "y": 1.9982633420822398,
+        "w": 0.7173753280839895,
+        "h": 0.7173753280839895
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;66;p4",
+        "x": 8.284517716535433,
+        "y": 2.024743000874891,
+        "w": 0.7173786089238845,
+        "h": 0.6395177165354331,
+        "text": "04",
+        "fontSize": 32,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;67;p4",
+        "x": 8.038254593175854,
+        "y": 4.91583552055993,
+        "w": 2.2544717847769027,
+        "h": 1.796496062992126
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;70;p4",
+        "x": 0.5050284339457568,
+        "y": 1.7011734470691164,
+        "w": 2.2544706911636045,
+        "h": 5.0016393263342085,
+        "fillColor": "009FB1"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;71;p4",
+        "x": 0.7512915573053368,
+        "y": 2.9425754593175855,
+        "w": 1.812331583552056,
+        "h": 1.5773009623797025,
+        "text": "Blurb goes here.",
+        "fontSize": 12
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;72;p4",
+        "x": 0.7512904636920384,
+        "y": 1.9879265091863516,
+        "w": 0.7173753280839895,
+        "h": 0.7173753280839895
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;73;p4",
+        "x": 0.7512904636920384,
+        "y": 2.024743000874891,
+        "w": 0.7173753280839895,
+        "h": 0.6395177165354331,
+        "text": "01",
+        "fontSize": 32,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;74;p4",
+        "x": 0.5075765529308837,
+        "y": 4.916519028871391,
+        "w": 2.2544717847769027,
+        "h": 1.822293307086614
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;77;p4",
+        "x": 3.023458005249344,
+        "y": 1.7011734470691164,
+        "w": 2.2544706911636045,
+        "h": 5.0016393263342085,
+        "fillColor": "51BBB4"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;78;p4",
+        "x": 3.2697200349956255,
+        "y": 2.9425754593175855,
+        "w": 1.7347451881014873,
+        "h": 1.5773009623797025,
+        "text": "Blurb goes here.",
+        "fontSize": 12
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;79;p4",
+        "x": 3.2697189413823273,
+        "y": 1.9879265091863516,
+        "w": 0.7173753280839895,
+        "h": 0.7173753280839895
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;80;p4",
+        "x": 3.2697189413823273,
+        "y": 2.024743000874891,
+        "w": 0.7173753280839895,
+        "h": 0.6395177165354331,
+        "text": "02",
+        "fontSize": 32,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;81;p4",
+        "x": 3.0234569116360457,
+        "y": 4.916517935258093,
+        "w": 2.2544717847769027,
+        "h": 1.796496062992126
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;84;p4",
+        "x": 5.529681758530184,
+        "y": 1.7011734470691164,
+        "w": 2.2544706911636045,
+        "h": 4.994360236220473,
+        "fillColor": "61C3D7"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;85;p4",
+        "x": 5.536687445319335,
+        "y": 4.906607611548557,
+        "w": 2.2544706911636045,
+        "h": 1.8120417760279965
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;86;p4",
+        "x": 5.7829494750656165,
+        "y": 2.9529122922134734,
+        "w": 1.7638746719160106,
+        "h": 1.5773009623797025,
+        "text": "Blurb goes here.",
+        "fontSize": 12
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;87;p4",
+        "x": 5.7829494750656165,
+        "y": 1.9982633420822398,
+        "w": 0.7173753280839895,
+        "h": 0.7173753280839895
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;88;p4",
+        "x": 5.774129483814523,
+        "y": 2.024743000874891,
+        "w": 0.7261953193350831,
+        "h": 0.6395177165354331,
+        "text": "03",
+        "fontSize": 32,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;91;p4",
+        "x": 10.568442694663167,
+        "y": 1.7011734470691164,
+        "w": 2.2544706911636045,
+        "h": 4.9921205161854765,
+        "fillColor": "A37767"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;92;p4",
+        "x": 10.814704724409449,
+        "y": 2.952911198600175,
+        "w": 1.715731627296588,
+        "h": 1.5773009623797025,
+        "text": "Blurb goes here.",
+        "fontSize": 12
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;93;p4",
+        "x": 10.814704724409449,
+        "y": 1.9982633420822398,
+        "w": 0.7173753280839895,
+        "h": 0.7173753280839895
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;94;p4",
+        "x": 10.814704724409449,
+        "y": 2.024743000874891,
+        "w": 0.7173786089238845,
+        "h": 0.6395177165354331,
+        "text": "05",
+        "fontSize": 32,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;95;p4",
+        "x": 10.56844160104987,
+        "y": 4.91583552055993,
+        "w": 2.2544717847769027,
+        "h": 1.796496062992126
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;68;p4",
+        "x": 8.028600174978127,
+        "y": 4.91286854768154,
+        "w": 2.2544706911636045,
+        "h": 1.7994630358705161
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;69;p4",
+        "x": 8.042910104986877,
+        "y": 4.91286854768154,
+        "w": 2.2457928696412948,
+        "h": 1.7776323272090988
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;75;p4",
+        "x": 0.4953718285214348,
+        "y": 4.923070866141733,
+        "w": 2.2544706911636045,
+        "h": 1.7892607174103237
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;76;p4",
+        "x": 0.5104199475065617,
+        "y": 4.758241469816273,
+        "w": 2.2490802712160978,
+        "h": 1.9424617235345583
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;82;p4",
+        "x": 3.013801399825022,
+        "y": 4.913550962379703,
+        "w": 2.2544706911636045,
+        "h": 1.7994630358705161
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;83;p4",
+        "x": 3.024827209098863,
+        "y": 4.709488188976378,
+        "w": 2.2490802712160978,
+        "h": 1.9912150043744532
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;89;p4",
+        "x": 5.536687445319335,
+        "y": 4.912958223972003,
+        "w": 2.2544706911636045,
+        "h": 1.7994630358705161
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;90;p4",
+        "x": 5.535103893263342,
+        "y": 4.852444225721785,
+        "w": 2.2497604986876643,
+        "h": 1.8482589676290464
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;96;p4",
+        "x": 10.558787182852143,
+        "y": 4.91286854768154,
+        "w": 2.2544706911636045,
+        "h": 1.7994630358705161
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;97;p4",
+        "x": 10.569811898512686,
+        "y": 4.90123687664042,
+        "w": 2.2490791776027996,
+        "h": 1.7994663167104112
+      }
+    ]
+  },
+  {
+    "slideNumber": 3,
+    "elements": [
+      {
+        "type": "shape",
+        "name": "Google Shape;102;p3",
+        "x": 0,
+        "y": 0,
+        "w": 13.333333333333334,
+        "h": 6.6951224846894135,
+        "fillColor": "61C3D7"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;103;p3",
+        "x": 0.45821084864391953,
+        "y": 2.701307961504812,
+        "w": 6.208455818022747,
+        "h": 0.646253280839895,
+        "text": "SECTION DIVIDER",
+        "fontSize": 48,
+        "bold": true
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;104;p3",
+        "x": 7.236246719160105,
+        "y": 0.8794116360454943,
+        "w": 5.7411854768153985,
+        "h": 5.7411854768153985
+      }
+    ]
+  },
+  {
+    "slideNumber": 4,
+    "elements": [
+      {
+        "type": "shape",
+        "name": "Google Shape;109;p5",
+        "x": 0.4953718285214348,
+        "y": 0.2921139545056868,
+        "w": 12.32754593175853,
+        "h": 0.3855708661417323
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;110;p5",
+        "x": 0.4953707349081365,
+        "y": 0.8127176290463692,
+        "w": 5.768655949256343,
+        "h": 0.2276859142607174
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;111;p5",
+        "x": 0.4953707349081365,
+        "y": 6.266619641294838,
+        "w": 12.382265966754156,
+        "h": 0.3281244531933508
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;112;p5",
+        "x": 0,
+        "y": 0,
+        "w": 13.333333333333334,
+        "h": 6.692913385826771,
+        "fillColor": "009FB1"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;113;p5",
+        "x": 0.4953718285214348,
+        "y": 0.3642027559055118,
+        "w": 0.7173753280839895,
+        "h": 0.7173753280839895,
+        "fillColor": "FFFFFF"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;114;p5",
+        "x": 0.4953707349081365,
+        "y": 1.5896380139982502,
+        "w": 2.495997375328084,
+        "h": 1.7322834645669292,
+        "fillColor": "FFFFFF"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;115;p5",
+        "x": 1.212603893263342,
+        "y": 0.42753827646544185,
+        "w": 11.857859798775154,
+        "h": 0.3635159667541557,
+        "text": "CONTENT SECTION TEMPLATE",
+        "fontSize": 24,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;116;p5",
+        "x": 1.244770341207349,
+        "y": 0.8508081802274715,
+        "w": 11.85771653543307,
+        "h": 0.2423436132983377,
+        "text": "Subheading here.",
+        "fontSize": 16
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;117;p5",
+        "x": 0.4953707349081365,
+        "y": 6.135986439195101,
+        "w": 12.466167979002625,
+        "h": 0.2946948818897638,
+        "text": "Source: Bloomberg, BNP Paribas Asset Management, 31 December 2025. Job cuts and hirings from Challenger, Gray & Christmas, Inc., Consumer spending from Bloomberg, Inflation expectations from Michigan survey and Conference Board survey."
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;119;p5",
+        "x": 0.4953707349081365,
+        "y": 3.483934820647419,
+        "w": 2.4960629921259843,
+        "h": 2.693241469816273,
+        "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+        "fontSize": 10
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;121;p5",
+        "x": 0.4953707349081365,
+        "y": 0.4205621172353456,
+        "w": 0.7173764216972879,
+        "h": 0.6395177165354331,
+        "text": "01",
+        "fontSize": 32,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;122;p5",
+        "x": 3.3464566929133857,
+        "y": 1.574802055993001,
+        "w": 4.439304461942257,
+        "h": 0.2020997375328084,
+        "text": "Chart title here. ",
+        "fontSize": 12,
+        "bold": true
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;118;p5",
+        "x": 0.49550743657042867,
+        "y": 1.5896380139982502,
+        "w": 2.4958606736657916,
+        "h": 1.726958661417323
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;120;p5",
+        "x": 0.4953707349081365,
+        "y": 1.288591426071741,
+        "w": 2.390670384951881,
+        "h": 2.0366437007874016
+      },
+      {
+        "type": "chart",
+        "name": "Google Shape;123;p5",
+        "x": 3.334277121609799,
+        "y": 1.930582895888014,
+        "w": 7.614501312335958,
+        "h": 3.937007874015748
+      }
+    ]
+  },
+  {
+    "slideNumber": 5,
+    "elements": [
+      {
+        "type": "shape",
+        "name": "Google Shape;128;p12",
+        "x": 0.4953718285214348,
+        "y": 0.2921139545056868,
+        "w": 12.32754593175853,
+        "h": 0.3855708661417323,
+        "text": "INSIGHTS SECTION TEMPLATE"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;129;p12",
+        "x": 0.4953707349081365,
+        "y": 0.8127176290463692,
+        "w": 5.768655949256343,
+        "h": 0.2276859142607174,
+        "text": "Subheading copy goes here. "
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;130;p12",
+        "x": 0.4953707349081365,
+        "y": 6.266619641294838,
+        "w": 9.039469597550307,
+        "h": 0.3281244531933508,
+        "text": "Source : Thi is the source. "
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;131;p12",
+        "x": 0.4969630358705162,
+        "y": 1.4594411636045495,
+        "w": 2.4824179790026246,
+        "h": 0.20195319335083114,
+        "text": "Chart title goes here. ",
+        "fontSize": 12,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;132;p12",
+        "x": 9.79002624671916,
+        "y": 0,
+        "w": 3.543307086614173,
+        "h": 7.5
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;133;p12",
+        "x": 10.27731517935258,
+        "y": 1.4594411636045495,
+        "w": 1.1422123797025372,
+        "h": 0.20195319335083114,
+        "text": "Key insights",
+        "fontSize": 12,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;135;p12",
+        "x": 9.534840332458442,
+        "y": 0,
+        "w": 0.26068569553805776,
+        "h": 7.5
+      },
+      {
+        "type": "picture",
+        "name": "Google Shape;134;p12",
+        "x": 11.614173228346457,
+        "y": 5.511811023622047,
+        "w": 1.4960629921259843,
+        "h": 1.743338801399825
+      },
+      {
+        "type": "graphicFrame",
+        "name": "Google Shape;136;p12",
+        "x": 10.27731517935258,
+        "y": 1.776188757655293,
+        "w": 3.2808398950131235,
+        "h": 3.2808398950131235
+      },
+      {
+        "type": "chart",
+        "name": "Google Shape;137;p12",
+        "x": 0.47244094488188976,
+        "y": 1.8503937007874016,
+        "w": 8.661417322834646,
+        "h": 4.330708661417323
+      }
+    ]
+  },
+  {
+    "slideNumber": 6,
+    "elements": [
+      {
+        "type": "shape",
+        "name": "Google Shape;142;p18",
+        "x": 0.4953718285214348,
+        "y": 0.2921139545056868,
+        "w": 12.32754593175853,
+        "h": 0.3855708661417323,
+        "text": "TIMELINE SECTION TEMPLATE"
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;143;p18",
+        "x": 0.4953707349081365,
+        "y": 0.8127176290463692,
+        "w": 5.768655949256343,
+        "h": 0.2276859142607174,
+        "text": "Subheading goes here. "
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;145;p18",
+        "x": 0.4969630358705162,
+        "y": 2.2552898075240595,
+        "w": 0.9448818897637795,
+        "h": 0.9448818897637795,
+        "text": "01",
+        "fontSize": 36,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;146;p18",
+        "x": 0.3622965879265092,
+        "y": 3.3351345144356954,
+        "w": 3.163057742782152,
+        "h": 1.5150918635170603,
+        "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ",
+        "fontSize": 12
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;147;p18",
+        "x": 5.005239501312336,
+        "y": 2.2552898075240595,
+        "w": 0.9448818897637795,
+        "h": 0.9448818897637795,
+        "text": "02",
+        "fontSize": 36,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;148;p18",
+        "x": 4.877121609798775,
+        "y": 3.3351345144356954,
+        "w": 3.416010498687664,
+        "h": 1.5150918635170603,
+        "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ",
+        "fontSize": 12
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;149;p18",
+        "x": 9.356886482939633,
+        "y": 2.2552876202974628,
+        "w": 0.9448818897637795,
+        "h": 0.9448818897637795,
+        "text": "03",
+        "fontSize": 36,
+        "bold": true
+      },
+      {
+        "type": "shape",
+        "name": "Google Shape;150;p18",
+        "x": 9.228768591426071,
+        "y": 3.3351334208223973,
+        "w": 3.416010498687664,
+        "h": 1.5150918635170603,
+        "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ",
+        "fontSize": 12
+      }
+    ]
+  }
+]

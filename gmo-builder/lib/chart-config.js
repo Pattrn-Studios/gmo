@@ -94,6 +94,30 @@ function getChartColors(forPdf = false) {
 }
 
 /**
+ * Get theme colors for chart text/grid based on background
+ * @param {boolean} darkMode - Whether chart is on dark background
+ * @returns {Object} Theme colors for text, labels, grid
+ */
+function getChartThemeColors(darkMode = false) {
+  if (darkMode) {
+    return {
+      textPrimary: '#FFFFFF',
+      textSecondary: '#E0E0E0',
+      tickColor: '#E0E0E0',
+      gridColor: 'rgba(255, 255, 255, 0.25)',
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+    }
+  }
+  return {
+    textPrimary: GMO_COLORS.textPrimary,
+    textSecondary: '#5F5F5F',
+    tickColor: '#5F5F5F',
+    gridColor: '#E8E8E8',
+    borderColor: '#E8E8E8',
+  }
+}
+
+/**
  * Build Chart.js configuration for a section
  * @param {Object} section - Content section with chart data
  * @param {Object} options - Configuration options
@@ -162,7 +186,8 @@ export function buildChartJsConfig(section, options = {}) {
  * Build standard chart config (line, bar, area, stacked variants)
  */
 function buildStandardConfig(section, parsedData, labels, chartType, options, colors = CHART_COLORS) {
-  const {animation = true} = options
+  const {animation = true, darkMode = false} = options
+  const theme = getChartThemeColors(darkMode)
 
   // Map internal chart types to Chart.js types
   const chartTypeMap = {
@@ -212,7 +237,7 @@ function buildStandardConfig(section, parsedData, labels, chartType, options, co
           position: 'top',
           align: 'start',
           labels: {
-            color: GMO_COLORS.textPrimary,
+            color: theme.textPrimary,
             font: {size: 11},
           },
         },
@@ -224,11 +249,11 @@ function buildStandardConfig(section, parsedData, labels, chartType, options, co
           title: {
             display: !!section.xAxisLabel,
             text: section.xAxisLabel || '',
-            color: GMO_COLORS.textSecondary,
+            color: theme.textSecondary,
           },
-          ticks: {color: '#5F5F5F', font: {size: 11}},
+          ticks: {color: theme.tickColor, font: {size: 11}},
           grid: {
-            color: '#E8E8E8',
+            color: theme.gridColor,
             borderDash: [3, 3], // Dashed grid lines like ReCharts
           },
           border: {display: false},
@@ -238,15 +263,15 @@ function buildStandardConfig(section, parsedData, labels, chartType, options, co
           title: {
             display: !!section.yAxisLabel,
             text: section.yAxisLabel || '',
-            color: GMO_COLORS.textSecondary,
+            color: theme.textSecondary,
           },
           ticks: {
-            color: '#5F5F5F',
+            color: theme.tickColor,
             font: {size: 11},
             callback: new Function('value', `return formatYAxisValue(value, '${section.yAxisFormat || ''}')`),
           },
           grid: {
-            color: '#E8E8E8',
+            color: theme.gridColor,
             borderDash: [3, 3], // Dashed grid lines like ReCharts
           },
           border: {display: false}, // Hide left axis line like ReCharts
@@ -260,7 +285,8 @@ function buildStandardConfig(section, parsedData, labels, chartType, options, co
  * Build pie/donut chart config
  */
 function buildPieConfig(section, parsedData, labels, chartType, options, colors = CHART_COLORS) {
-  const {animation = true} = options
+  const {animation = true, darkMode = false} = options
+  const theme = getChartThemeColors(darkMode)
   const valueColumn = section.chartSeries?.[0]?.dataColumn || Object.keys(parsedData[0])[1]
 
   const sliceColors = parsedData.map((_, index) => colors[index % colors.length])
@@ -273,7 +299,7 @@ function buildPieConfig(section, parsedData, labels, chartType, options, colors 
         {
           data: parsedData.map((row) => row[valueColumn]),
           backgroundColor: sliceColors,
-          borderColor: '#fff',
+          borderColor: darkMode ? 'rgba(255,255,255,0.3)' : '#fff',
           borderWidth: 2,
         },
       ],
@@ -286,7 +312,7 @@ function buildPieConfig(section, parsedData, labels, chartType, options, colors 
         legend: {
           position: 'right',
           labels: {
-            color: GMO_COLORS.textPrimary,
+            color: theme.textPrimary,
             font: {size: 11},
           },
         },
