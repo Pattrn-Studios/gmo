@@ -30,6 +30,15 @@
       }
     },
     {
+      "src": "/api/pptx-preview",
+      "dest": "api/pptx-preview.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      }
+    },
+    {
       "src": "/api/build",
       "dest": "api/build.js"
     }
