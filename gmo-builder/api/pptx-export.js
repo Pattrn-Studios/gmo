@@ -6,8 +6,12 @@
  */
 
 import { createClient } from '@sanity/client';
-import PptxGenJS from 'pptxgenjs';
+import { createRequire } from 'module';
 import { buildChartJsConfig } from '../lib/chart-config.js';
+
+// Use CommonJS require for pptxgenjs (better serverless compatibility)
+const require = createRequire(import.meta.url);
+const PptxGenJS = require('pptxgenjs');
 
 // Verify module loaded (for debugging)
 console.log('[PPTX Export] Module loaded, PptxGenJS available:', typeof PptxGenJS);
