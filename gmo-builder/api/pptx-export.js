@@ -2,31 +2,12 @@
  * PowerPoint Export API Endpoint
  * POST /api/pptx-export
  *
- * Self-contained PowerPoint generation (similar to pdf-export.js pattern)
+ * Using static imports like pdf-export.js
  */
 
 import { createClient } from '@sanity/client';
-import { createRequire } from 'module';
-// TEMPORARILY DISABLED: import { buildChartJsConfig } from '../lib/chart-config.js';
-
-// Stub for testing without chart-config import
-function buildChartJsConfig() {
-  return null;
-}
-
-// Lazy-load pptxgenjs - will be initialized on first request
-let PptxGenJS = null;
-const require = createRequire(import.meta.url);
-
-function loadPptxGenJS() {
-  if (PptxGenJS) return PptxGenJS;
-
-  console.log('[PPTX Export] Loading pptxgenjs...');
-  const mod = require('pptxgenjs');
-  PptxGenJS = mod.default || mod;
-  console.log('[PPTX Export] PptxGenJS loaded:', typeof PptxGenJS);
-  return PptxGenJS;
-}
+import PptxGenJS from 'pptxgenjs';
+import { buildChartJsConfig } from '../lib/chart-config.js';
 
 const client = createClient({
   projectId: 'mb7v1vpy',
@@ -598,8 +579,7 @@ const SECTION_TYPE_MAP = {
 };
 
 async function exportToPowerPoint(report) {
-  const PptxClass = loadPptxGenJS();
-  const pptx = new PptxClass();
+  const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_WIDE';
   pptx.title = report.title || 'GMO Report';
   pptx.author = report.author || 'BNP Paribas Asset Management';
