@@ -64,37 +64,26 @@ export function TitleSection({
         </motion.div>
       </div>
 
-      {/* Logo anchored to bottom of section */}
+      {/* White banner with logo and tagline */}
       {companyLogo && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="absolute bottom-6 left-6 z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+          className="absolute bottom-0 left-0 right-0 z-10 bg-white"
         >
-          <img
-            src={companyLogo}
-            alt="Company Logo"
-            className="h-12 sm:h-16 w-auto max-w-[200px] object-contain"
-          />
+          <div className="container py-4 flex items-center justify-between">
+            <img
+              src={companyLogo}
+              alt="Company Logo"
+              className="h-10 sm:h-14 w-auto max-w-[200px] object-contain"
+            />
+            <span className="text-sm sm:text-base text-text-primary italic hidden sm:block">
+              The sustainable investor for a changing world
+            </span>
+          </div>
         </motion.div>
       )}
-
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-            className="w-1.5 h-3 bg-white/70 rounded-full mt-2"
-          />
-        </div>
-      </motion.div>
     </section>
   )
 }
