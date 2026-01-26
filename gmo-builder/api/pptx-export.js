@@ -6,8 +6,8 @@
  */
 
 import { createClient } from '@sanity/client';
-import pptxgen from 'pptxgenjs';
-import { buildChartJsConfig, parseCSV } from '../lib/chart-config.js';
+import PptxGenJS from 'pptxgenjs';
+import { buildChartJsConfig } from '../lib/chart-config.js';
 
 const client = createClient({
   projectId: 'mb7v1vpy',
@@ -579,7 +579,7 @@ const SECTION_TYPE_MAP = {
 };
 
 async function exportToPowerPoint(report) {
-  const pptx = new pptxgen();
+  const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_WIDE';
   pptx.title = report.title || 'GMO Report';
   pptx.author = report.author || 'BNP Paribas Asset Management';
