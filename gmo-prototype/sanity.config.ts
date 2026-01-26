@@ -83,7 +83,53 @@ export default defineConfig({
           }
         }
 
-        return [...prev, ViewLiveReportAction, ExportPDFAction]
+        const ExportPowerPointAction: DocumentActionComponent = (props) => {
+          const [isExporting, setIsExporting] = useState(false)
+          const {id, draft, published} = props
+
+          return {
+            label: isExporting ? 'Generating PowerPoint...' : 'Export as PowerPoint',
+            icon: DownloadIcon,
+            disabled: isExporting || (!draft && !published),
+            onHandle: async () => {
+              setIsExporting(true)
+
+              try {
+                const response = await fetch('https://gmo-builder.vercel.app/api/pptx-export', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    reportId: id,
+                  })
+                })
+
+                if (!response.ok) {
+                  const error = await response.json()
+                  throw new Error(error.error || 'PowerPoint generation failed')
+                }
+
+                // Download the PowerPoint
+                const blob = await response.blob()
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = `${(draft || published)?.title || 'report'}.pptx`
+                document.body.appendChild(a)
+                a.click()
+                document.body.removeChild(a)
+                URL.revokeObjectURL(url)
+
+              } catch (error) {
+                console.error('PowerPoint export failed:', error)
+                alert(`PowerPoint export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+              } finally {
+                setIsExporting(false)
+              }
+            },
+          }
+        }
+
+        return [...prev, ViewLiveReportAction, ExportPDFAction, ExportPowerPointAction]
       }
       return prev
     },
