@@ -6,7 +6,8 @@
  */
 
 import { createClient } from '@sanity/client';
-import PptxGenJS from 'pptxgenjs';
+// Import CJS bundle directly to avoid ESM/CJS mismatch on Vercel
+import PptxGenJS from 'pptxgenjs/dist/pptxgen.cjs.js';
 import { buildChartJsConfig } from '../lib/chart-config.js';
 
 const client = createClient({
