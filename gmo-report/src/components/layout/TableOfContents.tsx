@@ -9,9 +9,10 @@ interface Section {
 interface TableOfContentsProps {
   sections: Section[]
   activeSection: number
+  isExpanded?: boolean
 }
 
-export function TableOfContents({ sections, activeSection }: TableOfContentsProps) {
+export function TableOfContents({ sections, activeSection, isExpanded = true }: TableOfContentsProps) {
   const tocItems = sections
     .map((section, index) => ({
       index,
@@ -29,7 +30,14 @@ export function TableOfContents({ sections, activeSection }: TableOfContentsProp
 
   return (
     <nav>
-      <h2 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-6">
+      {/* Header - hidden when collapsed */}
+      <h2
+        className={`
+          text-xs font-bold text-text-secondary uppercase tracking-wider
+          transition-all duration-300 whitespace-nowrap
+          ${isExpanded ? 'opacity-100 mb-6' : 'opacity-0 h-0 mb-0 overflow-hidden'}
+        `}
+      >
         In This Report
       </h2>
       <div className="space-y-1">
@@ -37,9 +45,11 @@ export function TableOfContents({ sections, activeSection }: TableOfContentsProp
           <button
             key={item.index}
             onClick={() => scrollToSection(item.index)}
+            title={!isExpanded ? item.title : undefined}
             className={`
-              w-full text-left px-4 py-3 rounded-lg text-sm transition-all duration-200
-              flex items-center gap-3 group
+              w-full text-left rounded-lg text-sm transition-all duration-200
+              flex items-center group
+              ${isExpanded ? 'px-4 py-3 gap-3' : 'justify-center py-2'}
               ${activeSection === item.index
                 ? 'bg-brand text-white font-medium shadow-md'
                 : 'text-text-secondary hover:bg-bg-secondary hover:text-text-primary'
@@ -57,31 +67,33 @@ export function TableOfContents({ sections, activeSection }: TableOfContentsProp
             >
               {String(i + 1).padStart(2, '0')}
             </span>
-            <span className="truncate">{item.title}</span>
+            {isExpanded && <span className="truncate">{item.title}</span>}
           </button>
         ))}
       </div>
 
-      {/* Quick Links */}
-      <div className="mt-8 pt-6 border-t border-line-default">
-        <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-3">
-          Quick Links
-        </h4>
-        <div className="space-y-2">
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="block text-sm text-text-secondary hover:text-brand transition-colors"
-          >
-            Back to Top
-          </button>
-          <button
-            onClick={() => window.print()}
-            className="block text-sm text-text-secondary hover:text-brand transition-colors"
-          >
-            Print Report
-          </button>
+      {/* Quick Links - hidden when collapsed */}
+      {isExpanded && (
+        <div className="mt-8 pt-6 border-t border-line-default">
+          <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-3">
+            Quick Links
+          </h4>
+          <div className="space-y-2">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="block text-sm text-text-secondary hover:text-brand transition-colors"
+            >
+              Back to Top
+            </button>
+            <button
+              onClick={() => window.print()}
+              className="block text-sm text-text-secondary hover:text-brand transition-colors"
+            >
+              Print Report
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   )
 }

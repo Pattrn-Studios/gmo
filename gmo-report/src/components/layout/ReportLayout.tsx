@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useState, useEffect } from 'react'
+import { ReactNode, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TableOfContents } from './TableOfContents'
 import { ThemeToggle } from './ThemeToggle'
@@ -16,8 +16,11 @@ export function ReportLayout({ report, children }: ReportLayoutProps) {
   const [activeSection, setActiveSection] = useState(0)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [showBackToTop, setShowBackToTop] = useState(false)
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true)
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false)
+  const lastScrollYRef = useRef(0)
 
-  // Scroll progress tracking
+  // Scroll progress tracking and header visibility
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY
@@ -25,6 +28,22 @@ export function ReportLayout({ report, children }: ReportLayoutProps) {
       const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
       setScrollProgress(progress)
       setShowBackToTop(scrollTop > 500)
+
+      // Scroll direction detection for header visibility
+      const scrollDelta = scrollTop - lastScrollYRef.current
+      const threshold = 10
+
+      if (Math.abs(scrollDelta) > threshold) {
+        if (scrollDelta > 0 && scrollTop > 100) {
+          setIsHeaderVisible(false) // Scrolling DOWN - hide header
+        } else if (scrollDelta < 0) {
+          setIsHeaderVisible(true) // Scrolling UP - show header
+        }
+        lastScrollYRef.current = scrollTop
+      }
+
+      // Always show header at top of page
+      if (scrollTop < 50) setIsHeaderVisible(true)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -74,8 +93,15 @@ export function ReportLayout({ report, children }: ReportLayoutProps) {
         />
       </div>
 
-      {/* Fixed header */}
-      <header className="fixed top-1 left-0 right-0 z-50 bg-bg-primary/90 backdrop-blur-sm border-b border-line-default">
+      {/* Fixed header - hides on scroll down */}
+      <header
+        className={`
+          fixed left-0 right-0 z-50
+          bg-bg-primary/90 backdrop-blur-sm border-b border-line-default
+          transition-transform duration-300 ease-in-out
+          ${isHeaderVisible ? 'top-1' : '-translate-y-full'}
+        `}
+      >
         <div className="container py-3 flex items-center justify-between">
           <h1 className="text-lg font-semibold text-text-primary truncate">
             {report?.title || 'Report'}
@@ -86,18 +112,29 @@ export function ReportLayout({ report, children }: ReportLayoutProps) {
 
       {/* Main content with sidebar */}
       <div className="flex pt-14">
-        {/* Sidebar - hidden on mobile */}
-        <aside className="hidden lg:block fixed left-0 top-14 w-72 h-[calc(100vh-3.5rem)] overflow-y-auto border-r border-line-default bg-bg-primary">
-          <div className="p-6">
+        {/* Sidebar - hidden on mobile, collapsible on desktop */}
+        <aside
+          className={`
+            hidden lg:block fixed left-0 top-14
+            h-[calc(100vh-3.5rem)] overflow-y-auto overflow-x-hidden
+            border-r border-line-default bg-bg-primary
+            transition-all duration-300 ease-in-out
+            ${isSidebarExpanded ? 'w-72' : 'w-16'}
+          `}
+          onMouseEnter={() => setIsSidebarExpanded(true)}
+          onMouseLeave={() => setIsSidebarExpanded(false)}
+        >
+          <div className={isSidebarExpanded ? 'p-6' : 'p-2 pt-6'}>
             <TableOfContents
               sections={report?.sections || []}
               activeSection={activeSection}
+              isExpanded={isSidebarExpanded}
             />
           </div>
         </aside>
 
         {/* Main content with page transition */}
-        <main className="flex-1 lg:ml-72">
+        <main className={`flex-1 transition-[margin] duration-300 ${isSidebarExpanded ? 'lg:ml-72' : 'lg:ml-16'}`}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
