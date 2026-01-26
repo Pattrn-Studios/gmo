@@ -32,26 +32,6 @@
     {
       "src": "/api/build",
       "dest": "api/build.js"
-    },
-    {
-      "src": "/api/pptx-debug",
-      "dest": "api/pptx-debug.js"
-    },
-    {
-      "src": "/api/pptx-test-a",
-      "dest": "api/pptx-test-a.js"
-    },
-    {
-      "src": "/api/pptx-test-b",
-      "dest": "api/pptx-test-b.js"
-    },
-    {
-      "src": "/api/pptx-test-c",
-      "dest": "api/pptx-test-c.js"
-    },
-    {
-      "src": "/api/pptx-test-d",
-      "dest": "api/pptx-test-d.js"
     }
   ]
 }

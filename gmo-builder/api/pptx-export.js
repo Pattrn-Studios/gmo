@@ -2,14 +2,30 @@
  * PowerPoint Export API Endpoint
  * POST /api/pptx-export
  *
- * Using static imports like pdf-export.js
+ * Generates PowerPoint presentations from Sanity report data.
+ * Charts are rendered via QuickChart.io and embedded as images.
+ *
+ * IMPORTANT: PptxGenJS Import Strategy
+ * =====================================
+ * pptxgenjs has dual ESM/CJS builds specified in its package.json exports:
+ *   - "import": "./dist/pptxgen.es.js" (ESM)
+ *   - "require": "./dist/pptxgen.cjs.js" (CommonJS)
+ *
+ * Vercel's bundler was loading the ESM bundle in a CommonJS execution context,
+ * causing: "SyntaxError: Cannot use import statement outside a module"
+ *
+ * The fix: Use createRequire() to create a require() function that triggers
+ * the "require" export condition, forcing Node to load the CJS bundle instead.
+ * This pattern works reliably on both local development and Vercel serverless.
+ *
+ * See: https://nodejs.org/api/module.html#modulecreaterequirefilename
  */
 
 import { createClient } from '@sanity/client';
 import { createRequire } from 'module';
 import { buildChartJsConfig } from '../lib/chart-config.js';
 
-// Use require() to force CJS resolution (avoids ESM/CJS mismatch on Vercel)
+// Force CommonJS resolution to avoid ESM/CJS mismatch on Vercel serverless
 const require = createRequire(import.meta.url);
 const PptxGenJS = require('pptxgenjs');
 
