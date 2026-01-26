@@ -32,10 +32,6 @@
     {
       "src": "/api/build",
       "dest": "api/build.js"
-    },
-    {
-      "src": "/api/pptx-test",
-      "dest": "api/pptx-test.js"
     }
   ]
 }

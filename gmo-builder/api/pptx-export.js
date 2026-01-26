@@ -6,7 +6,11 @@
  */
 
 import { createClient } from '@sanity/client';
+import PptxGenJS from 'pptxgenjs';
 import { buildChartJsConfig } from '../lib/chart-config.js';
+
+// Verify module loaded (for debugging)
+console.log('[PPTX Export] Module loaded, PptxGenJS available:', typeof PptxGenJS);
 
 const client = createClient({
   projectId: 'mb7v1vpy',
@@ -578,9 +582,6 @@ const SECTION_TYPE_MAP = {
 };
 
 async function exportToPowerPoint(report) {
-  // Dynamic import for better serverless compatibility
-  const pptxModule = await import('pptxgenjs');
-  const PptxGenJS = pptxModule.default;
   const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_WIDE';
   pptx.title = report.title || 'GMO Report';
