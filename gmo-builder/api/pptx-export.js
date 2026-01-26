@@ -7,7 +7,12 @@
 
 import { createClient } from '@sanity/client';
 import { createRequire } from 'module';
-import { buildChartJsConfig } from '../lib/chart-config.js';
+// TEMPORARILY DISABLED: import { buildChartJsConfig } from '../lib/chart-config.js';
+
+// Stub for testing without chart-config import
+function buildChartJsConfig() {
+  return null;
+}
 
 // Lazy-load pptxgenjs - will be initialized on first request
 let PptxGenJS = null;
