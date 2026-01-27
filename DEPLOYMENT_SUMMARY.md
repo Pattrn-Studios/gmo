@@ -38,29 +38,33 @@ Sanity Studio (CMS)                Vercel APIs (gmo-builder)
     ├── View Live Report           └── /api/chart-config    (Chart config endpoint)
     ├── Export as PDF
     └── Export as PowerPoint        Chart Agent API
-                                   └── /api/analyse         (AI chart recommendations)
+                                   ├── /api/analyse         (AI chart recommendations)
+                                   └── /api/analyse-image   (AI chart image extraction)
 
 React Report Viewer
-└── Interactive web-based report with Highcharts
+└── Interactive web-based report with Recharts
 ```
 
 ---
 
 ## Features Deployed
 
-### 1. Chart Builder (v2.0 — January 18, 2026)
+### 1. Chart Builder (v3.0 — January 27, 2026)
 
 AI-powered chart creation integrated directly into Sanity Studio.
 
 **Components:**
-- `gmo-prototype/components/ChartBuilder/` — 9 React components
+- `gmo-prototype/components/ChartBuilder/` — 11 React components
 - `gmo-chart-agent/` — Vercel serverless API with Claude Sonnet
 
 **Capabilities:**
-- Upload Excel (.xlsx/.xls) or CSV files
-- AI-powered chart type recommendations via Claude
-- 2-3 alternative chart visualizations
-- Real-time Highcharts preview
+- Upload Excel (.xlsx/.xls) or CSV files for AI-powered chart recommendations
+- Upload chart images (PNG/JPG/WebP) — Claude Vision extracts data and recreates as Recharts
+- Editable data table for correcting AI-extracted values (image mode)
+- Editable column headers that sync with chart legend and tooltips
+- 2-3 alternative chart type suggestions with thumbnail previews
+- Real-time Recharts preview in modal
+- Edit flow restores original mode (CSV or image) with auto-regenerated alternatives
 - Saves chart config directly to Sanity document
 
 **User Guide:** [CHART_BUILDER_USER_GUIDE.md](gmo-prototype/CHART_BUILDER_USER_GUIDE.md)
@@ -230,7 +234,6 @@ Custom actions available on report documents in Sanity Studio.
 ### Documentation
 - `documentation/BNP_Paribas_Design_Specification.md` — Design spec for AI review
 - `gmo-prototype/CHART_BUILDER_USER_GUIDE.md` — Chart Builder user guide
-- `gmo-prototype/CHART_BUILDER_FEATURE_SUMMARY.md` — Chart Builder technical overview
 
 ---
 
@@ -238,12 +241,12 @@ Custom actions available on report documents in Sanity Studio.
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Jan 27, 2026 | `d422e9e` | feat: Add image upload to Chart Builder with edit flow improvements |
+| Jan 27, 2026 | `a11926c` | docs: Update documentation to reflect current production state |
 | Jan 27, 2026 | `cf50ce6` | fix: Resolve background color mapping for content and divider slides |
 | Jan 27, 2026 | `ef9fee5` | feat: Upgrade AI review with BNP Paribas design specification |
 | Jan 26, 2026 | `0d442cd` | fix: Embed images in PPTX, consolidate export buttons, wire AI suggestions |
 | Jan 26, 2026 | `49e5725` | feat: Add Sanity Studio UI for AI-powered PowerPoint review (Phase 3) |
-| Jan 25, 2026 | `48443eb` | feat: Add white banner with logo and tagline to title section |
-| Jan 25, 2026 | `05f83f0` | fix: UI bug fixes for React report viewer |
 
 ---
 

@@ -42,18 +42,20 @@ A collection of tools for creating and managing BNP Paribas' Global Market Outlo
 
 ### gmo-prototype
 
-Sanity CMS Studio for managing GMO report content with integrated Chart Builder.
+Sanity CMS Studio for managing GMO report content with integrated Chart Builder and PowerPoint export.
 
-- **Tech Stack**: Sanity v4, React 19, TypeScript
+- **Tech Stack**: Sanity v4, React 19, TypeScript, Recharts
+- **Features**: AI chart builder (CSV + image upload), PowerPoint export with AI design review
 - **Local Dev**: `cd gmo-prototype && npm install && npm run dev`
-- **Deploy**: `npm run deploy` (deploys to Sanity Studio hosting)
+- **Deploy**: `npx sanity deploy`
 
 ### gmo-chart-agent
 
-AI-powered chart recommendation tool using Claude API for analyzing data and suggesting optimal chart configurations.
+AI-powered chart recommendation API using Claude for analyzing CSV data and chart images.
 
-- **Tech Stack**: Express, multer, xlsx
-- **Local Dev**: `cd gmo-chart-agent && npm install && npm run dev` (requires `.env` file with `CLAUDE_API_KEY`)
+- **Tech Stack**: Express, multer, xlsx, Claude API (Sonnet + Vision)
+- **Endpoints**: `/api/analyse` (CSV data), `/api/analyse-image` (chart image extraction)
+- **Local Dev**: `cd gmo-chart-agent && npm install && node index.js` (requires `.env` with `CLAUDE_API_KEY`)
 - **Production**: Deployed on Vercel
 
 ### gmo-builder ⚠️ DEPRECATED
@@ -67,14 +69,11 @@ Legacy HTML report generator that fetches content from Sanity and produces stati
 
 ## Documentation
 
-See the `/documentation` folder for:
+- **DEPLOYMENT_SUMMARY.md** - Production architecture, features, and deployment process
+- **gmo-prototype/CHART_BUILDER_USER_GUIDE.md** - End-user guide for chart creation
 
-- **GMO_Chart_Agent_Build_Guide.md** - Guide for building the chart agent
-- **GMO_Complete_Project_Documentation_With_Branding.md** - Full project documentation with branding guidelines
-- **GMO_Project_Handover_Document.md** - Project handover notes
-- **GMO_V2_Prototype_Step_by_Step.md** - Step-by-step prototype guide
-- **GMO_V3_Automated_Deployment_Guide.md** - Automated deployment instructions
-- **GMO_Technical_Brief_for_Claude.md** - Technical specification
+Brand assets in `/documentation`:
+- **BNP_Paribas_Design_Specification.md** - Design spec for AI slide review
 - **GMO Colours.pdf** - Brand color palette
 - **GMO Typestack.pdf** - Typography guidelines
 - **GMO Digital Enhancements_Project Brief.pdf** - Project brief

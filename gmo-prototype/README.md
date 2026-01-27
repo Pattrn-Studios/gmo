@@ -5,8 +5,10 @@ Sanity CMS Studio for managing Global Market Outlook report content with integra
 ## Features
 
 - **Report Management** - Create and edit GMO reports with multiple section types
-- **Chart Builder** - Upload Excel/CSV data and get AI-powered chart recommendations
+- **Chart Builder** - Upload Excel/CSV data or chart images for AI-powered chart creation
+- **Image Upload** - Extract data from chart images via Claude Vision and recreate as editable Recharts charts
 - **Live Preview** - See charts rendered with Recharts before publishing
+- **PowerPoint Export** - AI-reviewed slide generation with design spec compliance
 - **Flexible Layouts** - Configure chart positions, color themes, and content layouts
 
 ## Tech Stack
@@ -65,20 +67,13 @@ The main document type containing all sections.
 
 Charts are configured via the ChartBuilder component:
 
-1. Upload Excel/CSV file
-2. AI analyzes data and recommends chart type
-3. Configure series, axis labels, and formatting
-4. Preview chart with Recharts
+1. Upload Excel/CSV file **or** chart image (PNG/JPG/WebP)
+2. AI analyzes data and recommends chart type with 2-3 alternatives
+3. For images: review and edit AI-extracted data in the editable table
+4. Preview chart with Recharts, swap alternatives
 5. Save configuration to Sanity
 
-Supported chart types:
-- Line, Area, Bar, Column
-- Pie, Donut
-- Stacked Area, Stacked Column
-- Scatter, Radar
-- Horizontal Bar
-- Treemap, Heatmap
-- Gauge, Waterfall
+15 supported chart types: Line, Area, Bar, Column, Pie, Donut, Stacked Area, Stacked Column, Scatter, Radar, Composed, Waterfall, Gauge, Treemap, Heatmap
 
 ## Project Structure
 
@@ -93,11 +88,22 @@ gmo-prototype/
 │   ├── headerSection.ts
 │   └── timelineSection.ts
 ├── components/
-│   └── ChartBuilder/
-│       ├── ChartBuilderInput.tsx  # Main component
-│       ├── RechartsRenderer.tsx   # Chart rendering
-│       ├── types.ts
-│       └── styles.ts
+│   ├── ChartBuilder/
+│   │   ├── ChartBuilderInput.tsx      # Entry point (Add/Edit/Upload/Remove)
+│   │   ├── ChartBuilderModal.tsx      # Modal orchestrator (CSV + image flows)
+│   │   ├── FileUploadArea.tsx         # CSV/Excel drag-drop upload
+│   │   ├── ImageUploadArea.tsx        # Image drag-drop upload
+│   │   ├── EditableDataTable.tsx      # Editable table for AI-extracted data
+│   │   ├── ChartPreview.tsx           # Full-size chart preview
+│   │   ├── AlternativesThumbnails.tsx # Alternative chart type grid
+│   │   ├── RechartsRenderer.tsx       # Chart rendering (15 types)
+│   │   ├── types.ts
+│   │   ├── utils.ts                   # File parsing, API calls
+│   │   └── styles.ts
+│   └── PowerPointReview/
+│       ├── PowerPointReviewModal.tsx   # AI review workflow
+│       ├── SuggestionsList.tsx         # Suggestion display
+│       └── types.ts
 └── sanity.config.ts
 ```
 
@@ -115,7 +121,4 @@ No environment variables required - connects to:
 
 ## Documentation
 
-See `/documentation` folder in root for:
-- `CHART_BUILDER_USER_GUIDE.md` - End-user documentation
-- `CHART_BUILDER_FEATURE_SUMMARY.md` - Technical overview
-- `CHART_IMPORT_GUIDE.md` - Data import instructions
+- `CHART_BUILDER_USER_GUIDE.md` - End-user guide for chart creation (CSV + image upload)
