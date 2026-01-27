@@ -23,7 +23,7 @@ export async function reviewSlideDesigns(previews, options = {}) {
   const {
     detailed = true,
     model = 'claude-sonnet-4-20250514',
-    maxTokens = 2048
+    maxTokens = 4096
   } = options;
 
   if (!previews || previews.length === 0) {
@@ -146,7 +146,9 @@ function parseReviewResponse(text) {
       severity: normalizeSeverity(s.severity),
       issue: s.issue || s.problem || '',
       recommendation: s.recommendation || s.suggestion || '',
-      affectedElement: s.affectedElement || s.element || 'general'
+      affectedElement: s.affectedElement || s.element || 'general',
+      currentValue: s.currentValue || null,
+      expectedValue: s.expectedValue || null,
     }));
 
     // Sort suggestions by severity (high first)
@@ -176,27 +178,43 @@ function parseReviewResponse(text) {
  * Normalize category to expected values
  */
 function normalizeCategory(category) {
-  const validCategories = ['typography', 'color', 'layout', 'chartClarity', 'whitespace', 'content'];
+  const validCategories = [
+    'textLength', 'chartSize', 'bulletCount',
+    'colorAccuracy', 'placeholder', 'layoutAlignment'
+  ];
   const normalized = (category || '').toLowerCase().replace(/[^a-z]/g, '');
 
-  // Map common variations
+  // Map new categories, variations, and backward-compatible old categories
   const categoryMap = {
-    'chart': 'chartClarity',
-    'chartclarity': 'chartClarity',
-    'charts': 'chartClarity',
-    'text': 'typography',
-    'font': 'typography',
-    'fonts': 'typography',
-    'colors': 'color',
-    'spacing': 'whitespace',
-    'space': 'whitespace',
-    'alignment': 'layout',
-    'position': 'layout',
-    'organization': 'content',
-    'bullets': 'content'
+    // New category aliases
+    'textlength': 'textLength',
+    'text': 'textLength',
+    'chartsize': 'chartSize',
+    'chart': 'chartSize',
+    'bulletcount': 'bulletCount',
+    'bullets': 'bulletCount',
+    'coloraccuracy': 'colorAccuracy',
+    'color': 'colorAccuracy',
+    'colors': 'colorAccuracy',
+    'placeholder': 'placeholder',
+    'layoutalignment': 'layoutAlignment',
+    'alignment': 'layoutAlignment',
+    'layout': 'layoutAlignment',
+    'position': 'layoutAlignment',
+    // Backward compatibility: old categories → new equivalents
+    'typography': 'textLength',
+    'font': 'textLength',
+    'fonts': 'textLength',
+    'chartclarity': 'chartSize',
+    'charts': 'chartSize',
+    'whitespace': 'layoutAlignment',
+    'spacing': 'layoutAlignment',
+    'space': 'layoutAlignment',
+    'content': 'bulletCount',
+    'organization': 'bulletCount',
   };
 
-  return categoryMap[normalized] || (validCategories.includes(normalized) ? normalized : 'layout');
+  return categoryMap[normalized] || (validCategories.includes(normalized) ? normalized : 'layoutAlignment');
 }
 
 /**

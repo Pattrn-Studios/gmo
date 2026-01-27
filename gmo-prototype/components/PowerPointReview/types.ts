@@ -17,11 +17,13 @@ export interface SlidePreview {
 export interface ReviewSuggestion {
   slideIndex: number;
   slideType: string;
-  category: 'typography' | 'color' | 'layout' | 'chartClarity' | 'whitespace' | 'content';
+  category: 'textLength' | 'chartSize' | 'bulletCount' | 'colorAccuracy' | 'placeholder' | 'layoutAlignment';
   severity: 'high' | 'medium' | 'low';
   issue: string;
   recommendation: string;
   affectedElement: string;
+  currentValue?: string | null;
+  expectedValue?: string | null;
 }
 
 export interface ReviewResult {

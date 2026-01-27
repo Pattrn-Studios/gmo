@@ -22,12 +22,12 @@ const severityConfig = {
 };
 
 const categoryLabels: Record<string, string> = {
-  typography: 'Typography',
-  color: 'Color',
-  layout: 'Layout',
-  chartClarity: 'Chart Clarity',
-  whitespace: 'White Space',
-  content: 'Content',
+  textLength: 'Text Length',
+  chartSize: 'Chart Size',
+  bulletCount: 'Bullet Count',
+  colorAccuracy: 'Color Accuracy',
+  placeholder: 'Placeholder',
+  layoutAlignment: 'Layout Alignment',
 };
 
 function SuggestionCard({
@@ -79,6 +79,20 @@ function SuggestionCard({
               <Text size={0} muted>
                 Element: {suggestion.affectedElement}
               </Text>
+            )}
+            {(suggestion.currentValue || suggestion.expectedValue) && (
+              <Flex gap={2} wrap="wrap" style={{marginTop: '2px'}}>
+                {suggestion.currentValue && (
+                  <Badge tone="critical" mode="outline" fontSize={0}>
+                    Current: {suggestion.currentValue}
+                  </Badge>
+                )}
+                {suggestion.expectedValue && (
+                  <Badge tone="positive" mode="outline" fontSize={0}>
+                    Expected: {suggestion.expectedValue}
+                  </Badge>
+                )}
+              </Flex>
             )}
           </Stack>
         </Flex>
