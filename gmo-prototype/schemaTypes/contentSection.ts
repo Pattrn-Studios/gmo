@@ -110,6 +110,7 @@ export const contentSection = defineType({
         defineField({name: 'xAxisLabel', type: 'string'}),
         defineField({name: 'yAxisLabel', type: 'string'}),
         defineField({name: 'yAxisFormat', type: 'string'}),
+        defineField({name: 'sourceMode', type: 'string'}),
       ]
     }),
 

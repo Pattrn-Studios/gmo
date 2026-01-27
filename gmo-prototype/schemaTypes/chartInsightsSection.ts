@@ -52,6 +52,7 @@ export const chartInsightsSection = defineType({
         defineField({name: 'xAxisLabel', title: 'X-Axis Label', type: 'string'}),
         defineField({name: 'yAxisLabel', title: 'Y-Axis Label', type: 'string'}),
         defineField({name: 'yAxisFormat', title: 'Y-Axis Format', type: 'string'}),
+        defineField({name: 'sourceMode', title: 'Source Mode', type: 'string'}),
       ],
     }),
     defineField({

@@ -8,6 +8,7 @@ import { ChartBuilderModal } from './ChartBuilderModal';
 export function ChartBuilderInput(props: ObjectInputProps) {
   const { value, onChange, renderDefault } = props;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'csv' | 'image'>('csv');
 
   // Type-cast value to our expected shape
   const chartConfig = value as ChartBuilderValue | undefined;
@@ -22,6 +23,21 @@ export function ChartBuilderInput(props: ObjectInputProps) {
   const handleClear = () => {
     // Use onChange(unset()) to clear the field
     onChange(unset());
+  };
+
+  const handleOpenCsvModal = () => {
+    setModalMode('csv');
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = () => {
+    setModalMode((chartConfig?.sourceMode as 'csv' | 'image') || 'csv');
+    setIsModalOpen(true);
+  };
+
+  const handleOpenImageModal = () => {
+    setModalMode('image');
+    setIsModalOpen(true);
   };
 
   return (
@@ -42,7 +58,12 @@ export function ChartBuilderInput(props: ObjectInputProps) {
               <Button
                 text="Edit Chart"
                 tone="primary"
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleOpenEditModal}
+              />
+              <Button
+                text="Upload Image"
+                tone="default"
+                onClick={handleOpenImageModal}
               />
               <Button
                 text="Remove Chart"
@@ -52,11 +73,18 @@ export function ChartBuilderInput(props: ObjectInputProps) {
             </Flex>
           </Stack>
         ) : (
-          <Button
-            text="Add Chart"
-            tone="primary"
-            onClick={() => setIsModalOpen(true)}
-          />
+          <Flex gap={2}>
+            <Button
+              text="Add Chart"
+              tone="primary"
+              onClick={handleOpenCsvModal}
+            />
+            <Button
+              text="Upload Image"
+              tone="default"
+              onClick={handleOpenImageModal}
+            />
+          </Flex>
         )}
 
         {isModalOpen && (
@@ -64,6 +92,7 @@ export function ChartBuilderInput(props: ObjectInputProps) {
             initialValue={chartConfig}
             onSave={handleSave}
             onCancel={() => setIsModalOpen(false)}
+            mode={modalMode}
           />
         )}
       </Card>

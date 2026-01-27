@@ -48,6 +48,7 @@ export interface ChartBuilderValue {
   xAxisLabel?: string;
   yAxisLabel?: string;
   yAxisFormat?: string;
+  sourceMode?: 'csv' | 'image';
 }
 
 // ChartBuilderProps removed - use ObjectInputProps from 'sanity' directly

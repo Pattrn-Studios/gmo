@@ -61,6 +61,60 @@ export async function analyzeChartData(csvData: string): Promise<{
   };
 }
 
+// Image reading - convert File to base64 + extract media type
+export function readImageAsBase64(file: File): Promise<{ base64: string; mediaType: string }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      // dataUrl format: "data:image/png;base64,iVBORw0KGgo..."
+      const [header, base64] = dataUrl.split(',');
+      const mediaType = header.split(':')[1].split(';')[0];
+      resolve({ base64, mediaType });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Analyse a chart image using Claude Vision
+export async function analyzeChartImage(base64Image: string, mediaType: string): Promise<{
+  main: ChartRecommendation;
+  alternatives: ChartRecommendation[];
+  csvData: string;
+}> {
+  const response = await fetch(`${API_BASE_URL}/api/analyse-image`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageData: base64Image, mediaType })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: response.statusText }));
+    throw new Error(errorData.error || `API error: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  return {
+    main: {
+      chartType: data.chartType,
+      series: data.series,
+      xAxisLabel: data.xAxisLabel,
+      yAxisLabel: data.yAxisLabel,
+      yAxisFormat: data.yAxisFormat,
+      reasoning: data.reasoning,
+      dataColumn: data.dataColumn,
+      labelColumn: data.labelColumn,
+      gaugeValue: data.gaugeValue,
+      gaugeMax: data.gaugeMax,
+      gaugeThresholds: data.gaugeThresholds,
+    },
+    alternatives: data.alternatives || [],
+    csvData: data.csvData
+  };
+}
+
 // CSV parsing for chart data
 export function parseCSV(csv: string): Record<string, any>[] {
   const result = Papa.parse(csv, { header: true, dynamicTyping: true });
