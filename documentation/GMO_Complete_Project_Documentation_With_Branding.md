@@ -2,11 +2,11 @@
 
 ## Project Overview
 
-**Client:** AXA Investment Managers (AXA IM)  
-**Project:** Global Market Outlook (GMO) Digital Transformation  
-**Consultancy:** Pattrn Studios  
-**Current Phase:** V1 Prototype with Branding Implementation  
-**Last Updated:** January 2026  
+**Client:** BNP Paribas Asset Management
+**Project:** Global Market Outlook (GMO) Digital Transformation
+**Consultancy:** Pattrn Studios
+**Current Phase:** Production
+**Last Updated:** January 27, 2026
 
 ---
 
@@ -230,33 +230,34 @@ PORT=3000
 
 ## Features by Version
 
-### V1 (Current - Completed)
-✅ File upload (Excel, CSV)  
-✅ CSV paste input  
-✅ AI chart recommendations with GMO colors  
-✅ Natural language refinement  
-✅ Live Highcharts preview  
-✅ Deployed to Vercel  
-✅ GMO brand colors in recommendations  
-✅ GMO brand colors in UI  
+### V1 (Completed)
+✅ File upload (Excel, CSV)
+✅ CSV paste input
+✅ AI chart recommendations with GMO colors
+✅ Natural language refinement
+✅ Live Highcharts preview
+✅ Deployed to Vercel
+✅ GMO brand colors in recommendations
+✅ GMO brand colors in UI
 
-### V2 (Planned)
-- Custom domain
-- Password protection
-- Enhanced error handling
-- Mobile optimization
+### V2 (Completed — January 18, 2026)
+✅ Chart Builder integrated into Sanity Studio
+✅ AI-powered chart recommendations in-context
+✅ 2-3 alternative chart visualizations
+✅ No context switching required
 
-### V3 (Planned)
-- "Apply to Sanity" button
-- Sanity API integration
-- Automatic slide creation
-- One-click workflow
-
-### V4 (Planned)
-- Multi-slide support
-- Full report generation
-- Design system tokens
-- Advanced refinement options
+### V3 (Completed — January 2026)
+✅ Auto-publish pipeline (Sanity → Vercel)
+✅ React report viewer (interactive web-based)
+✅ PowerPoint export (PptxGenJS + QuickChart.io)
+✅ Embedded images from Sanity (logos, cards, section images)
+✅ 6 slide types supported (Title, TOC, Divider, Chart, Insights, Timeline)
+✅ Theme color mapping from Sanity to PowerPoint
+✅ AI-powered slide design review (Claude Vision API)
+✅ BNP Paribas design specification integration
+✅ Suggestion categories: textLength, chartSize, bulletCount, colorAccuracy, placeholder, layoutAlignment
+✅ Severity-based review (HIGH/MEDIUM/LOW)
+✅ currentValue/expectedValue badges on suggestions
 
 ---
 
@@ -433,7 +434,7 @@ When starting a new chat about this project, reference:
 - Font family: BNPP Sans (not yet integrated)
 - Sanity Project ID: `mb7v1vpy`
 - Chart Agent URL: `https://gmo-chart-agent.vercel.app`
-- Client: AXA Investment Managers
+- Client: BNP Paribas Asset Management
 - Project: Global Market Outlook (GMO)
 
 ---
@@ -441,12 +442,13 @@ When starting a new chat about this project, reference:
 ## Contact & Context
 
 **Project Lead:** Joe (Pattrn Studios)  
-**Client:** AXA Investment Managers  
-**Phase:** V1 Prototype with branding  
-**Demo:** Next week  
-**Status:** Chart agent complete with GMO colors, Sanity needs updating  
+**Client:** BNP Paribas Asset Management  
+**Phase:** Production
+**Status:** All features deployed — Chart Builder, PowerPoint export, AI design review, React viewer
 
 ---
 
-*Last Updated: January 2026*  
-*Version: 1.0 with GMO Brand Integration*
+*Last Updated: January 27, 2026*
+*Version: 3.0 — Production*
+
+**Note:** For the latest deployment status and architecture overview, see [DEPLOYMENT_SUMMARY.md](../DEPLOYMENT_SUMMARY.md). For BNP Paribas design specifications used by the AI review, see [BNP_Paribas_Design_Specification.md](BNP_Paribas_Design_Specification.md).

@@ -9,7 +9,7 @@ This document captures all context, decisions, and progress from the discovery a
 ## Project Overview
 
 ### Client
-AXA Investment Managers (AXA IM)
+BNP Paribas Asset Management (formerly AXA Investment Managers)
 
 ### Project
 Global Market Outlook (GMO) — A monthly publication covering macroeconomic trends, fixed income, equities, and market outlook.
@@ -281,7 +281,7 @@ Upload key documents to Project Knowledge:
 Add to Project Instructions:
 
 ```
-You are assisting with the GMO Digital Transformation project for AXA Investment Managers.
+You are assisting with the GMO Digital Transformation project for BNP Paribas Asset Management.
 
 Context:
 - Building an AI-assisted workflow for producing the Global Market Outlook report
@@ -311,9 +311,9 @@ Start a conversation with:
 ## Key Contacts / Context
 
 - **Joe** — Product Manager at Pattrn Studios, leading the engagement
-- **Client** — AXA Investment Managers
+- **Client** — BNP Paribas Asset Management
 - **Project** — GMO (Global Market Outlook) digital transformation
-- **Phase** — Discovery / Prototyping
+- **Phase** — Production
 
 ---
 
@@ -325,13 +325,19 @@ Start a conversation with:
 | Solution recommendation | ✓ Complete (Claude + Sanity) |
 | v2 prototype (single slide) | ✓ Complete |
 | Client presentation content | ✓ Complete |
-| Chart recommendation web app | 🔄 Ready to build |
-| V3 auto-publish | ○ Planned |
-| Multi-slide support | ○ Planned |
-| Design system | ○ Planned |
+| Chart recommendation web app | ✓ Complete (Chart Agent API) |
+| Chart Builder integration (Sanity) | ✓ Complete (v2.0) |
+| V3 auto-publish | ✓ Complete (Vercel auto-deploy) |
+| Multi-slide support | ✓ Complete (6 slide types) |
+| React report viewer | ✓ Complete |
+| PowerPoint export | ✓ Complete (PptxGenJS + QuickChart) |
+| AI slide design review | ✓ Complete (Claude Vision API) |
+| BNP Paribas design spec integration | ✓ Complete |
+| Background color mapping | ✓ Complete |
 
-**Next action:** Build the chart recommendation web app using `GMO_Chart_Agent_Build_Guide.md`
+**Current state:** Production. See [DEPLOYMENT_SUMMARY.md](../DEPLOYMENT_SUMMARY.md) for the full current-state overview.
 
 ---
 
-*Document prepared for project handover — December 2025*
+*Document originally prepared for project handover — December 2025*
+*Updated: January 2026 — Project now in production*

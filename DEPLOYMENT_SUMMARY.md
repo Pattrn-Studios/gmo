@@ -1,266 +1,266 @@
-# Chart Builder - Deployment Summary
+# GMO Project — Deployment Summary
 
-**Deployment Date:** January 18, 2026
-**Status:** ✅ Successfully Deployed to Production
-**Version:** v2.0.0-chart-builder
-
----
-
-## What Was Deployed
-
-### 1. Chart Agent API (Vercel)
-- **URL:** https://gmo-chart-agent.vercel.app
-- **Branch:** `add-alternatives-and-cors` (merged to main)
-- **Changes:**
-  - Added CORS support for Sanity Studio
-  - Implemented alternative chart recommendations (2-3 per request)
-  - Updated Claude prompt to generate chart alternatives
-
-### 2. Sanity Studio (Production)
-- **URL:** https://gmo-prototype.sanity.studio
-- **Branch:** `chart-builder-integration` (merged to main)
-- **Changes:**
-  - Added Chart Builder custom input component
-  - File upload support (Excel: .xlsx/.xls, CSV: .csv)
-  - AI-powered chart recommendations with Claude Sonnet 4.5
-  - Alternative chart visualization and selection
-  - Real-time Highcharts preview
-
-### 3. Build Script
-- **Location:** `gmo-builder/api/build.js`
-- **Changes:**
-  - Updated GROQ query to support nested `chartConfig` object
-  - Maintains backward compatibility
+**Last Updated:** January 27, 2026
+**Status:** Production
+**Repository:** https://github.com/Pattrn-Studios/gmo
 
 ---
 
-## Git Branches & Tags
+## Project Overview
 
-### Branches Created:
-1. `chart-builder-integration` - Sanity Studio changes (merged to main)
-2. `add-alternatives-and-cors` - Chart Agent changes (merged to main)
+**Client:** BNP Paribas Asset Management
+**Project:** Global Market Outlook (GMO) — Digital Transformation
+**Consultancy:** Pattrn Studios
 
-### Release Tag:
-- **v2.0.0-chart-builder** - Full release tag for rollback reference
-
-### Commits:
-- `ab02cd2` - Chart Builder integration
-- `6cfbc3f` - Chart Agent alternatives and CORS
-- `a97e6b0` - Build script updates
-- `da879d6` - Merge to main
+Transform the monthly GMO financial publication from a static PowerPoint deck into an interactive, digital-first experience with an AI-assisted production workflow.
 
 ---
 
-## Files Modified/Created
+## Production URLs
 
-### Sanity Studio (`gmo-prototype/`)
-**New Components (9 files):**
-- `components/ChartBuilder/ChartBuilderInput.tsx`
-- `components/ChartBuilder/ChartBuilderModal.tsx`
-- `components/ChartBuilder/ChartPreview.tsx`
-- `components/ChartBuilder/AlternativesThumbnails.tsx`
-- `components/ChartBuilder/FileUploadArea.tsx`
-- `components/ChartBuilder/index.tsx`
-- `components/ChartBuilder/types.ts`
-- `components/ChartBuilder/utils.ts`
-- `components/ChartBuilder/styles.ts`
-
-**Modified Files:**
-- `schemaTypes/contentSection.ts` - Added `chartConfig` field with custom input
-- `package.json` / `package-lock.json` - Added dependencies
-
-**Documentation:**
-- `CHART_BUILDER_USER_GUIDE.md` - End-user documentation
-- `CHART_BUILDER_FEATURE_SUMMARY.md` - Technical overview
-
-### Chart Agent (`gmo-chart-agent/`)
-**Modified Files:**
-- `index.js` - Added CORS middleware and alternatives generation
-- `package.json` / `package-lock.json` - Added cors dependency
-
-### Build Script (`gmo-builder/`)
-**Modified Files:**
-- `api/build.js` - Updated GROQ query with chartConfig projections
+| Service | URL | Platform |
+|---------|-----|----------|
+| Sanity Studio | https://gmo-prototype.sanity.studio | Sanity |
+| Builder APIs | https://gmo-builder.vercel.app | Vercel |
+| Chart Agent API | https://gmo-chart-agent.vercel.app | Vercel |
+| Live Report Viewer | https://gmo-react-report.vercel.app | Vercel |
 
 ---
 
-## Dependencies Added
+## Architecture
 
-### Sanity Studio:
-- `xlsx` (^0.18.5) - Excel file parsing
-- `papaparse` (^5.5.3) - CSV parsing
-- `highcharts` (^12.5.0) - Chart rendering library
-- `highcharts-react-official` (^3.2.3) - React wrapper for Highcharts
-- `react-dropzone` (^14.3.8) - File upload component
-- `@types/papaparse` (^5.5.2) - TypeScript definitions
+```
+Sanity Studio (CMS)                Vercel APIs (gmo-builder)
+├── Report authoring               ├── /api/pptx-export     (PowerPoint generation)
+├── Chart Builder (AI)             ├── /api/pptx-preview    (Slide preview images)
+├── PowerPoint Review (AI)         ├── /api/pptx-review     (AI design review)
+└── Document Actions               ├── /api/build           (HTML report builder)
+    ├── View Live Report           └── /api/chart-config    (Chart config endpoint)
+    ├── Export as PDF
+    └── Export as PowerPoint        Chart Agent API
+                                   └── /api/analyse         (AI chart recommendations)
 
-### Chart Agent:
-- `cors` (^2.8.5) - CORS middleware for Express
+React Report Viewer
+└── Interactive web-based report with Highcharts
+```
+
+---
+
+## Features Deployed
+
+### 1. Chart Builder (v2.0 — January 18, 2026)
+
+AI-powered chart creation integrated directly into Sanity Studio.
+
+**Components:**
+- `gmo-prototype/components/ChartBuilder/` — 9 React components
+- `gmo-chart-agent/` — Vercel serverless API with Claude Sonnet
+
+**Capabilities:**
+- Upload Excel (.xlsx/.xls) or CSV files
+- AI-powered chart type recommendations via Claude
+- 2-3 alternative chart visualizations
+- Real-time Highcharts preview
+- Saves chart config directly to Sanity document
+
+**User Guide:** [CHART_BUILDER_USER_GUIDE.md](gmo-prototype/CHART_BUILDER_USER_GUIDE.md)
+
+---
+
+### 2. PowerPoint Export (January 2026)
+
+Server-side PowerPoint generation from Sanity report data.
+
+**API:** `gmo-builder/api/pptx-export.js`
+
+**Capabilities:**
+- Generates .pptx files from Sanity report data
+- Renders charts via QuickChart.io as embedded PNG images
+- Fetches and embeds Sanity images (logos, cards, section images)
+- Supports 6 slide types: Title, Table of Contents, Section Divider, Chart Section, Insights, Timeline
+- Theme color mapping from Sanity (`colorTheme` field) to BNP Paribas template colors
+- Accepts AI review suggestions for future auto-correction
+
+**Template Config:** Embedded in `pptx-export.js` (positions, sizes, colors, fonts)
+
+**Slide Type Mapping:**
+| Sanity Type | Slide Generator | Background |
+|-------------|----------------|------------|
+| `titleSection` | `generateTitleSlide` | Primary Teal |
+| `navigationSection` | `generateTOCSlide` | White |
+| `headerSection` | `generateDividerSlide` | Theme color (named) |
+| `contentSection` | `generateChartSlide` | Theme color (named) |
+| `chartInsightsSection` | `generateInsightsSlide` | White |
+| `timelineSection` | `generateTimelineSlide` | White |
+
+**Color Theme Mapping:**
+| Sanity Value | Hex | Used By |
+|-------------|-----|---------|
+| `blue` | `009FB1` | Primary |
+| `green` | `51BBB4` | Teal |
+| `teal` | `61C3D7` | Cyan |
+| `orange` | `F49F7B` | Orange |
+| `brown` | `A37767` | Brown |
+| `mint` | `76BCA3` | Mint |
+| `none` | `FFFFFF` | White |
+
+**Key Implementation Detail:** PptxGenJS loaded via `createRequire()` to avoid ESM/CJS mismatch on Vercel serverless.
+
+---
+
+### 3. AI-Powered Slide Design Review (January 2026)
+
+Claude Vision API reviews slide preview images against BNP Paribas design specifications.
+
+**Backend:**
+- `gmo-builder/api/pptx-review.js` — API endpoint
+- `gmo-builder/lib/ai-review/index.js` — Claude API integration + response parser
+- `gmo-builder/lib/ai-review/prompts.js` — Enhanced review prompts with exact template measurements
+
+**Frontend:**
+- `gmo-prototype/components/PowerPointReview/PowerPointReviewModal.tsx` — Review flow UI
+- `gmo-prototype/components/PowerPointReview/SuggestionsList.tsx` — Suggestion cards with severity badges
+- `gmo-prototype/components/PowerPointReview/types.ts` — TypeScript interfaces
+
+**Review Categories:**
+| Category | What It Checks |
+|----------|---------------|
+| `textLength` | Title/subtitle character counts vs. template limits |
+| `chartSize` | Chart dimensions vs. template specifications |
+| `bulletCount` | Number of bullet points (3-5 ideal, 6+ = HIGH severity) |
+| `colorAccuracy` | Background/text colors vs. brand guidelines |
+| `placeholder` | Unreplaced placeholder content ("Chart" text) |
+| `layoutAlignment` | Element positions vs. template grid |
+
+**Severity Levels:**
+- **HIGH:** Title >80 chars, 6+ bullets, placeholder content, wrong background color
+- **MEDIUM:** Subtitle >120 chars, generic chart title, source format issues
+- **LOW:** Minor spacing, font size variance, image resolution
+
+**Design Spec Reference:** [BNP_Paribas_Design_Specification.md](documentation/BNP_Paribas_Design_Specification.md)
+
+---
+
+### 4. Slide Preview Generation (January 2026)
+
+Server-side rendering of slide previews as PNG images using node-canvas.
+
+**API:** `gmo-builder/api/pptx-preview.js`
+**Renderers:** `gmo-builder/lib/slide-preview/index.js`
+
+**Capabilities:**
+- Canvas-based rendering of each slide type
+- Returns base64 PNG images for AI review
+- Supports "one per type" mode for efficient preview generation
+
+---
+
+### 5. React Report Viewer (January 2026)
+
+Interactive web-based report viewer replacing static HTML build.
+
+**URL:** https://gmo-react-report.vercel.app
+**Location:** `gmo-react-report/`
+
+---
+
+### 6. Sanity Studio Document Actions
+
+Custom actions available on report documents in Sanity Studio.
+
+**File:** `gmo-prototype/sanity.config.ts`
+
+**Actions:**
+1. **View Live Report** — Opens React report viewer in new tab
+2. **Export as PDF** — Downloads PDF version
+3. **Export as PowerPoint** — Opens AI review modal with full workflow:
+   - Generate slide previews
+   - Run AI design review (optional)
+   - View suggestions grouped by severity
+   - Select suggestions to apply
+   - Export .pptx file
+
+---
+
+## Sanity Schema Types
+
+| Type | File | Purpose |
+|------|------|---------|
+| `report` | `schemaTypes/report.ts` | Main report document with sections array |
+| `titleSection` | `schemaTypes/titleSection.ts` | Cover slide with logo, heading, subheading |
+| `navigationSection` | `schemaTypes/navigationSection.ts` | Table of contents with 5 cards |
+| `headerSection` | `schemaTypes/headerSection.ts` | Section divider with background color |
+| `contentSection` | `schemaTypes/contentSection.ts` | Chart section with color theme, chart builder |
+| `chartInsightsSection` | `schemaTypes/chartInsightsSection.ts` | Chart with insights panel |
+| `timelineSection` | `schemaTypes/timelineSection.ts` | 3-item horizontal timeline |
+| `slide` | `schemaTypes/slide.ts` | Standalone slide (legacy) |
 
 ---
 
 ## Environment Variables
 
-### Vercel (Chart Agent):
-- `CLAUDE_API_KEY` - Anthropic API key (already configured)
-- Scopes: Production, Preview, Development
+### Vercel (gmo-builder):
+- `ANTHROPIC_API_KEY` — Required for AI review endpoint
+
+### Vercel (gmo-chart-agent):
+- `CLAUDE_API_KEY` — Required for chart analysis
+
+### Sanity Studio:
+- `SANITY_STUDIO_CHART_AGENT_URL` — Optional, overrides Chart Agent API URL
 
 ---
 
-## Verification Checklist
+## Key Files Reference
 
-### Production Testing (Required):
-- [ ] Login to https://gmo-prototype.sanity.studio
-- [ ] Navigate to GMO Report → Content Section
-- [ ] Toggle "Include Chart" to ON
-- [ ] Verify Chart Builder component appears (not old manual fields)
-- [ ] Click "Add Chart" button → Modal opens
-- [ ] Upload test Excel or CSV file
-- [ ] Verify chart preview renders correctly
-- [ ] Verify 2-3 alternative charts appear below main chart
-- [ ] Click alternative thumbnail → Verify it swaps with main chart
-- [ ] Click "Save Chart" → Modal closes
-- [ ] Verify chart summary shows type and series count
-- [ ] Refresh page → Verify chart data persists
-- [ ] Click "Edit Chart" → Verify modal reopens with saved data
+### PowerPoint Export Pipeline
+- `gmo-builder/api/pptx-export.js` — Main export handler with all slide generators
+- `gmo-builder/lib/chart-config.js` — Chart.js configuration builder
+- `gmo-builder/api/pptx-preview.js` — Preview generation endpoint
+- `gmo-builder/api/pptx-review.js` — AI review endpoint
+- `gmo-builder/lib/ai-review/index.js` — Claude API integration + response parser
+- `gmo-builder/lib/ai-review/prompts.js` — Review prompts with BNP Paribas specs
 
-### Expected Results:
-- ✅ Chart creation time reduced from ~7 minutes to ~3-4 minutes
-- ✅ No manual copy-paste needed from Chart Agent
-- ✅ AI provides smart chart type recommendations
-- ✅ Alternative chart styles available for selection
-- ✅ Full Highcharts preview before saving
+### Sanity Studio Components
+- `gmo-prototype/components/PowerPointReview/PowerPointReviewModal.tsx` — Review workflow
+- `gmo-prototype/components/PowerPointReview/SuggestionsList.tsx` — Suggestion display
+- `gmo-prototype/components/PowerPointReview/types.ts` — TypeScript interfaces
+- `gmo-prototype/components/ChartBuilder/ChartBuilderInput.tsx` — Chart Builder entry point
+- `gmo-prototype/sanity.config.ts` — Document actions configuration
+
+### Documentation
+- `documentation/BNP_Paribas_Design_Specification.md` — Design spec for AI review
+- `gmo-prototype/CHART_BUILDER_USER_GUIDE.md` — Chart Builder user guide
+- `gmo-prototype/CHART_BUILDER_FEATURE_SUMMARY.md` — Chart Builder technical overview
 
 ---
 
-## Rollback Instructions
+## Recent Commits
 
-### If Issues Occur:
+| Date | Commit | Description |
+|------|--------|-------------|
+| Jan 27, 2026 | `cf50ce6` | fix: Resolve background color mapping for content and divider slides |
+| Jan 27, 2026 | `ef9fee5` | feat: Upgrade AI review with BNP Paribas design specification |
+| Jan 26, 2026 | `0d442cd` | fix: Embed images in PPTX, consolidate export buttons, wire AI suggestions |
+| Jan 26, 2026 | `49e5725` | feat: Add Sanity Studio UI for AI-powered PowerPoint review (Phase 3) |
+| Jan 25, 2026 | `48443eb` | feat: Add white banner with logo and tagline to title section |
+| Jan 25, 2026 | `05f83f0` | fix: UI bug fixes for React report viewer |
 
-#### Rollback Sanity Studio:
+---
+
+## Deployment Process
+
+### Automatic (Vercel):
+All APIs in `gmo-builder/` auto-deploy on push to `main` branch.
+
+### Manual (Sanity Studio):
 ```bash
-cd /c/Users/User/Documents/Code/gmo
-git revert -m 1 da879d6  # Revert merge commit
-git push origin main
 cd gmo-prototype && npx sanity deploy
 ```
 
-#### Rollback Chart Agent:
-**Via Vercel Dashboard:**
-1. Go to https://vercel.com/dashboard
-2. Select `gmo-chart-agent` project
-3. Go to Deployments tab
-4. Find deployment before `6cfbc3f` commit
-5. Click "..." → "Promote to Production"
-
-**Via Git:**
-```bash
-cd /c/Users/User/Documents/Code/gmo
-git revert 6cfbc3f a97e6b0
-git push origin main
-```
-
-#### Rollback to Previous Tag:
-```bash
-git reset --hard v1.0.0  # Replace with previous tag
-git push origin main --force
-```
+### Manual (React Viewer):
+Deployed via Vercel from `gmo-react-report/` directory.
 
 ---
 
-## Known Issues & Limitations
-
-### Minor UI Issues (Non-Blocking):
-1. **Modal z-index** - Increased to 999999, mostly fixed but may have edge cases
-2. **styled-components warnings** - Fixed with `shouldForwardProp`, may still appear in dev console
-
-### Feature Limitations:
-1. **Chart refinement** - Deferred to v3 (not implemented in this release)
-2. **CSV preview/editing** - Not available (upload only)
-3. **Chart history/undo** - Not implemented
-
-### Browser Compatibility:
-- Tested on Chrome (latest)
-- Should work on Firefox, Safari, Edge (not extensively tested)
-
----
-
-## Performance Metrics
-
-### Expected Improvements:
-- **Chart creation time:** 7 min → 3-4 min (42-57% reduction)
-- **Manual steps eliminated:** 5 steps (copy CSV, paste, configure series, etc.)
-- **Error rate reduction:** ~80% (no manual data entry errors)
-
-### API Performance:
-- **Chart Agent response time:** 2-8 seconds (depends on data complexity)
-- **Chart rendering:** <500ms (client-side with Highcharts)
-
----
-
-## Next Steps
-
-### Immediate (Week 1):
-- Monitor Chart Agent API error rates in Vercel dashboard
-- Collect user feedback on Chart Builder UX
-- Document any production issues
-
-### Short-term (Month 1):
-- Fix remaining UI styling issues if reported
-- Optimize Chart Agent Claude prompt based on real-world usage
-- Add analytics tracking for chart creation metrics
-
-### Future Enhancements (v3):
-- Add chart refinement feature with natural language
-- Add CSV preview and manual editing
-- Add chart history and undo/redo functionality
-- Consider additional chart types (pie, scatter, gauge)
-
----
-
-## Support & Documentation
-
-### User Documentation:
-- [Chart Builder User Guide](gmo-prototype/CHART_BUILDER_USER_GUIDE.md)
-- [Feature Summary](gmo-prototype/CHART_BUILDER_FEATURE_SUMMARY.md)
-
-### Technical Documentation:
-- [Deployment Plan](C:\Users\User\.claude\plans\deployment-plan.md)
-- [Implementation Plan](C:\Users\User\.claude\plans\graceful-churning-parnas.md)
-
-### Key Files Reference:
-- **Sanity Component:** `gmo-prototype/components/ChartBuilder/ChartBuilderInput.tsx`
-- **API Integration:** `gmo-prototype/components/ChartBuilder/utils.ts` (line 37: API_BASE_URL)
-- **Chart Agent:** `gmo-chart-agent/index.js` (lines 148-231: /api/analyse)
-- **Build Script:** `gmo-builder/api/build.js` (lines 26-69: GROQ query)
-
----
-
-## Team Communication
-
-### Deployment Announcement:
-**Subject:** Chart Builder v2.0 Deployed to Production
-
-**Summary:**
-The Chart Builder integration is now live in production! This new feature reduces chart creation time from ~7 minutes to ~3-4 minutes by integrating AI-powered chart recommendations directly into Sanity Studio.
-
-**Key Features:**
-- Upload Excel/CSV files directly in Sanity
-- AI recommends the best chart type for your data
-- See 2-3 alternative chart visualizations
-- Real-time preview before saving
-
-**Action Required:**
-- Test the new Chart Builder in production
-- Report any issues via GitHub or Slack
-- Refer to the User Guide for detailed instructions
-
-**Rollback Plan:**
-If critical issues arise, we can rollback to the previous version within 5 minutes using the documented procedure.
-
----
-
-**Deployed By:** Claude Code + User
-**Deployment Method:** Git feature branches → Merge to main → Auto-deploy
-**Total Lines Changed:** 1,700+ lines added (15 files modified/created)
-
+**Maintained By:** Pattrn Studios
+**Built With:** Sanity Studio v4, React 19, TypeScript, PptxGenJS, Claude API, Vercel Serverless
