@@ -127,10 +127,18 @@ export function PowerPointReviewModal({
     setStep('generating');
 
     try {
+      // Include selected AI suggestions in the export request
+      const payload: Record<string, unknown> = {reportId};
+      if (review && selectedSuggestions.size > 0) {
+        payload.suggestions = review.suggestions.filter((_, i) =>
+          selectedSuggestions.has(i)
+        );
+      }
+
       const response = await fetch(`${API_BASE}/api/pptx-export`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({reportId}),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -155,7 +163,7 @@ export function PowerPointReviewModal({
       setError(err instanceof Error ? err.message : 'Export failed');
       setStep('error');
     }
-  }, [reportId, reportTitle, onExportComplete, onClose]);
+  }, [reportId, reportTitle, review, selectedSuggestions, onExportComplete, onClose]);
 
   // Toggle suggestion selection
   const toggleSuggestion = useCallback((index: number) => {

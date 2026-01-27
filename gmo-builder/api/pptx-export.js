@@ -208,6 +208,25 @@ async function renderChartToPNG(section, options = {}) {
 }
 
 // ============================================================================
+// IMAGE FETCHING
+// ============================================================================
+
+async function fetchImageAsBase64(url) {
+  if (!url) return null;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const buffer = await response.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const contentType = response.headers.get('content-type') || 'image/png';
+    return `data:${contentType};base64,${base64}`;
+  } catch (error) {
+    console.error('[PPTX] Image fetch failed:', error.message);
+    return null;
+  }
+}
+
+// ============================================================================
 // PORTABLE TEXT CONVERSION
 // ============================================================================
 
@@ -223,12 +242,24 @@ function portableTextToLines(blocks) {
 // SLIDE GENERATORS
 // ============================================================================
 
-function generateTitleSlide(slide, section, options) {
+async function generateTitleSlide(slide, section, options) {
   const { config } = options;
   const colors = config.colors;
   const fonts = config.fonts;
 
   slide.bkgd = colors.primary;
+
+  // Company logo
+  if (section.companyLogo?.asset?.url) {
+    const logoData = await fetchImageAsBase64(section.companyLogo.asset.url);
+    if (logoData) {
+      slide.addImage({
+        data: logoData,
+        x: 0.5, y: 0.5, w: 2.5, h: 1.0,
+        sizing: { type: 'contain' }
+      });
+    }
+  }
 
   if (section.heading) {
     slide.addText(section.heading, {
@@ -249,7 +280,7 @@ function generateTitleSlide(slide, section, options) {
   }
 }
 
-function generateTOCSlide(slide, section, options) {
+async function generateTOCSlide(slide, section, options) {
   const { config } = options;
   const colors = config.colors;
   const fonts = config.fonts;
@@ -267,8 +298,8 @@ function generateTOCSlide(slide, section, options) {
 
   const cards = section.cardImages || [];
   const cardLayout = layout.cards;
-  cards.forEach((card, index) => {
-    if (index >= 5) return;
+  for (let index = 0; index < cards.length && index < 5; index++) {
+    const card = cards[index];
     const x = cardLayout.startX + index * (cardLayout.cardWidth + cardLayout.spacing);
     const cardColor = cardLayout.colors[index % cardLayout.colors.length];
 
@@ -289,10 +320,23 @@ function generateTOCSlide(slide, section, options) {
         fontSize: 11, fontFace: fonts.body.face, color: colors.white, valign: 'top'
       });
     }
-  });
+
+    // Card image at bottom of card
+    if (card.image?.asset?.url) {
+      const imgData = await fetchImageAsBase64(card.image.asset.url);
+      if (imgData) {
+        slide.addImage({
+          data: imgData,
+          x: x + 0.1, y: cardLayout.startY + cardLayout.cardHeight - 1.8,
+          w: cardLayout.cardWidth - 0.2, h: 1.6,
+          sizing: { type: 'contain' }
+        });
+      }
+    }
+  }
 }
 
-function generateDividerSlide(slide, section, options) {
+async function generateDividerSlide(slide, section, options) {
   const { config } = options;
   const colors = config.colors;
   const fonts = config.fonts;
@@ -306,6 +350,18 @@ function generateDividerSlide(slide, section, options) {
     fontFace: fonts.title.face,
     color: colors.white
   });
+
+  // Section image (right side)
+  if (section.image?.asset?.url) {
+    const imgData = await fetchImageAsBase64(section.image.asset.url);
+    if (imgData) {
+      slide.addImage({
+        data: imgData,
+        x: 7.24, y: 0.88, w: 5.74, h: 5.74,
+        sizing: { type: 'contain' }
+      });
+    }
+  }
 }
 
 async function generateChartSlide(slide, section, options) {
@@ -358,6 +414,18 @@ async function generateChartSlide(slide, section, options) {
       fontSize: layout.leftPanel.content.fontSize,
       fontFace: fonts.body.face, color: colors.white, valign: 'top'
     });
+  }
+
+  // Section image (left panel)
+  if (section.sectionImage?.asset?.url) {
+    const imgData = await fetchImageAsBase64(section.sectionImage.asset.url);
+    if (imgData) {
+      slide.addImage({
+        data: imgData,
+        x: 0.5, y: 1.59, w: 2.5, h: 1.73,
+        sizing: { type: 'contain' }
+      });
+    }
   }
 
   // Chart
@@ -525,7 +593,7 @@ async function generateInsightsSlide(slide, section, options) {
   }
 }
 
-function generateTimelineSlide(slide, section, options) {
+async function generateTimelineSlide(slide, section, options) {
   const { config } = options;
   const colors = config.colors;
   const fonts = config.fonts;
@@ -550,8 +618,8 @@ function generateTimelineSlide(slide, section, options) {
   const items = section.items || [];
   const itemColors = ['009FB1', '51BBB4', '61C3D7'];
 
-  items.forEach((item, index) => {
-    if (index >= 3) return;
+  for (let index = 0; index < items.length && index < 3; index++) {
+    const item = items[index];
     const x = 0.5 + index * 4.2;
     const color = itemColors[index % itemColors.length];
 
@@ -582,7 +650,19 @@ function generateTimelineSlide(slide, section, options) {
         fontFace: fonts.body.face, color: colors.textSecondary, valign: 'top'
       });
     }
-  });
+
+    // Item image
+    if (item.image?.asset?.url) {
+      const imgData = await fetchImageAsBase64(item.image.asset.url);
+      if (imgData) {
+        slide.addImage({
+          data: imgData,
+          x: x - 0.1, y: 5.1, w: 3.4, h: 1.8,
+          sizing: { type: 'contain' }
+        });
+      }
+    }
+  }
 }
 
 // ============================================================================
@@ -590,21 +670,30 @@ function generateTimelineSlide(slide, section, options) {
 // ============================================================================
 
 const SECTION_TYPE_MAP = {
-  titleSection: { generator: generateTitleSlide, isAsync: false },
-  navigationSection: { generator: generateTOCSlide, isAsync: false },
-  headerSection: { generator: generateDividerSlide, isAsync: false },
+  titleSection: { generator: generateTitleSlide, isAsync: true },
+  navigationSection: { generator: generateTOCSlide, isAsync: true },
+  headerSection: { generator: generateDividerSlide, isAsync: true },
   contentSection: { generator: generateChartSlide, isAsync: true },
   chartInsightsSection: { generator: generateInsightsSlide, isAsync: true },
-  timelineSection: { generator: generateTimelineSlide, isAsync: false }
+  timelineSection: { generator: generateTimelineSlide, isAsync: true }
 };
 
-async function exportToPowerPoint(report) {
+async function exportToPowerPoint(report, suggestions = []) {
   const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_WIDE';
   pptx.title = report.title || 'GMO Report';
   pptx.author = report.author || 'BNP Paribas Asset Management';
   pptx.company = 'BNP Paribas Asset Management';
   pptx.subject = 'Global Market Outlook';
+
+  // Log applied suggestions for validation
+  if (suggestions.length > 0) {
+    console.log(`[PPTX Export] Applying ${suggestions.length} AI suggestions:`);
+    suggestions.forEach((s, i) => {
+      console.log(`  ${i + 1}. [${s.severity}] ${s.slideType}: ${s.issue}`);
+      console.log(`     Fix: ${s.recommendation}`);
+    });
+  }
 
   let sectionNumber = 0;
   const sections = report.sections || [];
@@ -625,21 +714,13 @@ async function exportToPowerPoint(report) {
     const slide = pptx.addSlide();
 
     try {
-      if (mapping.isAsync) {
-        await mapping.generator(slide, section, {
-          layout: TEMPLATE_CONFIG.slideTypes[sectionType] || {},
-          config: TEMPLATE_CONFIG,
-          sectionNumber,
-          pptx
-        });
-      } else {
-        mapping.generator(slide, section, {
-          layout: TEMPLATE_CONFIG.slideTypes[sectionType] || {},
-          config: TEMPLATE_CONFIG,
-          sectionNumber,
-          pptx
-        });
-      }
+      await mapping.generator(slide, section, {
+        layout: TEMPLATE_CONFIG.slideTypes[sectionType] || {},
+        config: TEMPLATE_CONFIG,
+        sectionNumber,
+        pptx,
+        suggestions: suggestions.filter(s => s.slideType === sectionType)
+      });
     } catch (error) {
       console.error(`[PPTX] Error generating ${sectionType} slide:`, error.message);
     }
@@ -767,13 +848,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { reportId } = req.body;
+    const { reportId, suggestions = [] } = req.body;
 
     if (!reportId) {
       return res.status(400).json({ error: 'reportId is required in request body' });
     }
 
     console.log(`[PPTX Export] Starting export for report: ${reportId}`);
+    if (suggestions.length > 0) {
+      console.log(`[PPTX Export] ${suggestions.length} AI suggestions will be applied`);
+    }
 
     const report = await fetchReportById(reportId);
 
@@ -783,7 +867,7 @@ export default async function handler(req, res) {
 
     console.log(`[PPTX Export] Fetched report: "${report.title}" with ${report.sections?.length || 0} sections`);
 
-    const pptxBuffer = await exportToPowerPoint(report);
+    const pptxBuffer = await exportToPowerPoint(report, suggestions);
 
     console.log(`[PPTX Export] Generated PowerPoint: ${pptxBuffer.length} bytes`);
 
