@@ -23,7 +23,7 @@ Transform the monthly GMO financial publication from a static PowerPoint deck in
 | Sanity Studio | https://gmo-prototype.sanity.studio | Sanity |
 | Builder APIs | https://gmo-builder.vercel.app | Vercel |
 | Chart Agent API | https://gmo-chart-agent.vercel.app | Vercel |
-| Live Report Viewer | https://gmo-react-report.vercel.app | Vercel |
+| Live Report Viewer | https://gmo-report.vercel.app | Vercel |
 
 ---
 
@@ -161,10 +161,10 @@ Server-side rendering of slide previews as PNG images using node-canvas.
 
 ### 5. React Report Viewer (January 2026)
 
-Interactive web-based report viewer replacing static HTML build.
+Interactive web-based report viewer replacing static HTML build. Fetches report data **client-side** from Sanity on every page load, so published changes in Sanity appear immediately without a rebuild.
 
-**URL:** https://gmo-react-report.vercel.app
-**Location:** `gmo-react-report/`
+**URL:** https://gmo-report.vercel.app
+**Location:** `gmo-report/`
 
 ---
 
@@ -175,7 +175,7 @@ Custom actions available on report documents in Sanity Studio.
 **File:** `gmo-prototype/sanity.config.ts`
 
 **Actions:**
-1. **View Live Report** — Opens React report viewer in new tab
+1. **View Live Report** — Opens React report viewer in new tab (always shows latest published content; no rebuild needed)
 2. **Export as PDF** — Downloads PDF version
 3. **Export as PowerPoint** — Opens AI review modal with full workflow:
    - Generate slide previews
@@ -260,8 +260,8 @@ All APIs in `gmo-builder/` auto-deploy on push to `main` branch.
 cd gmo-prototype && npx sanity deploy
 ```
 
-### Manual (React Viewer):
-Deployed via Vercel from `gmo-react-report/` directory.
+### Automatic (React Viewer):
+Deployed via Vercel from `gmo-report/` directory on push to `main`. The report fetches data client-side from Sanity, so content updates are live immediately after publishing — no rebuild required.
 
 ---
 

@@ -38,7 +38,7 @@ A collection of tools for creating and managing BNP Paribas' Global Market Outlo
 - **Tech Stack**: Next.js 14, React 18, TypeScript, Recharts, Tailwind CSS, Framer Motion
 - **Features**: Dark mode, animations, interactive charts, scroll-spy TOC
 - **Local Dev**: `cd gmo-report && npm install && npm run dev`
-- **Build**: `npm run build` (static export to `/out`)
+- **Build**: `npm run build` (static shell; data fetched client-side from Sanity)
 
 ### gmo-prototype
 
@@ -89,7 +89,7 @@ All projects connect to a shared Sanity backend:
 
 1. Content is edited in **gmo-prototype** (Sanity Studio)
 2. **gmo-chart-agent** analyzes data and recommends chart configurations
-3. **gmo-report** displays the interactive report (primary viewer)
+3. **gmo-report** displays the interactive report (primary viewer) — fetches live data from Sanity on each page load, so published changes appear immediately via the **View Live Report** action
 
 ## Quick Start
 

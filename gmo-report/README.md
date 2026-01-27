@@ -12,7 +12,7 @@ Interactive React-based report viewer for Global Market Outlook reports, built w
 
 ## Tech Stack
 
-- Next.js 14.2 (App Router, Static Export)
+- Next.js 14.2 (App Router, client-side data fetching)
 - React 18.3
 - TypeScript
 - Tailwind CSS
@@ -35,11 +35,11 @@ npm run dev
 ## Build & Deploy
 
 ```bash
-# Build static export
+# Build (static shell — data is fetched client-side from Sanity)
 npm run build
 
-# Output directory: /out
-# Deploy /out folder to any static hosting
+# Deployed automatically via Vercel on push to main
+# No rebuild needed when Sanity content changes — data is fetched live
 ```
 
 ## Project Structure
@@ -77,9 +77,10 @@ gmo-report/
 
 ## Data Source
 
-Fetches report data from Sanity CMS at build time:
+Fetches report data client-side from Sanity CMS on every page load (always up-to-date):
 - Project ID: `mb7v1vpy`
 - Dataset: `production`
+- CORS origin `https://gmo-report.vercel.app` is configured in the Sanity project
 
 ## Supported Section Types
 
