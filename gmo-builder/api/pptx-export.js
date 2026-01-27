@@ -124,6 +124,7 @@ function getThemeColor(themeName, config) {
     teal: config.colors.cyan,
     orange: config.colors.orange,
     brown: config.colors.brown,
+    mint: '76BCA3',
     none: config.colors.white
   };
   return themeMap[themeName] || config.colors.primary;
@@ -341,7 +342,19 @@ async function generateDividerSlide(slide, section, options) {
   const colors = config.colors;
   const fonts = config.fonts;
 
-  const bgColor = normalizeColor(section.backgroundColor, colors.cyan);
+  // Resolve named colors (blue, green, orange, etc.) or hex values
+  const dividerThemeMap = {
+    blue: config.colors.primary,
+    green: config.colors.teal,
+    teal: config.colors.cyan,
+    orange: config.colors.orange,
+    brown: config.colors.brown,
+    mint: '76BCA3',
+    none: config.colors.white
+  };
+  const bgColor = dividerThemeMap[section.backgroundColor]
+    || normalizeColor(section.backgroundColor, colors.cyan);
+  console.log(`[PPTX] Divider slide "${section.title}" — backgroundColor: ${section.backgroundColor}, bgColor: ${bgColor}`);
   slide.bkgd = bgColor;
 
   slide.addText(section.title || '', {
@@ -373,6 +386,7 @@ async function generateChartSlide(slide, section, options) {
   const bgColor = section.sectionTheme
     ? getThemeColor(section.sectionTheme, config)
     : normalizeColor(section.backgroundColor, colors.primary);
+  console.log(`[PPTX] Chart slide "${section.title}" — sectionTheme: ${section.sectionTheme}, bgColor: ${bgColor}`);
   slide.bkgd = bgColor;
 
   // Section number badge
@@ -773,7 +787,7 @@ async function fetchReportById(reportId) {
         subtitle,
         content,
         hasChart,
-        sectionTheme,
+        "sectionTheme": colorTheme,
         "chartConfig": chartConfig {
           chartType,
           chartData,
