@@ -8,6 +8,7 @@ Sanity CMS Studio for managing Global Market Outlook report content with integra
 - **Chart Builder** - Upload Excel/CSV data or chart images for AI-powered chart creation
 - **Image Upload** - Extract data from chart images via Claude Vision and recreate as editable Recharts charts
 - **Live Preview** - See charts rendered with Recharts before publishing
+- **French Translation** - One-click action to view AI-translated French version of the report
 - **PowerPoint Export** - AI-reviewed slide generation with design spec compliance
 - **Flexible Layouts** - Configure chart positions, color themes, and content layouts
 
@@ -100,10 +101,11 @@ gmo-prototype/
 │   │   ├── types.ts
 │   │   ├── utils.ts                   # File parsing, API calls
 │   │   └── styles.ts
-│   └── PowerPointReview/
-│       ├── PowerPointReviewModal.tsx   # AI review workflow
-│       ├── SuggestionsList.tsx         # Suggestion display
-│       └── types.ts
+│   ├── PowerPointReview/
+│   │   ├── PowerPointReviewModal.tsx   # AI review workflow
+│   │   ├── SuggestionsList.tsx         # Suggestion display
+│   │   └── types.ts
+│   └── ViewFrenchTranslationAction.tsx # French translation document action
 └── sanity.config.ts
 ```
 

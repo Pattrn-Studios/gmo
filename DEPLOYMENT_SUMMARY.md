@@ -1,6 +1,6 @@
 # GMO Project — Deployment Summary
 
-**Last Updated:** January 27, 2026
+**Last Updated:** January 28, 2026
 **Status:** Production
 **Repository:** https://github.com/Pattrn-Studios/gmo
 
@@ -24,6 +24,7 @@ Transform the monthly GMO financial publication from a static PowerPoint deck in
 | Builder APIs | https://gmo-builder.vercel.app | Vercel |
 | Chart Agent API | https://gmo-chart-agent.vercel.app | Vercel |
 | Live Report Viewer | https://gmo-report.vercel.app | Vercel |
+| French Report | https://gmo-report.vercel.app/fr/ | Vercel |
 
 ---
 
@@ -31,18 +32,20 @@ Transform the monthly GMO financial publication from a static PowerPoint deck in
 
 ```
 Sanity Studio (CMS)                Vercel APIs (gmo-builder)
-├── Report authoring               ├── /api/pptx-export     (PowerPoint generation)
-├── Chart Builder (AI)             ├── /api/pptx-preview    (Slide preview images)
-├── PowerPoint Review (AI)         ├── /api/pptx-review     (AI design review)
-└── Document Actions               ├── /api/build           (HTML report builder)
-    ├── View Live Report           └── /api/chart-config    (Chart config endpoint)
+├── Report authoring               ├── /api/translate-json   (French translation JSON API)
+├── Chart Builder (AI)             ├── /api/pptx-export      (PowerPoint generation)
+├── PowerPoint Review (AI)         ├── /api/pptx-preview     (Slide preview images)
+└── Document Actions               ├── /api/pptx-review      (AI design review)
+    ├── View Live Report           ├── /api/build            (HTML report builder)
+    ├── Voir traduction française  └── /api/chart-config     (Chart config endpoint)
     ├── Export as PDF
     └── Export as PowerPoint        Chart Agent API
-                                   ├── /api/analyse         (AI chart recommendations)
-                                   └── /api/analyse-image   (AI chart image extraction)
+                                   ├── /api/analyse          (AI chart recommendations)
+                                   └── /api/analyse-image    (AI chart image extraction)
 
-React Report Viewer
-└── Interactive web-based report with Recharts
+React Report Viewer (gmo-report)
+├── /     English report with Recharts
+└── /fr/  French translation (fetches from /api/translate-json)
 ```
 
 ---
@@ -168,6 +171,33 @@ Interactive web-based report viewer replacing static HTML build. Fetches report 
 
 ---
 
+### 7. French Translation (January 2026)
+
+AI-powered French translation of report content using Claude API.
+
+**How it works:**
+1. `gmo-report/src/app/fr/page.tsx` fetches translated JSON from `gmo-builder/api/translate-json.js`
+2. The API fetches the latest report from Sanity, sends translatable text to Claude (Sonnet), and returns structured JSON
+3. The French page renders using the same React components as the English version
+
+**Translation API:** `gmo-builder/api/translate-json.js`
+**Translation Client:** `gmo-builder/lib/translation-client.js`
+
+**Capabilities:**
+- Translates all text content (titles, body text, chart labels, axis labels, insights)
+- Preserves Portable Text structure (bold, italic, lists, headers)
+- Uses formal business French appropriate for institutional investors
+- Preserves proper nouns, numbers, and percentages
+- Language dropdown in report header for switching between English and French
+- Translation notice banner on French page
+
+**UI Components:**
+- `gmo-report/src/components/layout/LanguageDropdown.tsx` — Header dropdown (flag icon, expands to show languages)
+- `gmo-report/src/app/fr/page.tsx` — French report page
+- `gmo-prototype/components/ViewFrenchTranslationAction.tsx` — Sanity document action
+
+---
+
 ### 6. Sanity Studio Document Actions
 
 Custom actions available on report documents in Sanity Studio.
@@ -176,8 +206,9 @@ Custom actions available on report documents in Sanity Studio.
 
 **Actions:**
 1. **View Live Report** — Opens React report viewer in new tab (always shows latest published content; no rebuild needed)
-2. **Export as PDF** — Downloads PDF version
-3. **Export as PowerPoint** — Opens AI review modal with full workflow:
+2. **Voir traduction française** — Opens French translation in new tab (`gmo-report.vercel.app/fr/`). Only enabled when document is published.
+3. **Export as PDF** — Downloads PDF version
+4. **Export as PowerPoint** — Opens AI review modal with full workflow:
    - Generate slide previews
    - Run AI design review (optional)
    - View suggestions grouped by severity
@@ -204,7 +235,7 @@ Custom actions available on report documents in Sanity Studio.
 ## Environment Variables
 
 ### Vercel (gmo-builder):
-- `ANTHROPIC_API_KEY` — Required for AI review endpoint
+- `ANTHROPIC_API_KEY` — Required for French translation (Claude API) and AI slide review
 
 ### Vercel (gmo-chart-agent):
 - `CLAUDE_API_KEY` — Required for chart analysis
@@ -224,11 +255,19 @@ Custom actions available on report documents in Sanity Studio.
 - `gmo-builder/lib/ai-review/index.js` — Claude API integration + response parser
 - `gmo-builder/lib/ai-review/prompts.js` — Review prompts with BNP Paribas specs
 
+### French Translation Pipeline
+- `gmo-builder/api/translate-json.js` — Translation JSON API (consumed by gmo-report)
+- `gmo-builder/lib/translation-client.js` — Claude API integration for translation
+- `gmo-report/src/app/fr/page.tsx` — French report page (React)
+- `gmo-report/src/components/layout/LanguageDropdown.tsx` — Language switcher in header
+- `gmo-prototype/components/ViewFrenchTranslationAction.tsx` — Sanity document action
+
 ### Sanity Studio Components
 - `gmo-prototype/components/PowerPointReview/PowerPointReviewModal.tsx` — Review workflow
 - `gmo-prototype/components/PowerPointReview/SuggestionsList.tsx` — Suggestion display
 - `gmo-prototype/components/PowerPointReview/types.ts` — TypeScript interfaces
 - `gmo-prototype/components/ChartBuilder/ChartBuilderInput.tsx` — Chart Builder entry point
+- `gmo-prototype/components/ViewFrenchTranslationAction.tsx` — French translation action
 - `gmo-prototype/sanity.config.ts` — Document actions configuration
 
 ### Documentation
@@ -241,12 +280,14 @@ Custom actions available on report documents in Sanity Studio.
 
 | Date | Commit | Description |
 |------|--------|-------------|
+| Jan 28, 2026 | `cec295a` | fix: Match language dropdown height to theme toggle |
+| Jan 28, 2026 | `9ed87be` | fix: Language dropdown in header and direct /fr URL access |
+| Jan 28, 2026 | `a1cf354` | feat: Add language toggle to English page |
+| Jan 28, 2026 | `6d8d622` | fix: Move French translation to gmo-report React app |
+| Jan 28, 2026 | `6b8ec53` | feat: Add French translation feature with Claude AI |
 | Jan 27, 2026 | `d422e9e` | feat: Add image upload to Chart Builder with edit flow improvements |
 | Jan 27, 2026 | `a11926c` | docs: Update documentation to reflect current production state |
 | Jan 27, 2026 | `cf50ce6` | fix: Resolve background color mapping for content and divider slides |
-| Jan 27, 2026 | `ef9fee5` | feat: Upgrade AI review with BNP Paribas design specification |
-| Jan 26, 2026 | `0d442cd` | fix: Embed images in PPTX, consolidate export buttons, wire AI suggestions |
-| Jan 26, 2026 | `49e5725` | feat: Add Sanity Studio UI for AI-powered PowerPoint review (Phase 3) |
 
 ---
 

@@ -4,6 +4,8 @@ Interactive React-based report viewer for Global Market Outlook reports, built w
 
 ## Features
 
+- **French Translation** - AI-powered translation via Claude API, accessible at `/fr`
+- **Language Dropdown** - Header dropdown to switch between English and French
 - **Recharts Integration** - Same chart library as Sanity Studio preview for pixel-perfect consistency
 - **Dark/Light Mode** - Toggle with localStorage persistence
 - **Framer Motion Animations** - Smooth page transitions, staggered content reveals
@@ -49,12 +51,15 @@ gmo-report/
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx      # Root layout with ThemeProvider
-│   │   └── page.tsx        # Main report page
+│   │   ├── page.tsx        # Main report page (English)
+│   │   └── fr/
+│   │       └── page.tsx    # French translation page
 │   ├── components/
 │   │   ├── charts/
 │   │   │   └── RechartsRenderer.tsx  # All chart types
 │   │   ├── layout/
-│   │   │   ├── ReportLayout.tsx      # Page structure
+│   │   │   ├── ReportLayout.tsx      # Page structure + header
+│   │   │   ├── LanguageDropdown.tsx  # Language switcher dropdown
 │   │   │   ├── TableOfContents.tsx   # Sidebar navigation
 │   │   │   ├── ThemeProvider.tsx     # Dark mode context
 │   │   │   └── ThemeToggle.tsx       # Theme switch button
@@ -70,7 +75,7 @@ gmo-report/
 │   │   └── utils.ts        # CSV parsing, formatting
 │   └── styles/
 │       └── globals.css     # Tailwind + CSS variables
-├── next.config.js          # Static export config
+├── next.config.js          # Static export config (trailingSlash: true)
 ├── tailwind.config.js      # Tailwind theme
 └── tsconfig.json
 ```
@@ -103,6 +108,15 @@ All 15 chart types from Sanity Studio are supported:
 - Horizontal Bar
 - Treemap, Heatmap
 - Gauge, Waterfall
+
+## French Translation
+
+The `/fr` page fetches a French-translated report from `gmo-builder`'s translation API:
+
+- **API**: `https://gmo-builder.vercel.app/api/translate-json`
+- **How it works**: The API fetches the latest report from Sanity, translates all text content via Claude AI, and returns the translated report as JSON
+- **Language Dropdown**: In the header, users can switch between English and French via a flag dropdown
+- **Translation Notice**: The French page includes a notice explaining the content was machine-translated
 
 ## Environment
 

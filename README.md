@@ -18,14 +18,16 @@ A collection of tools for creating and managing BNP Paribas' Global Market Outlo
 ┌─────────────────────────┐     ┌─────────────────────────┐
 │      gmo-report         │     │    gmo-chart-agent      │
 │   (Next.js React App)   │     │   (AI Recommendations)  │
-│      PRIMARY VIEWER     │     │                         │
+│   PRIMARY VIEWER        │     │                         │
+│   English + French      │     │                         │
 └─────────────────────────┘     └─────────────────────────┘
               │
+              │ /api/translate-json
               ▼
 ┌─────────────────────────┐
 │      gmo-builder        │
-│   (Legacy HTML Gen)     │
-│       DEPRECATED        │
+│   (Translation API +    │
+│    Legacy HTML Gen)     │
 └─────────────────────────┘
 ```
 
@@ -36,7 +38,7 @@ A collection of tools for creating and managing BNP Paribas' Global Market Outlo
 **Interactive React-based report viewer** - The primary way to view GMO reports.
 
 - **Tech Stack**: Next.js 14, React 18, TypeScript, Recharts, Tailwind CSS, Framer Motion
-- **Features**: Dark mode, animations, interactive charts, scroll-spy TOC
+- **Features**: Dark mode, French translation (AI-powered), interactive charts, scroll-spy TOC, language dropdown
 - **Local Dev**: `cd gmo-report && npm install && npm run dev`
 - **Build**: `npm run build` (static shell; data fetched client-side from Sanity)
 
@@ -45,7 +47,7 @@ A collection of tools for creating and managing BNP Paribas' Global Market Outlo
 Sanity CMS Studio for managing GMO report content with integrated Chart Builder and PowerPoint export.
 
 - **Tech Stack**: Sanity v4, React 19, TypeScript, Recharts
-- **Features**: AI chart builder (CSV + image upload), PowerPoint export with AI design review
+- **Features**: AI chart builder (CSV + image upload), PowerPoint export with AI design review, French translation action
 - **Local Dev**: `cd gmo-prototype && npm install && npm run dev`
 - **Deploy**: `npx sanity deploy`
 
@@ -58,14 +60,15 @@ AI-powered chart recommendation API using Claude for analyzing CSV data and char
 - **Local Dev**: `cd gmo-chart-agent && npm install && node index.js` (requires `.env` with `CLAUDE_API_KEY`)
 - **Production**: Deployed on Vercel
 
-### gmo-builder ⚠️ DEPRECATED
+### gmo-builder ⚠️ DEPRECATED (HTML gen) / ACTIVE (Translation API)
 
-> **Note**: This module is deprecated. Use `gmo-report` for viewing reports.
+> **Note**: The HTML report generator is deprecated. Use `gmo-report` for viewing reports.
+> The translation API (`/api/translate-json`) is actively used by `gmo-report` for French translations.
 
-Legacy HTML report generator that fetches content from Sanity and produces static HTML with Chart.js.
+Legacy HTML report generator + translation API. Fetches content from Sanity, translates via Claude AI.
 
-- **Tech Stack**: Node.js, @sanity/client, Chart.js
-- **Status**: Maintained for backwards compatibility only
+- **Tech Stack**: Node.js, @sanity/client, @anthropic-ai/sdk, Chart.js
+- **Active Endpoint**: `/api/translate-json` — Returns French-translated report JSON for `gmo-report`
 
 ## Documentation
 
@@ -90,6 +93,7 @@ All projects connect to a shared Sanity backend:
 1. Content is edited in **gmo-prototype** (Sanity Studio)
 2. **gmo-chart-agent** analyzes data and recommends chart configurations
 3. **gmo-report** displays the interactive report (primary viewer) — fetches live data from Sanity on each page load, so published changes appear immediately via the **View Live Report** action
+4. **French translation** — accessible via language dropdown in report header or **Voir traduction française** action in Sanity Studio. Translation is powered by Claude AI via `gmo-builder/api/translate-json`
 
 ## Quick Start
 
@@ -121,11 +125,11 @@ npm run dev
 
 ## Environment Variables
 
-Only **gmo-chart-agent** requires environment variables:
+| Project | Variable | Description |
+|---------|----------|-------------|
+| `gmo-chart-agent` | `CLAUDE_API_KEY` | Anthropic API key for chart analysis |
+| `gmo-chart-agent` | `PORT` | Server port (default: 3000) |
+| `gmo-builder` | `ANTHROPIC_API_KEY` | Anthropic API key for translation + AI review |
 
-| Variable | Description |
-|----------|-------------|
-| `CLAUDE_API_KEY` | Anthropic API key for Claude |
-| `PORT` | Server port (default: 3000) |
-
-Copy `.env.example` to `.env` and fill in your values.
+For `gmo-chart-agent`, copy `.env.example` to `.env` and fill in your values.
+For `gmo-builder`, environment variables are set in the Vercel dashboard.
