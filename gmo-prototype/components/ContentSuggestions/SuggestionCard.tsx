@@ -90,7 +90,7 @@ export function SuggestionCard({
               {Array.isArray(suggestion.suggested) ? (
                 <Stack space={1}>
                   {suggestion.suggested.map((item, i) => (
-                    <Text key={i} size={1}>
+                    <Text key={`${fieldName}-suggestion-${i}`} size={1}>
                       • {item}
                     </Text>
                   ))}

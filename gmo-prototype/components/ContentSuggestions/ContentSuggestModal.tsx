@@ -224,6 +224,7 @@ export function ContentSuggestModal({
                 mode="ghost"
                 text="Regenerate"
                 onClick={handleGenerate}
+                icon={SparklesIcon}
               />
               <Button
                 tone="primary"

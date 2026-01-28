@@ -14,39 +14,62 @@ export async function generateContentSuggestions(
   sectionData: SectionData,
   reportContext?: { reportTitle?: string }
 ): Promise<ContentSuggestResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/content-suggest`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      sectionType,
-      sectionData,
-      reportContext,
-    }),
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}/api/content-suggest`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sectionType,
+        sectionData,
+        reportContext,
+      }),
+    });
+  } catch (networkError) {
+    throw new Error(
+      `Network error: Unable to reach AI service. Please check your connection.`
+    );
+  }
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to generate suggestions');
+    let errorMessage = 'Failed to generate suggestions';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error || errorMessage;
+    } catch {
+      // Response wasn't JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
 }
 
 /**
+ * Generate a unique key for Sanity blocks
+ */
+function generateKey(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 9)}`;
+}
+
+/**
  * Convert content bullet strings to Sanity Portable Text blocks
  */
 export function stringsToPortableText(bullets: string[]): any[] {
+  if (!Array.isArray(bullets)) return [];
+
   return bullets.map((text) => ({
     _type: 'block',
-    _key: Math.random().toString(36).substring(7),
+    _key: generateKey(),
     style: 'normal',
     markDefs: [],
     children: [
       {
         _type: 'span',
-        _key: Math.random().toString(36).substring(7),
+        _key: generateKey(),
         text: `• ${text}`,
         marks: [],
       },
