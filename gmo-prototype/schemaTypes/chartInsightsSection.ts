@@ -1,6 +1,7 @@
 // schemaTypes/chartInsightsSection.ts
 import {defineType, defineField} from 'sanity'
 import {ChartBuilderInput} from '../components/ChartBuilder/ChartBuilderInput'
+import {ContentSectionInputForChartInsights} from '../components/ContentSuggestions'
 
 export const chartInsightsSection = defineType({
   name: 'chartInsightsSection',
@@ -8,6 +9,10 @@ export const chartInsightsSection = defineType({
   type: 'object',
   icon: () => '📈',
   description: 'Chart-focused layout with positionable insights panel',
+  // Add custom input component for AI content suggestions
+  components: {
+    input: ContentSectionInputForChartInsights,
+  },
   fields: [
     defineField({
       name: 'title',

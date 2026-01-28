@@ -2,11 +2,16 @@
 
 import {defineType, defineField, defineArrayMember} from 'sanity'
 import {ChartBuilderInput} from '../components/ChartBuilder/ChartBuilderInput'
+import {ContentSectionInputForContent} from '../components/ContentSuggestions'
 
 export const contentSection = defineType({
   name: 'contentSection',
   title: 'Content Section',
   type: 'object',
+  // Add custom input component for AI content suggestions
+  components: {
+    input: ContentSectionInputForContent,
+  },
   fields: [
     // CONTENT FIELDS
     defineField({

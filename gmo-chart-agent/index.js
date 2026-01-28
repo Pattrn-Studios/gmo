@@ -458,6 +458,99 @@ DO NOT include any text before or after the JSON. DO NOT wrap in markdown code b
   }
 });
 
+// Content suggestion endpoint - analyse chart and suggest content for section fields
+app.post('/api/content-suggest', async (req, res) => {
+  const { sectionType, sectionData, reportContext } = req.body;
+
+  if (!sectionType || !sectionData) {
+    return res.status(400).json({ error: 'Missing sectionType or sectionData' });
+  }
+
+  const chartConfig = sectionData.chartConfig;
+  if (!chartConfig?.chartData) {
+    return res.status(400).json({ error: 'No chart data found in section. Please add a chart first.' });
+  }
+
+  try {
+    const existingTitle = sectionData.title || '';
+    const existingSubtitle = sectionData.subtitle || '';
+    const existingInsights = sectionData.insights || [];
+
+    const prompt = `You are a content writer for AXA Investment Managers' Global Market Outlook reports.
+
+Generate professional content suggestions for a ${sectionType} based on the chart data provided.
+
+${reportContext?.reportTitle ? `REPORT CONTEXT: "${reportContext.reportTitle}"` : ''}
+
+CHART DATA (CSV format):
+${chartConfig.chartData}
+
+CHART CONFIGURATION:
+- Type: ${chartConfig.chartType || 'not specified'}
+- X-Axis: ${chartConfig.xAxisLabel || 'not specified'}
+- Y-Axis: ${chartConfig.yAxisLabel || 'not specified'}
+- Format: ${chartConfig.yAxisFormat || 'number'}
+
+EXISTING CONTENT (may be partial or empty):
+- Title: "${existingTitle}"
+- Subtitle: "${existingSubtitle}"
+${sectionType === 'chartInsightsSection' ? `- Insights: ${JSON.stringify(existingInsights)}` : ''}
+
+YOUR TASK:
+Generate compelling, professional content that:
+1. Accurately reflects the data in the chart
+2. Uses financial/investment industry language appropriate for AXA IM
+3. Highlights key trends, insights, or takeaways from the data
+4. Is concise and scannable
+
+REQUIREMENTS:
+- Title: Max 80 characters, compelling headline that references specific data insights
+- Subtitle: Max 200 characters, provides supporting context
+- Content: 3-5 bullet points as an array of strings, each highlighting a key insight from the chart data
+${sectionType === 'chartInsightsSection' ? '- Insights: 3-4 short, punchy takeaways (max 50 words each) for the insights panel' : ''}
+
+CRITICAL: Respond with ONLY valid JSON in this exact format, no other text:
+{
+  "title": {
+    "suggested": "Your suggested title here",
+    "reasoning": "Why this title works"
+  },
+  "subtitle": {
+    "suggested": "Your suggested subtitle here",
+    "reasoning": "Why this subtitle works"
+  },
+  "content": {
+    "suggested": ["Bullet point 1", "Bullet point 2", "Bullet point 3"],
+    "reasoning": "Key insights extracted from the data"
+  }${sectionType === 'chartInsightsSection' ? `,
+  "insights": {
+    "suggested": ["Insight 1", "Insight 2", "Insight 3"],
+    "reasoning": "Concise takeaways for the insights panel"
+  }` : ''}
+}
+
+DO NOT include any text before or after the JSON. DO NOT wrap in markdown code blocks.`;
+
+    const startTime = Date.now();
+    const suggestions = await callClaudeAPI(prompt);
+    const responseTimeMs = Date.now() - startTime;
+
+    res.json({
+      success: true,
+      suggestions,
+      metadata: {
+        model: 'claude-sonnet-4-20250514',
+        responseTimeMs,
+        generatedAt: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Content suggestion error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Export for Vercel
 module.exports = app;
 
