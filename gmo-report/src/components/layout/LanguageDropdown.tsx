@@ -33,7 +33,7 @@ export function LanguageDropdown() {
     <div ref={dropdownRef} className="relative">
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-tertiary transition-colors text-lg"
+        className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-tertiary transition-colors text-sm leading-[20px]"
         aria-label="Select language"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
