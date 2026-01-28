@@ -82,52 +82,36 @@ export default function FrenchPage() {
   }
 
   return (
-    <>
-      {/* Language Badge */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-        <Link
-          href="/"
-          className="px-3 py-1.5 bg-white/90 backdrop-blur-sm text-sm text-text-secondary rounded-full shadow-lg hover:bg-white transition-colors"
-        >
-          🇬🇧 English
-        </Link>
-        <div className="px-3 py-1.5 bg-brand text-white text-sm font-medium rounded-full shadow-lg flex items-center gap-1.5">
-          <span>🇫🇷</span>
-          <span>Français</span>
+    <ReportLayout report={report}>
+      {report.sections?.map((section: any, index: number) => (
+        <SectionRenderer
+          key={index}
+          section={section}
+          index={index}
+          allSections={report.sections}
+        />
+      ))}
+
+      {/* Translation Notice */}
+      <div className="max-w-3xl mx-auto px-6 py-8 my-12">
+        <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 p-6 rounded-r-lg">
+          <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
+            <span>ℹ️</span>
+            <span>Traduction automatique</span>
+          </h4>
+          <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
+            Ce rapport a été traduit automatiquement de l'anglais vers le français à l'aide
+            de l'intelligence artificielle. Bien que nous nous efforcions d'assurer l'exactitude,
+            certaines nuances peuvent différer de l'original.
+          </p>
+          <Link
+            href="/"
+            className="text-sm text-brand hover:underline font-medium"
+          >
+            Voir la version anglaise →
+          </Link>
         </div>
       </div>
-
-      <ReportLayout report={report}>
-        {report.sections?.map((section: any, index: number) => (
-          <SectionRenderer
-            key={index}
-            section={section}
-            index={index}
-            allSections={report.sections}
-          />
-        ))}
-
-        {/* Translation Notice */}
-        <div className="max-w-3xl mx-auto px-6 py-8 my-12">
-          <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 p-6 rounded-r-lg">
-            <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
-              <span>ℹ️</span>
-              <span>Traduction automatique</span>
-            </h4>
-            <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
-              Ce rapport a été traduit automatiquement de l'anglais vers le français à l'aide
-              de l'intelligence artificielle. Bien que nous nous efforcions d'assurer l'exactitude,
-              certaines nuances peuvent différer de l'original.
-            </p>
-            <Link
-              href="/"
-              className="text-sm text-brand hover:underline font-medium"
-            >
-              Voir la version anglaise →
-            </Link>
-          </div>
-        </div>
-      </ReportLayout>
-    </>
+    </ReportLayout>
   )
 }

@@ -4,6 +4,7 @@ import { ReactNode, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TableOfContents } from './TableOfContents'
 import { ThemeToggle } from './ThemeToggle'
+import { LanguageDropdown } from './LanguageDropdown'
 import { Footer } from './Footer'
 import { Report } from '@/lib/sanity'
 
@@ -106,7 +107,10 @@ export function ReportLayout({ report, children }: ReportLayoutProps) {
           <h1 className="text-lg font-semibold text-text-primary truncate">
             {report?.title || 'Report'}
           </h1>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <LanguageDropdown />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
