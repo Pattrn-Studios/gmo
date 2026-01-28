@@ -19,7 +19,7 @@ export const ViewFrenchTranslationAction: DocumentActionComponent = (props) => {
       : 'Publiez d\'abord le document pour voir la traduction',
     disabled: !published,
     onHandle: () => {
-      window.open('https://gmo-builder.vercel.app/fr', '_blank')
+      window.open('https://gmo-report.vercel.app/fr', '_blank')
     },
   }
 }

@@ -16,6 +16,15 @@
       "dest": "api/translate.js"
     },
     {
+      "src": "/api/translate-json",
+      "dest": "api/translate-json.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      }
+    },
+    {
       "src": "/api/pdf-export",
       "dest": "api/pdf-export.js",
       "headers": {
