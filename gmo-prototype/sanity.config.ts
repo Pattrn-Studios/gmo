@@ -6,6 +6,7 @@ import {EarthGlobeIcon, DownloadIcon} from '@sanity/icons'
 import type {DocumentActionComponent} from 'sanity'
 import {useState, createElement} from 'react'
 import {PowerPointReviewModal} from './components/PowerPointReview'
+import {ViewFrenchTranslationAction} from './components/ViewFrenchTranslationAction'
 
 export default defineConfig({
   name: 'default',
@@ -109,7 +110,7 @@ export default defineConfig({
           }
         }
 
-        return [...prev, ViewLiveReportAction, ExportPDFAction, ExportPowerPointAction]
+        return [...prev, ViewLiveReportAction, ViewFrenchTranslationAction, ExportPDFAction, ExportPowerPointAction]
       }
       return prev
     },

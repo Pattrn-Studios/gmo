@@ -12,6 +12,10 @@
       "dest": "api/build.js"
     },
     {
+      "src": "/fr",
+      "dest": "api/translate.js"
+    },
+    {
       "src": "/api/pdf-export",
       "dest": "api/pdf-export.js",
       "headers": {
