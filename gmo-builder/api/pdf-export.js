@@ -120,12 +120,18 @@ async function fetchReportById(reportId) {
 async function fetchImageAsBase64(url) {
   if (!url) return null;
   try {
+    console.log(`[PDF Export] Fetching image: ${url.substring(0, 80)}...`);
     const response = await fetch(url);
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.error(`[PDF Export] Image fetch HTTP ${response.status}: ${url.substring(0, 80)}`);
+      return null;
+    }
     const buffer = await response.arrayBuffer();
-    return Buffer.from(buffer).toString('base64');
+    const base64 = Buffer.from(buffer).toString('base64');
+    console.log(`[PDF Export] Image fetched OK: ${base64.length} chars base64`);
+    return base64;
   } catch (error) {
-    console.error('[PDF Export] Image fetch failed:', error.message);
+    console.error('[PDF Export] Image fetch failed:', error.message, url?.substring(0, 80));
     return null;
   }
 }
@@ -204,7 +210,17 @@ async function prefetchAllImages(sections) {
     imageMap.set(index, sectionImages);
   });
 
+  console.log(`[PDF Export] Fetching ${fetchJobs.length} images across ${sections.length} sections...`);
   await Promise.all(fetchJobs);
+
+  // Log what was collected
+  for (const [idx, images] of imageMap.entries()) {
+    const keys = Object.keys(images);
+    if (keys.length > 0) {
+      console.log(`[PDF Export] Section ${idx} (${sections[idx]?._type}): ${keys.length} images — ${keys.join(', ')}`);
+    }
+  }
+
   return imageMap;
 }
 

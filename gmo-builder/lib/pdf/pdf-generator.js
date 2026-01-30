@@ -332,6 +332,7 @@ function generateHeaderSection(doc, section, pageNumber, sectionImages) {
   doc.addPage({ size: 'A4', layout: 'landscape', margin: 0 });
 
   const theme = COLOR_THEME_MAP[section.backgroundColor] || COLOR_THEME_MAP.blue;
+  console.log(`[PDF] Header section "${section.title}" — backgroundColor: "${section.backgroundColor}" → ${theme.background}, hasImage: ${Boolean(sectionImages?.image)}`);
 
   doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT)
     .fill(theme.background);
@@ -406,11 +407,24 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
   const keyInsights = section.keyInsights || hints.keyInsights;
   const hasKeyInsights = keyInsights && keyInsights.length > 0;
 
-  // Apply themed background if specified
-  if (sectionTheme && sectionTheme !== 'default') {
+  // Resolve theme colors from COLOR_THEME_MAP (Sanity stores named colors: 'blue', 'orange', etc.)
+  const themeColors = (sectionTheme && sectionTheme !== 'none')
+    ? COLOR_THEME_MAP[sectionTheme] || null
+    : null;
+  const hasThemedBg = Boolean(themeColors);
+
+  // Apply themed background color
+  if (hasThemedBg) {
+    console.log(`[PDF] Content section "${section.title}" — applying theme: ${sectionTheme} → ${themeColors.background}`);
     doc.rect(0, 0, PAGE_WIDTH, PAGE_HEIGHT)
-      .fill(backgroundColors.secondary);
+      .fill(themeColors.background);
   }
+
+  // Pick text colors based on background
+  const titleColor = hasThemedBg ? themeColors.text : textColors.primary;
+  const bodyColor = hasThemedBg ? themeColors.text : textColors.primary;
+  const subtitleColor = hasThemedBg ? themeColors.text : textColors.secondary;
+  const sourceColor = hasThemedBg ? themeColors.text : textColors.secondary;
 
   // Calculate content width accounting for key insights sidebar
   const sidebarOffset = hasKeyInsights ? KEY_INSIGHTS_WIDTH + 20 : 0;
@@ -424,13 +438,13 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
   }
 
   // Section title
-  doc.fillColor(textColors.primary)
+  doc.fillColor(titleColor)
     .fontSize(24)
     .font('BNPPSans-CondensedBold')
     .text(section.title || '', titleX, MARGIN + 4, { width: availableContentWidth - (titleX - MARGIN) });
 
-  // Underline with theme color if applicable
-  const underlineColor = sectionTheme ? getSectionTheme(sectionTheme).background : surfaceColors.primary;
+  // Underline — use theme background color or default accent
+  const underlineColor = hasThemedBg ? themeColors.text : surfaceColors.primary;
   doc.moveTo(titleX, MARGIN + 36)
     .lineTo(titleX + 60, MARGIN + 36)
     .strokeColor(underlineColor)
@@ -440,7 +454,7 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
   // Subtitle
   let contentStartY = MARGIN + 50;
   if (section.subtitle) {
-    doc.fillColor(textColors.secondary)
+    doc.fillColor(subtitleColor)
       .fontSize(14)
       .font('BNPPSans-Light')
       .text(section.subtitle, titleX, contentStartY, { width: availableContentWidth - (titleX - MARGIN) });
@@ -464,7 +478,7 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
         fit: [leftPanelWidth - 20, 120]
       });
     } catch (e) {
-      console.warn('[PDF] Failed to render section image:', e.message);
+      console.error('[PDF] Failed to render section image:', e.message);
       leftPanelWidth = 0;
     }
   }
@@ -481,15 +495,19 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
 
   if (hasChart) {
     if (chartPosition === 'chartLeft') {
-      const chartBuffer = Buffer.from(chartImage, 'base64');
-      doc.image(chartBuffer, MARGIN, contentStartY + 20, {
-        width: chartWidth,
-        height: chartHeight,
-        fit: [chartWidth, chartHeight]
-      });
+      try {
+        const chartBuffer = Buffer.from(chartImage, 'base64');
+        doc.image(chartBuffer, MARGIN, contentStartY + 20, {
+          width: chartWidth,
+          height: chartHeight,
+          fit: [chartWidth, chartHeight]
+        });
+      } catch (e) {
+        console.error('[PDF] Failed to render chart (chartLeft):', e.message);
+      }
 
       if (section.chartSource) {
-        doc.fillColor(textColors.secondary)
+        doc.fillColor(sourceColor)
           .fontSize(9)
           .font('BNPPSans-Light')
           .text(`Source: ${section.chartSource}`, MARGIN, contentStartY + chartHeight + 30, {
@@ -497,7 +515,7 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
           });
       }
 
-      doc.fillColor(textColors.primary)
+      doc.fillColor(bodyColor)
         .fontSize(11)
         .font('BNPPSans-Light')
         .text(plainContent, MARGIN + chartWidth + 40, contentStartY + 20, {
@@ -505,7 +523,7 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
           lineGap: 4
         });
     } else if (chartPosition === 'chartFull') {
-      doc.fillColor(textColors.primary)
+      doc.fillColor(bodyColor)
         .fontSize(11)
         .font('BNPPSans-Light')
         .text(plainContent, textStartX, contentStartY + 20, {
@@ -513,15 +531,19 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
           lineGap: 4
         });
 
-      const chartBuffer = Buffer.from(chartImage, 'base64');
-      doc.image(chartBuffer, MARGIN + (availableContentWidth - chartWidth) / 2, contentStartY + 150, {
-        width: chartWidth,
-        height: chartHeight,
-        fit: [chartWidth, chartHeight]
-      });
+      try {
+        const chartBuffer = Buffer.from(chartImage, 'base64');
+        doc.image(chartBuffer, MARGIN + (availableContentWidth - chartWidth) / 2, contentStartY + 150, {
+          width: chartWidth,
+          height: chartHeight,
+          fit: [chartWidth, chartHeight]
+        });
+      } catch (e) {
+        console.error('[PDF] Failed to render chart (chartFull):', e.message);
+      }
     } else {
       // Default: Chart on right, text on left
-      doc.fillColor(textColors.primary)
+      doc.fillColor(bodyColor)
         .fontSize(11)
         .font('BNPPSans-Light')
         .text(plainContent, textStartX, contentStartY + 20, {
@@ -529,15 +551,19 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
           lineGap: 4
         });
 
-      const chartBuffer = Buffer.from(chartImage, 'base64');
-      doc.image(chartBuffer, MARGIN + textWidth + leftPanelWidth + 40, contentStartY + 20, {
-        width: chartWidth,
-        height: chartHeight,
-        fit: [chartWidth, chartHeight]
-      });
+      try {
+        const chartBuffer = Buffer.from(chartImage, 'base64');
+        doc.image(chartBuffer, MARGIN + textWidth + leftPanelWidth + 40, contentStartY + 20, {
+          width: chartWidth,
+          height: chartHeight,
+          fit: [chartWidth, chartHeight]
+        });
+      } catch (e) {
+        console.error('[PDF] Failed to render chart (chartRight):', e.message);
+      }
 
       if (section.chartSource) {
-        doc.fillColor(textColors.secondary)
+        doc.fillColor(sourceColor)
           .fontSize(9)
           .font('BNPPSans-Light')
           .text(`Source: ${section.chartSource}`, MARGIN + textWidth + leftPanelWidth + 40, contentStartY + chartHeight + 30, {
@@ -546,7 +572,7 @@ function generateContentSection(doc, section, contentIndex, chartImage, layoutHi
       }
     }
   } else {
-    doc.fillColor(textColors.primary)
+    doc.fillColor(bodyColor)
       .fontSize(11)
       .font('BNPPSans-Light')
       .text(plainContent, textStartX, contentStartY + 20, {
@@ -827,9 +853,14 @@ export async function generatePDF(report, chartImages, layoutHints = null, image
       let sectionNumber = 0; // Shared counter for contentSection + chartInsightsSection
 
       // Process all sections in document order (matching PPT behavior)
-      (report.sections || []).forEach((section, originalIndex) => {
+      const sections = report.sections || [];
+      console.log(`[PDF] Processing ${sections.length} sections: ${sections.map(s => s._type).join(', ')}`);
+
+      sections.forEach((section, originalIndex) => {
         const chartImage = chartImages?.get(originalIndex);
         const sectionImages = imageMap?.get(originalIndex) || {};
+        const imageKeys = Object.keys(sectionImages);
+        console.log(`[PDF] Section ${originalIndex}: ${section._type} "${section.title || section.heading || '(no title)'}" — chart: ${Boolean(chartImage)}, images: ${imageKeys.length > 0 ? imageKeys.join(',') : 'none'}`);
 
         switch (section._type) {
           case 'headerSection':
