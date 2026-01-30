@@ -13,7 +13,7 @@ Backend APIs for BNP Paribas Asset Management's Global Market Outlook reports.
 This module provides:
 - **French Translation API** — Claude AI-powered translation of report content, consumed by `gmo-report`
 - **HTML reports** (deprecated) — Legacy static HTML with Chart.js and GSAP
-- **PDF exports** with rendered charts via QuickChart.io
+- **PDF exports** — Full report PDFs with all 6 section types, embedded images, QuickChart.io-rendered charts, themed backgrounds, and branded footers
 
 ## Project Structure
 
@@ -72,7 +72,7 @@ Deployed on Vercel. Auto-deploys from `main` branch.
 | `/api/translate-json` | Returns French-translated report as JSON (consumed by `gmo-report`) | **Active** |
 | `/` or `/api/build` | Generates HTML report from latest Sanity data | Deprecated |
 | `/fr` | French HTML report | Deprecated |
-| `/api/pdf-export?reportId=<id>` | Exports report as PDF | Active |
+| `/api/pdf-export` (POST) | Exports report as branded PDF with all section types, images, and charts | **Active** |
 
 ## Environment Variables
 

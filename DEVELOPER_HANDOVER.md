@@ -587,16 +587,23 @@ AI review of slide designs.
 
 #### POST /api/pdf-export
 
-Generate PDF file from report.
+Generate a branded PDF document from a Sanity report. Renders all 6 section types (title, navigation, header, content, chart insights, timeline) with full image and chart support, aligned with the PowerPoint export pipeline.
 
 **Request**:
 ```json
 {
-  "reportId": "report-document-id"
+  "reportId": "report-document-id",
+  "options": {}
 }
 ```
 
-**Response**: Binary `.pdf` file download
+**Processing pipeline**:
+1. Fetches report from Sanity using a comprehensive GROQ query (all section types, images, chart configs, color themes)
+2. Pre-fetches all referenced images from Sanity CDN as base64 (company logo, section images, header images, timeline item images, navigation card images)
+3. Renders charts to PNG via QuickChart.io for `contentSection` and `chartInsightsSection`
+4. Delegates PDF assembly to `lib/pdf/pdf-generator.js` (PDFKit) with design tokens, themed section backgrounds, section number badges, and branded page footers
+
+**Response**: Binary `.pdf` file download with `Content-Disposition: attachment` header
 
 ### Sanity API
 

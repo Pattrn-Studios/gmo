@@ -772,7 +772,7 @@ The file will be named after your report title (e.g., *"Global Market Outlook �
 
 ## 19. Exporting to PDF
 
-The platform can generate a print-ready PDF of your report.
+The platform can generate a branded, print-ready PDF of your report. The PDF export covers the same sections as the PowerPoint export.
 
 ### How to Export
 
@@ -780,7 +780,18 @@ The platform can generate a print-ready PDF of your report.
 2. The button label changes to *"Generating PDF..."* while the file is being created
 3. Once ready, the PDF automatically downloads to your computer
 
-The PDF will include all sections, charts, and images from your report in a print-friendly layout.
+### What's Included
+
+The PDF renders all 6 section types from your report:
+
+- **Title page** — Report title, subtitle, and company logo
+- **Navigation / Table of Contents** — Numbered list of report sections
+- **Header sections** — Full-width divider pages with themed background colours and images
+- **Content sections** — Text, charts, and images with colour-themed backgrounds matching your chosen section theme
+- **Chart Insights sections** — Chart with an accompanying key insights panel
+- **Timeline sections** — Numbered items with images displayed in document order
+
+Charts are rendered as high-resolution images. Section background colours (blue, green, orange, brown, mint) are applied automatically based on your Sanity colour theme selection. Each page includes a branded footer with "BNP PARIBAS ASSET MANAGEMENT" and page numbers.
 
 ---
 

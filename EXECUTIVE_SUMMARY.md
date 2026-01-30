@@ -121,8 +121,11 @@ Traditional format export for existing distribution channels.
 - Maintains template colours and fonts
 
 **PDF Export:**
-- Print-ready PDF generation
-- Preserves all charts and formatting
+- Print-ready PDF generation with all 6 section types (aligned with PowerPoint export)
+- Embeds images (company logo, section images, timeline item images) from Sanity CDN
+- Renders charts as high-resolution PNGs via QuickChart.io
+- Applies colour-themed section backgrounds from Sanity colour theme selections
+- Branded page footers with page numbering
 
 ### 2.7 AI Design Review
 
