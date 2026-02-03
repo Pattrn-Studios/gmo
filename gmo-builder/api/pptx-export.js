@@ -144,6 +144,15 @@ function isDarkBackground(hexColor) {
 // CHART IMAGE RENDERING (via QuickChart.io)
 // ============================================================================
 
+/**
+ * Downsample chart data to reduce label density for PowerPoint rendering.
+ * Preserves first and last data points for context.
+ *
+ * @param {string[]} labels - Array of x-axis labels
+ * @param {Object[]} datasets - Array of Chart.js dataset objects
+ * @param {number} [maxLabels=100] - Maximum number of labels to retain
+ * @returns {{labels: string[], datasets: Object[]}} Downsampled chart data
+ */
 function downsampleChartData(labels, datasets, maxLabels = 100) {
   if (labels.length <= maxLabels) return { labels, datasets };
   const step = Math.ceil(labels.length / maxLabels);
@@ -158,6 +167,16 @@ function downsampleChartData(labels, datasets, maxLabels = 100) {
   };
 }
 
+/**
+ * Render a chart section to a PNG image via QuickChart.io API.
+ *
+ * @param {Object} section - Sanity section object containing chart configuration
+ * @param {Object} [options={}] - Rendering options
+ * @param {number} [options.width=800] - Image width in pixels
+ * @param {number} [options.height=500] - Image height in pixels
+ * @param {boolean} [options.darkMode=false] - Use dark mode color scheme
+ * @returns {Promise<string|null>} Base64-encoded PNG data URL, or null on failure
+ */
 async function renderChartToPNG(section, options = {}) {
   const { width = 800, height = 500, darkMode = false } = options;
 
@@ -212,6 +231,12 @@ async function renderChartToPNG(section, options = {}) {
 // IMAGE FETCHING
 // ============================================================================
 
+/**
+ * Fetch an image from a URL and convert to base64 data URL.
+ *
+ * @param {string} url - The image URL to fetch
+ * @returns {Promise<string|null>} Base64-encoded data URL, or null on failure
+ */
 async function fetchImageAsBase64(url) {
   if (!url) return null;
   try {
@@ -231,6 +256,13 @@ async function fetchImageAsBase64(url) {
 // PORTABLE TEXT CONVERSION
 // ============================================================================
 
+/**
+ * Convert Sanity Portable Text blocks to an array of plain text lines.
+ * Strips all formatting and returns text content only.
+ *
+ * @param {Object[]} blocks - Sanity Portable Text block array
+ * @returns {string[]} Array of text lines (empty lines filtered out)
+ */
 function portableTextToLines(blocks) {
   if (!blocks || !Array.isArray(blocks)) return [];
   return blocks
@@ -847,6 +879,23 @@ function sanitizeFilename(name) {
 // API HANDLER
 // ============================================================================
 
+/**
+ * Vercel API handler for PowerPoint export.
+ *
+ * POST /api/pptx-export
+ *
+ * Request body:
+ * @param {string} reportId - Sanity document ID of the report to export
+ * @param {Object[]} [suggestions=[]] - Optional AI design suggestions to apply
+ *
+ * Response:
+ * - Success: Returns .pptx file as binary download
+ * - Error: Returns JSON with error message
+ *
+ * @param {Object} req - Vercel request object
+ * @param {Object} res - Vercel response object
+ * @returns {Promise<void>}
+ */
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');

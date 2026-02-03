@@ -117,6 +117,12 @@ async function fetchReportById(reportId) {
 // IMAGE FETCHING
 // ============================================================================
 
+/**
+ * Fetch an image from a URL and convert to base64 string.
+ *
+ * @param {string} url - The image URL to fetch
+ * @returns {Promise<string|null>} Base64-encoded image data (without data URL prefix), or null on failure
+ */
 async function fetchImageAsBase64(url) {
   if (!url) return null;
   try {
@@ -228,6 +234,15 @@ async function prefetchAllImages(sections) {
 // CHART RENDERING (via QuickChart.io)
 // ============================================================================
 
+/**
+ * Downsample chart data to reduce label density for PDF rendering.
+ * Preserves first and last data points for context.
+ *
+ * @param {string[]} labels - Array of x-axis labels
+ * @param {Object[]} datasets - Array of Chart.js dataset objects
+ * @param {number} [maxLabels=100] - Maximum number of labels to retain
+ * @returns {{labels: string[], datasets: Object[]}} Downsampled chart data
+ */
 function downsampleChartData(labels, datasets, maxLabels = 100) {
   if (labels.length <= maxLabels) return { labels, datasets };
   const step = Math.ceil(labels.length / maxLabels);
@@ -260,6 +275,15 @@ function flattenChartFields(section) {
   };
 }
 
+/**
+ * Render a chart section to PNG image via QuickChart.io API.
+ *
+ * @param {Object} section - Sanity section object containing chart configuration
+ * @param {Object} [options={}] - Rendering options
+ * @param {number} [options.width=700] - Image width in pixels
+ * @param {number} [options.height=400] - Image height in pixels
+ * @returns {Promise<string|null>} Base64-encoded PNG data, or null on failure
+ */
 async function renderChartToPNG(section, options = {}) {
   const { width = 700, height = 400 } = options;
 
@@ -392,6 +416,22 @@ function sanitizeFilename(name) {
 // API HANDLER
 // ============================================================================
 
+/**
+ * Vercel API handler for PDF export.
+ *
+ * POST /api/pdf-export
+ *
+ * Request body:
+ * @param {string} reportId - Sanity document ID of the report to export
+ *
+ * Response:
+ * - Success: Returns PDF file as binary download
+ * - Error: Returns JSON with error message
+ *
+ * @param {Object} req - Vercel request object
+ * @param {Object} res - Vercel response object
+ * @returns {Promise<void>}
+ */
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');

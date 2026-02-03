@@ -1,8 +1,23 @@
 /**
- * HTML Generator for GMO Reports
+ * @deprecated This HTML generator is DEPRECATED as of January 2026.
  *
- * Shared HTML generation functions extracted from build.js.
- * Supports parameterized language options for French translation.
+ * The standalone HTML report viewer has been replaced by the Next.js application
+ * in gmo-report/. Use gmo-report for all report viewing functionality.
+ *
+ * This file is retained for:
+ * - Legacy compatibility with existing build pipelines
+ * - Reference for portable text conversion utilities
+ * - The COLOR_THEME_MAP export (still used by other modules)
+ *
+ * DO NOT extend this file with new features. New functionality should be
+ * added to gmo-report/src/components/ instead.
+ *
+ * @see gmo-report/README.md for the current viewer architecture
+ * @see DEVELOPER_HANDOVER.md for migration guidance
+ *
+ * Original purpose:
+ * HTML Generator for GMO Reports - Shared HTML generation functions extracted
+ * from build.js. Supports parameterized language options for French translation.
  */
 
 import { GMO_COLORS, generateCSSVariablesString } from './design-tokens/index.js';

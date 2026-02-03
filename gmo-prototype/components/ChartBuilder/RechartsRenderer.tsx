@@ -1,3 +1,26 @@
+/**
+ * RechartsRenderer - Universal chart rendering component
+ *
+ * IMPORTANT: This file is intentionally duplicated in two locations:
+ * - gmo-prototype/components/ChartBuilder/RechartsRenderer.tsx (this file - for Sanity Studio preview)
+ * - gmo-report/src/components/charts/RechartsRenderer.tsx (canonical version - for production viewer)
+ *
+ * The gmo-report version is the CANONICAL source. When making changes:
+ * 1. Update gmo-report/src/components/charts/RechartsRenderer.tsx first
+ * 2. Copy the changes to this file
+ * 3. Ensure both files remain in sync
+ *
+ * This duplication exists because:
+ * - gmo-prototype (Sanity Studio) needs chart preview in the CMS
+ * - gmo-report (Next.js viewer) needs chart rendering for the live report
+ * - Both have different build systems that don't easily share code
+ *
+ * Future improvement: Extract to a shared npm package (@gmo/charts)
+ *
+ * Supports 14 chart types: line, column, bar, area, stackedColumn, stackedArea,
+ * pie, donut, scatter, radar, composed, waterfall, gauge, treemap, heatmap
+ */
+
 import React, {useMemo} from 'react'
 import {
   LineChart,

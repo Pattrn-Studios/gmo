@@ -1,3 +1,20 @@
+/**
+ * RechartsRenderer - Universal chart rendering component (CANONICAL VERSION)
+ *
+ * This is the CANONICAL source for RechartsRenderer. A copy exists at:
+ * - gmo-prototype/components/ChartBuilder/RechartsRenderer.tsx (for Sanity Studio preview)
+ *
+ * When making changes to chart rendering:
+ * 1. Update THIS file first
+ * 2. Copy changes to gmo-prototype/components/ChartBuilder/RechartsRenderer.tsx
+ * 3. Test in both the Next.js viewer and Sanity Studio
+ *
+ * Supports 14 chart types: line, column, bar, area, stackedColumn, stackedArea,
+ * pie, donut, scatter, radar, composed, waterfall, gauge, treemap, heatmap
+ *
+ * @see DESIGN_TOKENS.md for color palette documentation
+ */
+
 import React, {useMemo} from 'react'
 import {
   LineChart,
