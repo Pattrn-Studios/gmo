@@ -126,9 +126,25 @@ export function ContentSection({
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className={`chart-wrapper lg:sticky lg:top-6 ${chartOnLeft ? 'order-1' : 'order-2'}`}
+              className={`chart-wrapper lg:sticky lg:top-6 ${chartOnLeft ? 'order-1' : 'order-2'} relative`}
               style={{ minHeight: '400px' }}
             >
+              {/* Chart Date - Top Right */}
+              {chartDate && (
+                <p
+                  className="absolute top-4 right-4 text-xs z-10"
+                  style={{
+                    color: hasColorTheme ? theme.text : 'var(--color-text-secondary)',
+                    opacity: hasColorTheme ? 0.7 : 0.8,
+                  }}
+                >
+                  Data as of {new Date(chartDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              )}
               <RechartsRenderer
                 chartType={(chartType || 'line') as ChartType}
                 data={parsedData}
@@ -139,21 +155,6 @@ export function ContentSection({
                 gaugeMax={gaugeMax}
                 height={380}
               />
-              {chartDate && (
-                <p
-                  className="text-sm mt-2"
-                  style={{
-                    color: hasColorTheme ? theme.text : 'var(--color-text-secondary)',
-                    opacity: hasColorTheme ? 0.8 : 1,
-                  }}
-                >
-                  Data as of {new Date(chartDate).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
-              )}
               {chartSource && (
                 <p
                   className="text-sm mt-4 italic"

@@ -50,6 +50,7 @@ export async function getLatestReport() {
         "yAxisFormat": chartConfig.yAxisFormat,
         "gaugeMax": chartConfig.gaugeMax,
         chartSource,
+        chartDate,
         layout
       },
 
