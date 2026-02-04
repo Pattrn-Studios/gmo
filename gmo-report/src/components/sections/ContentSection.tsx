@@ -18,6 +18,7 @@ interface ContentSectionProps {
   yAxisFormat?: 'number' | 'percent' | 'currency'
   gaugeMax?: number
   chartSource?: string
+  chartDate?: string
   layout?: string
   colorTheme?: string
   sectionImage?: string
@@ -47,6 +48,7 @@ export function ContentSection({
   yAxisFormat,
   gaugeMax,
   chartSource,
+  chartDate,
   layout = 'chartFull',
   colorTheme = 'none',
   sectionImage,
@@ -137,6 +139,21 @@ export function ContentSection({
                 gaugeMax={gaugeMax}
                 height={380}
               />
+              {chartDate && (
+                <p
+                  className="text-sm mt-2"
+                  style={{
+                    color: hasColorTheme ? theme.text : 'var(--color-text-secondary)',
+                    opacity: hasColorTheme ? 0.8 : 1,
+                  }}
+                >
+                  Data as of {new Date(chartDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              )}
               {chartSource && (
                 <p
                   className="text-sm mt-4 italic"

@@ -128,6 +128,15 @@ export const contentSection = defineType({
       hidden: ({parent}: any) => !parent?.hasChart,
     }),
 
+    defineField({
+      name: 'chartDate',
+      title: 'Chart Date',
+      type: 'date',
+      description: 'Date of chart data (e.g., when the data was collected or published)',
+      hidden: ({parent}: any) => !parent?.hasChart,
+      initialValue: () => new Date().toISOString().split('T')[0],
+    }),
+
     // LAYOUT (Remains separate - user choice after chart creation)
     defineField({
       name: 'layout',
