@@ -103,11 +103,19 @@ export function ReportLayout({ report, children }: ReportLayoutProps) {
           ${isHeaderVisible ? 'top-1' : '-translate-y-full'}
         `}
       >
-        <div className="container py-3 flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-text-primary truncate">
-            {report?.title || 'Report'}
-          </h1>
-          <div className="flex items-center gap-2">
+        <div className="container py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <img
+              src="/bnp-paribas-asset-management-logo.webp"
+              alt="BNP Paribas Asset Management"
+              className="h-8 sm:h-10 w-auto object-contain flex-shrink-0 dark-invert"
+            />
+            <div className="hidden sm:block w-px h-8 bg-line-default flex-shrink-0" />
+            <h1 className="hidden sm:block text-lg font-semibold text-text-primary truncate">
+              {report?.title || 'Report'}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
             <LanguageDropdown />
             <ThemeToggle />
           </div>
@@ -115,12 +123,12 @@ export function ReportLayout({ report, children }: ReportLayoutProps) {
       </header>
 
       {/* Main content with sidebar */}
-      <div className="flex pt-14">
+      <div className="flex pt-20">
         {/* Sidebar - hidden on mobile, collapsible on desktop */}
         <aside
           className={`
-            hidden lg:block fixed left-0 top-14
-            h-[calc(100vh-3.5rem)] overflow-y-auto overflow-x-hidden
+            hidden lg:block fixed left-0 top-20
+            h-[calc(100vh-5rem)] overflow-y-auto overflow-x-hidden
             border-r border-line-default bg-bg-primary
             transition-all duration-300 ease-in-out
             ${isSidebarExpanded ? 'w-72' : 'w-16'}

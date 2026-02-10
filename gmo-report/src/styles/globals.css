@@ -111,6 +111,11 @@
   border-color: var(--color-line-strong);
 }
 
+/* Dark mode logo inversion */
+[data-theme="dark"] .dark-invert {
+  filter: brightness(0) invert(1);
+}
+
 /* Base styles */
 * {
   margin: 0;
